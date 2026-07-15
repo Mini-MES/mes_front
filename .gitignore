@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Temporary outputs
+.eslintcache
+.gemini/
+vite.config.ts.timestamp-*
+*.tsbuildinfo
+pnpm-lock.yaml.log

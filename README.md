@@ -9,7 +9,7 @@
 
 ---
 
-## 💻 Tech Stack & Design System
+## Tech Stack & Design System
 * **Core**: React 19, TypeScript 5+ (Strict Type Checking)
 * **Styling**: `styled-components` (Theme-driven, CSS-in-JS)
 * **Icons**: `lucide-react`
