@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { parseJwt, isTokenExpired  } from '@/utils/ParseJWT';
 
 export interface RawMaterial {
   productID: string;
@@ -51,22 +52,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const processStages = ['CNC선삭', 'CNC밀링', '열처리', '연삭', '세척', '최종 검사', '출하'];
 
-// JWT 디코더 헬퍼
-const parseJwt = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      window.atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    return null;
-  }
-};
+
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [userRole, setUserRole] = useState<UserRole>('admin');
@@ -102,8 +88,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // 3. 최초 진입 시 토큰 자동 복구
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
-    if (savedToken) {
+    if (savedToken && !isTokenExpired(savedToken)) {
       login(savedToken);
+    } else {
+      localStorage.removeItem('token');
     }
   }, []);
 
