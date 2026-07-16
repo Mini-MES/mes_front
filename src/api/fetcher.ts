@@ -17,5 +17,13 @@ export const customFetch = async (endpoint: string, options: RequestInit = {}) =
   }
 
   if (response.status === 204) return null;
+
+    if(response.status === 401) {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
+
   return response.json();
+
+
 };
