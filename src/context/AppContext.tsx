@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { parseJwt, isTokenExpired  } from '@/utils/ParseJWT';
 import { customFetch } from '@/api/fetcher';
 
 export interface RawMaterial {
@@ -53,30 +52,28 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const processStages = ['CNC선삭', 'CNC밀링', '열처리', '연삭', '세척', '최종 검사', '출하'];
 
-
-
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [userRole, setUserRole] = useState<UserRole>('admin');
   const [currentUser, setCurrentUser] = useState<CurrentUser>({ name: '미인증', id: '' });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // 1. 토큰 기반 로그인 세션 세팅
-  const login = async(): Promise<boolean> => {
-    try{
+  // 1. 비동기 프로필 조회를 통한 로그인 세션 세팅
+  const login = async (): Promise<boolean> => {
+    try {
       const userData = await customFetch('/Auth/check');
-      if(userData) {
+      if (userData) {
         setCurrentUser({ name: userData.name, id: userData.id });
         setUserRole(userData.role.toLowerCase() === 'admin' ? 'admin' : 'worker');
         setIsAuthenticated(true);
         return true;
       }
       return false;
-    }
-    catch(error) {
-      console.error('로그인 세션 설정 중 오류:', error);
+    } catch (error) {
+      console.error('인증 상태 확인 중 오류:', error);
+      logout();
       return false;
     }
-  }
+  };
 
   // 2. 로그아웃 세션 클리어
   const logout = () => {
@@ -87,20 +84,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // 3. 최초 진입 시 토큰 자동 복구
   useEffect(() => {
-    const checkAuthState = async() => {
-      try {
-        const userData = await customFetch('/Auth/check');
-        if(userData) {
-          setCurrentUser({ name: userData.name, id: userData.id });
-          setUserRole(userData.role.toLowerCase() === 'admin' ? 'admin' : 'worker');
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error('인증 상태 확인 중 오류:', error);
-        logout();
-      }
-    };
-    checkAuthState();
+    login();
   }, []);
 
   return (

@@ -16,7 +16,7 @@ import {
   InputField,
   ErrorText,
   SubmitBtn
-} from './Login.styles';
+} from '@/pages/login/Login.styles';
 import { LoadingSpinner } from '@/components/common/Spinner';
 
 export default function Login() {
@@ -44,10 +44,10 @@ export default function Login() {
         method: 'POST',
         body: JSON.stringify(credentials),
       }),
-    onSuccess: async() => {
+    onSuccess: async () => {
       const success = await login();
       if (!success) {
-        setErrorMessage('로그인에 실패했습니다.');
+        setErrorMessage('로그인 정보를 불러오는 데 실패했습니다.');
       }
     },
     onError: (error: any) => {
