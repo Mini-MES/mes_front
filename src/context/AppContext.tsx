@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface RawMaterial {
   productID: string;
@@ -44,7 +44,6 @@ interface AppContextType {
   isAuthenticated: boolean;
   login: (token: string) => void;
   logout: () => void;
-  switchRole: (role: UserRole) => void;
   processStages: string[];
 }
 
@@ -100,12 +99,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(false);
   };
 
-  // 3. 역할 토글 (로컬 스위칭용)
-  const switchRole = (role: UserRole) => {
-    setUserRole(role);
-  };
-
-  // 4. 최초 진입 시 토큰 자동 복구
+  // 3. 최초 진입 시 토큰 자동 복구
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
@@ -120,7 +114,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated,
       login,
       logout,
-      switchRole,
       processStages
     }}>
       {children}

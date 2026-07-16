@@ -46,7 +46,6 @@ const Login: React.FC = () => {
     onSuccess: (data) => {
       if (data && data.token) {
         login(data.token);
-        alert('로그인에 성공했습니다.');
       } else {
         setErrorMessage('올바르지 않은 응답 데이터입니다.');
       }
