@@ -14,7 +14,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: 3,
     },
   },
 });
@@ -22,10 +22,9 @@ const queryClient = new QueryClient({
 // 로그인 보호 라우트 가드
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useApp();
-  const token = localStorage.getItem('token');
 
   // 토큰이 있거나 상태 인증이 완료된 경우 렌더링, 아닐 시 로그인 페이지로
-  if (!isAuthenticated && !token) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return <>{children}</>;

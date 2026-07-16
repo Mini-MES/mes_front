@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { customFetch } from '@/api/fetcher';
 
 export interface RawMaterial {
   productID: string;
@@ -42,9 +43,8 @@ interface AppContextType {
   userRole: UserRole;
   currentUser: CurrentUser;
   isAuthenticated: boolean;
-  login: (token: string) => void;
+  login: () => Promise<boolean>;
   logout: () => void;
-  switchRole: (role: UserRole) => void;
   processStages: string[];
 }
 
@@ -52,65 +52,39 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const processStages = ['CNC선삭', 'CNC밀링', '열처리', '연삭', '세척', '최종 검사', '출하'];
 
-// JWT 디코더 헬퍼
-const parseJwt = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      window.atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    return null;
-  }
-};
-
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [userRole, setUserRole] = useState<UserRole>('admin');
   const [currentUser, setCurrentUser] = useState<CurrentUser>({ name: '미인증', id: '' });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // 1. 토큰 기반 로그인 세션 세팅
-  const login = (token: string) => {
-    localStorage.setItem('token', token);
-    const payload = parseJwt(token);
-    if (payload) {
-      // JWT Claim 파싱
-      const name = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || payload["unique_name"] || "사용자";
-      const id = payload["nameid"] || payload["sub"] || "";
-      const rawRole = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload["role"] || "Worker";
-      
-      const mappedRole: UserRole = rawRole.toLowerCase() === 'admin' ? 'admin' : 'worker';
-
-      setCurrentUser({ name, id });
-      setUserRole(mappedRole);
-      setIsAuthenticated(true);
+  // 1. 비동기 프로필 조회를 통한 로그인 세션 세팅
+  const login = async (): Promise<boolean> => {
+    try {
+      const userData = await customFetch('/Auth/check');
+      if (userData) {
+        setCurrentUser({ name: userData.name, id: userData.id });
+        setUserRole(userData.role.toLowerCase() === 'admin' ? 'admin' : 'worker');
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('인증 상태 확인 중 오류:', error);
+      logout();
+      return false;
     }
   };
 
   // 2. 로그아웃 세션 클리어
   const logout = () => {
-    localStorage.removeItem('token');
     setCurrentUser({ name: '미인증', id: '' });
     setUserRole('worker');
     setIsAuthenticated(false);
   };
 
-  // 3. 역할 토글 (로컬 스위칭용)
-  const switchRole = (role: UserRole) => {
-    setUserRole(role);
-  };
-
-  // 4. 최초 진입 시 토큰 자동 복구
+  // 3. 최초 진입 시 토큰 자동 복구
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    if (savedToken) {
-      login(savedToken);
-    }
+    login();
   }, []);
 
   return (
@@ -120,7 +94,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated,
       login,
       logout,
-      switchRole,
       processStages
     }}>
       {children}

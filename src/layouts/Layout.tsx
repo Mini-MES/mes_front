@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
-import { Shield, User, RefreshCw, LogOut } from 'lucide-react';
+import { Shield, User, LogOut } from 'lucide-react';
 import { 
   AppContainer, 
   MainHeader, 
@@ -11,24 +11,13 @@ import {
   HeaderControls, 
   UserInfo, 
   RoleBadge, 
-  ToggleButton, 
   LogoutButton,
   Main 
 } from '@/layouts/Layout.styles';
 
 const Layout: React.FC = () => {
-  const { userRole, currentUser, logout, switchRole } = useApp();
+  const { userRole, currentUser, logout } = useApp();
   const navigate = useNavigate();
-
-  const handleRoleToggle = () => {
-    const nextRole = userRole === 'admin' ? 'worker' : 'admin';
-    switchRole(nextRole);
-    if (nextRole === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/worker');
-    }
-  };
 
   const handleLogout = () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
@@ -57,12 +46,6 @@ const Layout: React.FC = () => {
             </RoleBadge>
             <span style={{ fontWeight: 500 }}>{currentUser.name} ({currentUser.id})</span>
           </UserInfo>
-
-          <ToggleButton onClick={handleRoleToggle}>
-            <RefreshCw size={14} />
-            {userRole === 'admin' ? '작업자 화면으로 전환' : '관리자 화면으로 전환'}
-          </ToggleButton>
-
           <LogoutButton onClick={handleLogout}>
             <LogOut size={14} />
             로그아웃

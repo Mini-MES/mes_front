@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Factory, AlertCircle } from 'lucide-react';
@@ -16,9 +16,10 @@ import {
   InputField,
   ErrorText,
   SubmitBtn
-} from './Login.styles';
+} from '@/pages/login/Login.styles';
+import { LoadingSpinner } from '@/components/common/Spinner';
 
-const Login: React.FC = () => {
+export default function Login() {
   const { login, isAuthenticated, userRole } = useApp();
   const navigate = useNavigate();
   const [userID, setUserID] = useState('');
@@ -26,12 +27,12 @@ const Login: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   // 로그인 성공 시 세션 복구 및 리다이렉트
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       if (userRole === 'admin') {
-        navigate('/admin');
+        navigate('/admin', {replace : true});
       } else {
-        navigate('/worker');
+        navigate('/worker', {replace : true});
       }
     }
   }, [isAuthenticated, userRole, navigate]);
@@ -43,12 +44,10 @@ const Login: React.FC = () => {
         method: 'POST',
         body: JSON.stringify(credentials),
       }),
-    onSuccess: (data) => {
-      if (data && data.token) {
-        login(data.token);
-        alert('로그인에 성공했습니다.');
-      } else {
-        setErrorMessage('올바르지 않은 응답 데이터입니다.');
+    onSuccess: async () => {
+      const success = await login();
+      if (!success) {
+        setErrorMessage('로그인 정보를 불러오는 데 실패했습니다.');
       }
     },
     onError: (error: any) => {
@@ -70,6 +69,10 @@ const Login: React.FC = () => {
       password,
     });
   };
+
+  if(isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <LoginContainer>
@@ -120,5 +123,3 @@ const Login: React.FC = () => {
     </LoginContainer>
   );
 };
-
-export default Login;
