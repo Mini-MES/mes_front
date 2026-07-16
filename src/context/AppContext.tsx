@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { parseJwt, isTokenExpired  } from '@/utils/ParseJWT';
+import { customFetch } from '@/api/fetcher';
 
 export interface RawMaterial {
   productID: string;
@@ -61,7 +62,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // 1. 토큰 기반 로그인 세션 세팅
   const login = (token: string) => {
-    localStorage.setItem('token', token);
     const payload = parseJwt(token);
     if (payload) {
       // JWT Claim 파싱
@@ -79,7 +79,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // 2. 로그아웃 세션 클리어
   const logout = () => {
-    localStorage.removeItem('token');
     setCurrentUser({ name: '미인증', id: '' });
     setUserRole('worker');
     setIsAuthenticated(false);
@@ -87,12 +86,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // 3. 최초 진입 시 토큰 자동 복구
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    if (savedToken && !isTokenExpired(savedToken)) {
-      login(savedToken);
-    } else {
-      localStorage.removeItem('token');
-    }
+    const checkAuthState = async() => {
+      try {
+        const userData = await customFetch('/Auth/check');
+        if(userData) {
+          setCurrentUser({ name: userData.name, id: userData.id });
+          setUserRole(userData.role.toLowerCase() === 'admin' ? 'admin' : 'worker');
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('인증 상태 확인 중 오류:', error);
+        logout();
+      }
+    };
+    checkAuthState();
   }, []);
 
   return (

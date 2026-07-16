@@ -1,16 +1,20 @@
 const BASE_URL = import.meta.env.VITE_API_URL;
 export const customFetch = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
     headers,
+    credentials: 'include',
   });
+
+  if(response.status === 401) {
+    window.location.href = '/login';
+    throw new Error('인증이 만료되었습니다. 다시 로그인해주세요.');
+  }
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
@@ -18,10 +22,7 @@ export const customFetch = async (endpoint: string, options: RequestInit = {}) =
 
   if (response.status === 204) return null;
 
-    if(response.status === 401) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  }
+
 
   return response.json();
 
