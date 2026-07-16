@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Factory, AlertCircle } from 'lucide-react';
@@ -17,8 +17,9 @@ import {
   ErrorText,
   SubmitBtn
 } from './Login.styles';
+import { LoadingSpinner } from '@/components/common/Spinner';
 
-const Login: React.FC = () => {
+export default function Login() {
   const { login, isAuthenticated, userRole } = useApp();
   const navigate = useNavigate();
   const [userID, setUserID] = useState('');
@@ -26,12 +27,12 @@ const Login: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   // 로그인 성공 시 세션 복구 및 리다이렉트
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       if (userRole === 'admin') {
-        navigate('/admin');
+        navigate('/admin', {replace : true});
       } else {
-        navigate('/worker');
+        navigate('/worker', {replace : true});
       }
     }
   }, [isAuthenticated, userRole, navigate]);
@@ -69,6 +70,10 @@ const Login: React.FC = () => {
       password,
     });
   };
+
+  if(isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <LoginContainer>
@@ -119,5 +124,3 @@ const Login: React.FC = () => {
     </LoginContainer>
   );
 };
-
-export default Login;
