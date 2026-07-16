@@ -44,11 +44,10 @@ export default function Login() {
         method: 'POST',
         body: JSON.stringify(credentials),
       }),
-    onSuccess: (data) => {
-      if (data && data.token) {
-        login(data.token);
-      } else {
-        setErrorMessage('올바르지 않은 응답 데이터입니다.');
+    onSuccess: async() => {
+      const success = await login();
+      if (!success) {
+        setErrorMessage('로그인에 실패했습니다.');
       }
     },
     onError: (error: any) => {

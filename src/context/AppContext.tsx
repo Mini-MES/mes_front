@@ -44,7 +44,7 @@ interface AppContextType {
   userRole: UserRole;
   currentUser: CurrentUser;
   isAuthenticated: boolean;
-  login: (token: string) => void;
+  login: () => Promise<boolean>;
   logout: () => void;
   processStages: string[];
 }
@@ -61,21 +61,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   // 1. 토큰 기반 로그인 세션 세팅
-  const login = (token: string) => {
-    const payload = parseJwt(token);
-    if (payload) {
-      // JWT Claim 파싱
-      const name = payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || payload["unique_name"] || "사용자";
-      const id = payload["nameid"] || payload["sub"] || "";
-      const rawRole = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || payload["role"] || "Worker";
-      
-      const mappedRole: UserRole = rawRole.toLowerCase() === 'admin' ? 'admin' : 'worker';
-
-      setCurrentUser({ name, id });
-      setUserRole(mappedRole);
-      setIsAuthenticated(true);
+  const login = async(): Promise<boolean> => {
+    try{
+      const userData = await customFetch('/Auth/check');
+      if(userData) {
+        setCurrentUser({ name: userData.name, id: userData.id });
+        setUserRole(userData.role.toLowerCase() === 'admin' ? 'admin' : 'worker');
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
     }
-  };
+    catch(error) {
+      console.error('로그인 세션 설정 중 오류:', error);
+      return false;
+    }
+  }
 
   // 2. 로그아웃 세션 클리어
   const logout = () => {
