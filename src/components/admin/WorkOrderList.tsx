@@ -7,14 +7,25 @@ import {
   CustomTable,
   ProgressBarContainer,
   ProgressBarFill,
-  StatusBadge
+  StatusBadge,
+  ActionButton
 } from './WorkOrderList.styles';
 
 interface WorkOrderListProps {
   workOrders: WorkOrder[];
+  products?: any[];
+  onStartOrder?: (orderID: number) => void;
+  onCompleteOrder?: (orderID: number) => void;
+  onDeleteOrder?: (orderID: number) => void;
 }
 
-const WorkOrderList: React.FC<WorkOrderListProps> = ({ workOrders }) => {
+export const WorkOrderList: React.FC<WorkOrderListProps> = ({ 
+  workOrders, 
+  products = [],
+  onStartOrder, 
+  onCompleteOrder, 
+  onDeleteOrder 
+}) => {
   return (
     <GlassCard>
       <CardTitle>
@@ -31,6 +42,7 @@ const WorkOrderList: React.FC<WorkOrderListProps> = ({ workOrders }) => {
               <th>생산수량</th>
               <th>진척도</th>
               <th>상태</th>
+              <th style={{ textAlign: 'center' }}>제어</th>
             </tr>
           </thead>
           <tbody>
@@ -39,10 +51,14 @@ const WorkOrderList: React.FC<WorkOrderListProps> = ({ workOrders }) => {
               const isCompleted = order.status === 'Completed';
               const isProcessing = order.status === 'InProgress';
               
+              // productID에 대응하는 실제 제품명(productName) 검색
+              const matchedProduct = products.find(p => p.productID === order.productID);
+              const displayName = matchedProduct ? matchedProduct.productName : order.productID;
+              
               return (
                 <tr key={order.orderID}>
                   <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 500 }}>{order.orderID}</td>
-                  <td style={{ fontWeight: 600 }}>{order.productID}</td>
+                  <td style={{ fontWeight: 600 }}>{displayName}</td>
                   <td>{order.targetQty}</td>
                   <td>{order.totalGoodQty}</td>
                   <td style={{ width: '150px' }}>
@@ -58,6 +74,32 @@ const WorkOrderList: React.FC<WorkOrderListProps> = ({ workOrders }) => {
                       {isCompleted ? '완료' : isProcessing ? '진행중' : '대기'}
                     </StatusBadge>
                   </td>
+                  <td style={{ width: '130px', textAlign: 'center' }}>
+                    {order.status === 'Created' && (
+                      <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'center' }}>
+                        <ActionButton className="start" onClick={() => onStartOrder?.(order.orderID)}>
+                          시작
+                        </ActionButton>
+                        <ActionButton className="delete" onClick={() => {
+                          if (confirm(`지시번호 [${order.orderID}]를 삭제하시겠습니까?`)) {
+                            onDeleteOrder?.(order.orderID);
+                          }
+                        }}>
+                          삭제
+                        </ActionButton>
+                      </div>
+                    )}
+                    {isProcessing && (
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <ActionButton className="complete" onClick={() => onCompleteOrder?.(order.orderID)}>
+                          완료
+                        </ActionButton>
+                      </div>
+                    )}
+                    {isCompleted && (
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>-</span>
+                    )}
+                  </td>
                 </tr>
               );
             })}
@@ -68,4 +110,3 @@ const WorkOrderList: React.FC<WorkOrderListProps> = ({ workOrders }) => {
   );
 };
 
-export default WorkOrderList;

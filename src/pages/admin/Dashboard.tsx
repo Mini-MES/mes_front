@@ -8,8 +8,8 @@ import { DashboardContent, TitleSection, AdminGrid } from '@/pages/admin/Dashboa
 
 // 분리된 하위 컴포넌트 임포트
 import RawMaterialStatus from '@/components/admin/RawMaterialStatus';
-import WorkOrderList from '@/components/admin/WorkOrderList';
-import WorkOrderForm from '@/components/admin/WorkOrderForm';
+import {WorkOrderList} from '@/components/admin/WorkOrderList';
+import {WorkOrderForm} from '@/components/admin/WorkOrderForm';
 import LotProcessTracker from '@/components/admin/LotProcessTracker';
 
 const Dashboard: React.FC = () => {
@@ -54,6 +54,57 @@ const Dashboard: React.FC = () => {
     }
   });
 
+  // 생산 시작 Mutation
+  const startOrderMutation = useMutation({
+    mutationFn: (orderId: number) => 
+      customFetch(`/Production/start/${orderId}`, {
+        method: 'POST',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
+      alert('생산이 시작되었습니다. 작업지시 상태가 변경되고 새로운 LOT가 활성화되었습니다.');
+    },
+    onError: (err: any) => {
+      alert(`생산 시작 실패: ${err.message}`);
+    }
+  });
+
+  // 생산 완료 Mutation
+  const completeOrderMutation = useMutation({
+    mutationFn: (orderId: number) => 
+      customFetch(`/Production/complete/${orderId}`, {
+        method: 'POST',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
+      alert('생산이 완료되었습니다.');
+    },
+    onError: (err: any) => {
+      alert(`생산 완료 실패: ${err.message}`);
+    }
+  });
+
+  // 생산 지시 삭제 Mutation
+  const deleteOrderMutation = useMutation({
+    mutationFn: (orderId: number) => 
+      customFetch(`/Production/order/${orderId}`, {
+        method: 'DELETE',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
+      alert('작업 지시가 삭제되었습니다.');
+    },
+    onError: (err: any) => {
+      alert(`지시 삭제 실패: ${err.message}`);
+    }
+  });
+
   const handleOrderSubmit = (order: { productID: string; planQty: number }) => {
     createOrderMutation.mutate({
       productID: order.productID,
@@ -61,6 +112,18 @@ const Dashboard: React.FC = () => {
       startDate: new Date().toISOString(),
       dueDate: new Date(Date.now() + 86400000 * 3).toISOString()
     });
+  };
+
+  const handleStartOrder = (orderId: number) => {
+    startOrderMutation.mutate(orderId);
+  };
+
+  const handleCompleteOrder = (orderId: number) => {
+    completeOrderMutation.mutate(orderId);
+  };
+
+  const handleDeleteOrder = (orderId: number) => {
+    deleteOrderMutation.mutate(orderId);
   };
 
   return (
@@ -82,8 +145,18 @@ const Dashboard: React.FC = () => {
 
       {/* 2. 작업지시 등록 / 목록 컴포넌트 */}
       <AdminGrid>
-        <WorkOrderList workOrders={workOrders} />
-        <WorkOrderForm onSubmit={handleOrderSubmit} isPending={createOrderMutation.isPending} />
+        <WorkOrderList 
+          workOrders={workOrders} 
+          products={rawMaterials}
+          onStartOrder={handleStartOrder}
+          onCompleteOrder={handleCompleteOrder}
+          onDeleteOrder={handleDeleteOrder}
+        />
+        <WorkOrderForm 
+          onSubmit={handleOrderSubmit} 
+          isPending={createOrderMutation.isPending} 
+          products={rawMaterials}
+        />
       </AdminGrid>
 
       {/* 3. 실시간 LOT 추적 및 공정 흐름도 컴포넌트 */}
