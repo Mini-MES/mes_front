@@ -19,7 +19,21 @@ export const customFetch = async (endpoint: string, options: RequestInit = {}) =
   }
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    let errMsg = `HTTP error! status: ${response.status}`;
+    try {
+      const errData = await response.json();
+      if (errData && errData.message) {
+        errMsg = errData.message;
+      } else if (errData && errData.Message) {
+        errMsg = errData.Message;
+      }
+    } catch {
+      try {
+        const text = await response.text();
+        if (text) errMsg = text;
+      } catch {}
+    }
+    throw new Error(errMsg);
   }
 
   if (response.status === 204) return null;
