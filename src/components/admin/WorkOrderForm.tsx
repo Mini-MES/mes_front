@@ -1,23 +1,37 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import {
-  FormGroup,
-  FormInput,
-  FormSelect,
-  BtnSubmit
-} from './WorkOrderForm.styles';
+import * as S from '@/components/admin/WorkOrderForm.styles';
+import React from 'react';
 
 interface WorkOrderFormProps {
   onSubmit: (order: { productID: string; planQty: number }) => void;
   isPending: boolean;
+  products: any[];
 }
 
-const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPending }) => {
+export const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPending, products }) => {
+  // useMemo를 적용하여 매 렌더링마다 새로운 배열이 생성되어 루프가 도는 것을 방지
+  const producibleProducts = useMemo(() => {
+    return products.filter(
+      item => item.itemType === 'FinishedProduct' || item.itemType === 'SemiFinishedProduct' || item.itemType === 0 || item.itemType === 1
+    );
+  }, [products]);
+
   const [formData, setFormData] = useState({
-    productID: '스마트 HMI 패널',
+    productID: '',
     planQty: 100
   });
+
+  // 제품 목록이 로드되면 첫 번째 품목을 기본값으로 자동 설정
+  useEffect(() => {
+    if (producibleProducts.length > 0 && !formData.productID) {
+      setFormData(prev => ({
+        ...prev,
+        productID: producibleProducts[0].productID
+      }));
+    }
+  }, [producibleProducts, formData.productID]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -30,7 +44,7 @@ const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPending }) =>
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.productID || formData.planQty <= 0) {
-      alert('올바른 제품명과 계획수량을 입력해주세요.');
+      alert('올바른 제품과 계획수량을 선택해주세요.');
       return;
     }
     onSubmit({
@@ -50,22 +64,28 @@ const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPending }) =>
         신규 작업 지시 등록
       </CardTitle>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <FormGroup>
+        <S.FormGroup>
           <label>생산 대상 제품</label>
-          <FormSelect 
+          <S.FormSelect 
             name="productID" 
             value={formData.productID} 
             onChange={handleInputChange}
           >
-            <option value="스마트 HMI 패널">스마트 HMI 패널 (알루미늄 프레임, 강화유리 필요)</option>
-            <option value="임베디드 제어기">임베디드 제어기 (컨트롤러 칩셋 필요)</option>
-            <option value="산업용 게이트웨이">산업용 게이트웨이 (연결 케이블 필요)</option>
-          </FormSelect>
-        </FormGroup>
+            {producibleProducts.length === 0 ? (
+              <option value="">등록 가능한 품목이 없습니다</option>
+            ) : (
+              producibleProducts.map(prod => (
+                <option key={prod.productID} value={prod.productID}>
+                  {prod.productName} ({prod.productID})
+                </option>
+              ))
+            )}
+          </S.FormSelect>
+        </S.FormGroup>
 
-        <FormGroup>
+        <S.FormGroup>
           <label>계획 수량 (EA)</label>
-          <FormInput 
+          <S.FormInput 
             type="number" 
             name="planQty"
             value={formData.planQty}
@@ -73,14 +93,13 @@ const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPending }) =>
             min="10"
             max="5000"
           />
-        </FormGroup>
+        </S.FormGroup>
 
-        <BtnSubmit type="submit" disabled={isPending}>
+        <S.BtnSubmit type="submit" disabled={isPending || producibleProducts.length === 0}>
           {isPending ? '등록 중...' : '작업 지시 및 LOT 생성'}
-        </BtnSubmit>
+        </S.BtnSubmit>
       </form>
     </GlassCard>
   );
 };
 
-export default WorkOrderForm;

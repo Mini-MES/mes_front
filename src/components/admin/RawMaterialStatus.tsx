@@ -29,7 +29,7 @@ const RawMaterialStatus: React.FC<RawMaterialStatusProps> = ({ rawMaterials }) =
             return (
               <MaterialCard key={mat.productID} $isWarning={isWarning}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <MaterialName>{mat.name}</MaterialName>
+                  <MaterialName>{mat.productName}</MaterialName>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{mat.productID}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.5rem' }}>

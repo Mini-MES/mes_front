@@ -13,13 +13,15 @@ import {
 
 interface WorkOrderListProps {
   workOrders: WorkOrder[];
+  products?: any[];
   onStartOrder?: (orderID: number) => void;
   onCompleteOrder?: (orderID: number) => void;
   onDeleteOrder?: (orderID: number) => void;
 }
 
-const WorkOrderList: React.FC<WorkOrderListProps> = ({ 
+export const WorkOrderList: React.FC<WorkOrderListProps> = ({ 
   workOrders, 
+  products = [],
   onStartOrder, 
   onCompleteOrder, 
   onDeleteOrder 
@@ -49,10 +51,14 @@ const WorkOrderList: React.FC<WorkOrderListProps> = ({
               const isCompleted = order.status === 'Completed';
               const isProcessing = order.status === 'InProgress';
               
+              // productID에 대응하는 실제 제품명(productName) 검색
+              const matchedProduct = products.find(p => p.productID === order.productID);
+              const displayName = matchedProduct ? matchedProduct.productName : order.productID;
+              
               return (
                 <tr key={order.orderID}>
                   <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 500 }}>{order.orderID}</td>
-                  <td style={{ fontWeight: 600 }}>{order.productID}</td>
+                  <td style={{ fontWeight: 600 }}>{displayName}</td>
                   <td>{order.targetQty}</td>
                   <td>{order.totalGoodQty}</td>
                   <td style={{ width: '150px' }}>
@@ -104,4 +110,3 @@ const WorkOrderList: React.FC<WorkOrderListProps> = ({
   );
 };
 
-export default WorkOrderList;
