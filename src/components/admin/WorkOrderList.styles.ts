@@ -71,3 +71,52 @@ export const StatusBadge = styled.span<{ theme: ThemeType }>`
     color: ${props => props.theme.colors.success};
   }
 `;
+
+export const ActionButton = styled.button<{ theme: ThemeType }>`
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: ${props => props.theme.transitions.smooth};
+  outline: none;
+  font-family: ${props => props.theme.fonts.sans};
+
+  &.start {
+    background: rgba(41, 121, 255, 0.15);
+    color: ${props => props.theme.colors.info};
+    border-color: rgba(41, 121, 255, 0.3);
+    &:hover {
+      background: ${props => props.theme.colors.info};
+      color: #fff;
+      box-shadow: 0 0 8px rgba(41, 121, 255, 0.4);
+    }
+  }
+
+  &.complete {
+    background: rgba(0, 230, 118, 0.15);
+    color: ${props => props.theme.colors.success};
+    border-color: rgba(0, 230, 118, 0.3);
+    &:hover {
+      background: ${props => props.theme.colors.success};
+      color: #fff;
+      box-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
+    }
+  }
+
+  &.delete {
+    background: rgba(255, 23, 68, 0.1);
+    color: ${props => props.theme.colors.danger};
+    border-color: rgba(255, 23, 68, 0.2);
+    &:hover {
+      background: ${props => props.theme.colors.danger};
+      color: #fff;
+      box-shadow: 0 0 8px rgba(255, 23, 68, 0.4);
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
