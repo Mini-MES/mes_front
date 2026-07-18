@@ -1,3 +1,4 @@
+import React from 'react';
 import { Send } from 'lucide-react';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
 import * as S from '@/components/admin/ShipmentForm.styles';
@@ -16,6 +17,7 @@ export function ShipmentForm({ onSubmit, isPending, products, workOrders }: Ship
     completedOrders,
     formData,
     destQuantity,
+    selectedProductStock,
     handleQuantityChange,
     handleOrderChange,
     handleInputChange,
@@ -65,7 +67,7 @@ export function ShipmentForm({ onSubmit, isPending, products, workOrders }: Ship
             <label>창고 재고 수량 (EA)</label>
             <S.FormInput
               type="text"
-              value={formData.productID ? `${formData.quantity} EA` : '-'}
+              value={formData.productID ? `${selectedProductStock} EA` : '-'}
               disabled
               style={{ opacity: 0.7, background: 'rgba(255, 255, 255, 0.02)', fontFamily: 'var(--font-mono)' }}
             />
@@ -79,7 +81,7 @@ export function ShipmentForm({ onSubmit, isPending, products, workOrders }: Ship
               value={destQuantity}
               onChange={handleQuantityChange}
               min="1"
-              max={formData.quantity || 9999}
+              max={selectedProductStock || 9999}
               disabled={completedOrders.length === 0}
             />
           </S.FormGroup>
@@ -99,7 +101,7 @@ export function ShipmentForm({ onSubmit, isPending, products, workOrders }: Ship
 
         <S.BtnSubmit 
           type="submit" 
-          disabled={isPending || completedOrders.length === 0 || formData.quantity === 0}
+          disabled={isPending || completedOrders.length === 0 || selectedProductStock === 0}
         >
           {isPending ? '출하 등록 중...' : '완제품 출하 실행'}
         </S.BtnSubmit>

@@ -26,6 +26,15 @@ export const useDashboard = () => {
     refetchInterval: 5000,
   });
 
+  // 완제품 출하 이력 조회
+  const { data: shipmentsResponse, isLoading: isShipmentsLoading } = useQuery<{ data: any[] }>({
+    queryKey: ['shipments'],
+    queryFn: () => customFetch('/Inventory/shipments'),
+    refetchInterval: 5000,
+  });
+
+  const shipments = shipmentsResponse?.data || [];
+
   // 2. 신규 지시 등록 Mutation
   const createOrderMutation = useMutation({
     mutationFn: (newOrder: { productID: string; targetQty: number; startDate: string; dueDate: string }) => 
@@ -106,6 +115,7 @@ export const useDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['shipments'] }); // 출하 이력 무효화 추가
       alert('완제품 출하 처리가 정상적으로 완료되었습니다.');
     },
     onError: (err: any) => {
@@ -143,6 +153,8 @@ export const useDashboard = () => {
     workOrders,
     lotTracking,
     processStages,
+    shipments,
+    isShipmentsLoading,
     handleOrderSubmit,
     handleStartOrder,
     handleCompleteOrder,

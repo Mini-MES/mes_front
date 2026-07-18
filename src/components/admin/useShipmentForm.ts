@@ -13,31 +13,35 @@ export const useShipmentForm = ({ products, workOrders, onSubmit }: UseShipmentF
     return workOrders.filter(order => order.status === 'Completed');
   }, [workOrders]);
 
+  // formData는 폼 입력 정보(연계지시, 품목 코드, 목적지)만 관리 (재고는 state에서 제외)
   const [formData, setFormData] = useState({
     workOrderID: '',
     productID: '',
-    quantity: 0, 
     destination: ''
   });
 
+  // destQuantity는 사용자가 입력하는 출하 수량 변수
   const [destQuantity, setDestQuantity] = useState<number | ''>(1);
+
+  // 실시간 재고량을 products에서 직접 조회하여 렌더링 시 자동 계산 (Derived State)
+  const selectedProductStock = useMemo(() => {
+    if (!formData.productID) return 0;
+    const found = products.find(p => p.productID === formData.productID);
+    return found ? found.stockQty : 0;
+  }, [formData.productID, products]);
 
   // 완료 지시 목록 로드 시 첫 번째 지시로 자동 초기값 설정
   useEffect(() => {
     if (completedOrders.length > 0 && !formData.workOrderID) {
       const firstOrder = completedOrders[0];
-      const matchedProduct = products.find(p => p.productID === firstOrder.productID);
-      const stock = matchedProduct ? matchedProduct.stockQty : 0;
-
       setFormData(prev => ({
         ...prev,
         workOrderID: String(firstOrder.orderID),
-        productID: firstOrder.productID,
-        quantity: stock
+        productID: firstOrder.productID
       }));
       setDestQuantity(Math.max(1, firstOrder.totalGoodQty)); // 초기 출하량은 생산 수량으로 설정
     }
-  }, [completedOrders, formData.workOrderID, products]);
+  }, [completedOrders, formData.workOrderID]);
 
   // 작업 지시 변경 핸들러
   const handleOrderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -45,22 +49,17 @@ export const useShipmentForm = ({ products, workOrders, onSubmit }: UseShipmentF
     const matchedOrder = completedOrders.find(o => String(o.orderID) === orderId);
     
     if (matchedOrder) {
-      const matchedProduct = products.find(p => p.productID === matchedOrder.productID);
-      const stock = matchedProduct ? matchedProduct.stockQty : 0;
-
       setFormData(prev => ({
         ...prev,
         workOrderID: orderId,
-        productID: matchedOrder.productID,
-        quantity: stock
+        productID: matchedOrder.productID
       }));
       setDestQuantity(Math.max(1, matchedOrder.totalGoodQty)); // 출하량 기본값을 지시의 생산 수량으로 업데이트
     } else {
       setFormData(prev => ({
         ...prev,
         workOrderID: '',
-        productID: '',
-        quantity: 0
+        productID: ''
       }));
       setDestQuantity(1);
     }
@@ -74,6 +73,7 @@ export const useShipmentForm = ({ products, workOrders, onSubmit }: UseShipmentF
     }));
   };
 
+  // 수량 입력 변경 핸들러
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val === '') {
@@ -103,8 +103,8 @@ export const useShipmentForm = ({ products, workOrders, onSubmit }: UseShipmentF
       return;
     }
 
-    if (qtyNum > formData.quantity) {
-      alert(`창고 재고가 부족합니다. (현재 재고: ${formData.quantity} EA)`);
+    if (qtyNum > selectedProductStock) {
+      alert(`창고 재고가 부족합니다. (현재 재고: ${selectedProductStock} EA)`);
       return;
     }
 
@@ -120,6 +120,7 @@ export const useShipmentForm = ({ products, workOrders, onSubmit }: UseShipmentF
       destination: formData.destination.trim()
     });
 
+    // 폼 초기화 (목적지만 비움)
     setFormData(prev => ({
       ...prev,
       destination: ''
@@ -130,6 +131,7 @@ export const useShipmentForm = ({ products, workOrders, onSubmit }: UseShipmentF
     completedOrders,
     formData,
     destQuantity,
+    selectedProductStock,
     handleQuantityChange,
     handleOrderChange,
     handleInputChange,

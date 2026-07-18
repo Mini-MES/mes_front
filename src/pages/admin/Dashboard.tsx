@@ -1,3 +1,4 @@
+import React from 'react';
 import { Activity } from 'lucide-react';
 import { DashboardContent, TitleSection, AdminGrid } from '@/pages/admin/Dashboard.styles';
 import { useDashboard } from './useDashboard';
@@ -8,13 +9,16 @@ import { WorkOrderList } from '@/components/admin/WorkOrderList';
 import { WorkOrderForm } from '@/components/admin/WorkOrderForm';
 import LotProcessTracker from '@/components/admin/LotProcessTracker';
 import { ShipmentForm } from '@/components/admin/ShipmentForm';
+import { ShipmentList } from '@/components/admin/ShipmentList';
 
-export default function Dashboard() {
+const Dashboard: React.FC = () => {
   const {
     rawMaterials,
     workOrders,
     lotTracking,
     processStages,
+    shipments,
+    isShipmentsLoading,
     handleOrderSubmit,
     handleStartOrder,
     handleCompleteOrder,
@@ -71,6 +75,14 @@ export default function Dashboard() {
         workOrders={workOrders} 
         processStages={processStages} 
       />
+
+      {/* 4. 완제품 출하 이력 현황판 컴포넌트 */}
+      <ShipmentList 
+        shipments={shipments} 
+        isLoading={isShipmentsLoading} 
+      />
     </DashboardContent>
   );
 };
+
+export default Dashboard;
