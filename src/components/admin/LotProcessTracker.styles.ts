@@ -49,7 +49,7 @@ export const FlowStepBar = styled.div<{ theme: ThemeType }>`
   &::before {
     content: '';
     position: absolute;
-    top: 50%;
+    top: 30%;
     left: 0;
     right: 0;
     height: 2px;
@@ -88,8 +88,8 @@ export const FlowStepCircle = styled.div<{ $active?: boolean; $completed?: boole
     return props.theme.colors.textSecondary;
   }};
   background: ${props => {
-    if (props.$completed) return 'rgba(0, 230, 118, 0.1)';
-    if (props.$active) return 'rgba(0, 229, 255, 0.1)';
+    if (props.$completed) return 'rgba(0, 230, 118, 0.7)';
+    if (props.$active) return 'rgba(0, 229, 255, 0.7)';
     return props.theme.colors.bgMain;
   }};
   box-shadow: ${props => props.$active ? `0 0 10px ${props.theme.colors.primaryGlow}` : 'none'};
@@ -188,7 +188,7 @@ export const SearchInput = styled.input<{ theme: ThemeType }>`
   color: ${props => props.theme.colors.textPrimary};
   font-family: ${props => props.theme.fonts.sans};
   font-size: 0.85rem;
-  width: 180px;
+  width: 250px;
   transition: ${props => props.theme.transitions.smooth};
 
   &:focus {
@@ -228,12 +228,7 @@ export const SearchInputWrapper = styled.div<{ theme: ThemeType }>`
   position: relative;
   display: flex;
   align-items: center;
-
-  svg {
-    position: absolute;
-    left: 0.75rem;
-    color: ${props => props.theme.colors.textMuted};
-  }
+  gap: 0.5rem;
 `;
 
 export const LotListContainer = styled.div<{ theme: ThemeType }>`
