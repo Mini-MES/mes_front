@@ -27,16 +27,6 @@ interface WorkerControlPanelProps {
   };
 }
 
-// 공정 ID -> 이름 매핑 헬퍼
-const processMap: Record<number, string> = {
-  1: '자재투입',
-  2: '가공',
-  3: '조립',
-  4: '검사',
-  5: '포장'
-};
-const getStageName = (id: number) => processMap[id] || '자재투입';
-
 const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   activeOrder,
   activeLot,
@@ -47,6 +37,10 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   onComplete,
   isPending
 }) => {
+  // 공정 ID -> 이름 매핑 헬퍼 (공정 단계 동적 맵핑)
+  const getStageName = (id: number) => {
+    return processStages[id - 1] || '대기';
+  };
   if (!activeOrder) {
     return (
       <WorkerControlPanelWrapper>
@@ -192,7 +186,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               {!isOrderCompleted && (!isLastStage || !isPlanCompleted) && (
                 <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', justifyContent: 'center' }}>
                   <AlertCircle size={12} />
-                  <span>마지막 '포장' 단계 및 계획수량 도달 시 완료 가능</span>
+                  <span>마지막 '{processStages[processStages.length - 1]}' 단계 및 계획수량 도달 시 완료 가능</span>
                 </div>
               )}
             </div>
