@@ -198,3 +198,93 @@ export const SearchInput = styled.input<{ theme: ThemeType }>`
   }
 `;
 
+export const TrackerLayout = styled.div`
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const LotSearchPanel = styled.div<{ theme: ThemeType }>`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-right: 1px solid ${props => props.theme.colors.borderColor};
+  padding-right: 1.5rem;
+
+  @media (max-width: 1024px) {
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid ${props => props.theme.colors.borderColor};
+    padding-bottom: 1.5rem;
+  }
+`;
+
+export const SearchInputWrapper = styled.div<{ theme: ThemeType }>`
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  svg {
+    position: absolute;
+    left: 0.75rem;
+    color: ${props => props.theme.colors.textMuted};
+  }
+`;
+
+export const LotListContainer = styled.div<{ theme: ThemeType }>`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+`;
+
+export const LotListItem = styled.div<{ $active?: boolean; theme: ThemeType }>`
+  padding: 0.75rem;
+  background: ${props => props.$active ? 'rgba(0, 229, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)'};
+  border: 1px solid ${props => props.$active ? props.theme.colors.primary : props.theme.colors.borderColor};
+  border-radius: 8px;
+  cursor: pointer;
+  transition: ${props => props.theme.transitions.smooth};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:hover {
+    background: ${props => props.$active ? 'rgba(0, 229, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)'};
+    border-color: ${props => props.$active ? props.theme.colors.primary : props.theme.colors.borderColorGlow};
+    box-shadow: ${props => props.$active ? '0 0 10px rgba(0, 229, 255, 0.15)' : 'none'};
+  }
+`;
+
+export const LotListInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+`;
+
+export const LotListId = styled.span<{ theme: ThemeType }>`
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: ${props => props.theme.fonts.mono};
+  color: ${props => props.theme.colors.textPrimary};
+`;
+
+export const LotListSub = styled.span<{ theme: ThemeType }>`
+  font-size: 0.75rem;
+  color: ${props => props.theme.colors.textSecondary};
+`;
+
+export const LotDetailsPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+
