@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Layers } from 'lucide-react';
 import { LotTracking, WorkOrder } from '@/context/AppContext';
+import { customFetch } from '@/api/fetcher';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
 import * as S from '@/components/admin/LotProcessTracker.styles';
 
@@ -75,6 +77,17 @@ export function LotProcessTracker({
   const selectedLot = lotTracking.find(l => l.lotID === activeLotId);
   const associatedOrder = selectedLot ? workOrders.find(o => o.orderID === selectedLot.orderID) : undefined;
 
+  const { data: performanceResponse, isLoading: isHistoryLoading } = useQuery<{ message: string; data: any[] }>({
+    queryKey: ['performances', associatedOrder?.orderID],
+    queryFn: () => associatedOrder 
+      ? customFetch(`/Production/status/${associatedOrder.orderID}`) 
+      : Promise.resolve({ message: '', data: [] }),
+    enabled: !!associatedOrder?.orderID,
+    refetchInterval: 5000,
+  });
+
+  const performances = performanceResponse?.data || [];
+
   return (
     <GlassCard>
       <CardTitle style={{ marginBottom: '1rem' }}>
@@ -104,6 +117,8 @@ export function LotProcessTracker({
           getStageName={getStageName}
           getStatusLabel={getStatusLabel}
           getStatusClass={getStatusClass}
+          performances={performances}
+          isHistoryLoading={isHistoryLoading}
         />
       </S.TrackerLayout>
     </GlassCard>

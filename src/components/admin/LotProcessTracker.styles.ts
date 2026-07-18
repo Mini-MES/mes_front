@@ -282,4 +282,97 @@ export const LotDetailsPanel = styled.div`
   gap: 1.5rem;
 `;
 
+export const TimelineContainer = styled.div<{ theme: ThemeType }>`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid ${props => props.theme.colors.borderColor};
+  padding-top: 1.5rem;
+`;
+
+export const TimelineTitle = styled.h3<{ theme: ThemeType }>`
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: ${props => props.theme.colors.textPrimary};
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+`;
+
+export const TimelineList = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+export const TimelineItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-bottom: 1.25rem;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+`;
+
+export const TimelineMarker = styled.div<{ $hasError?: boolean; theme: ThemeType }>`
+  position: absolute;
+  left: -23px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: ${props => props.$hasError ? props.theme.colors.danger : props.theme.colors.primary};
+  border: 2px solid ${props => props.theme.colors.bgMain};
+  box-shadow: 0 0 6px ${props => props.$hasError ? props.theme.colors.danger : props.theme.colors.primaryGlow};
+  z-index: 2;
+`;
+
+export const TimelineContent = styled.div<{ theme: ThemeType }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  transition: ${props => props.theme.transitions.smooth};
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: ${props => props.theme.colors.borderColor};
+  }
+`;
+
+export const TimelineDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+export const TimelineMeta = styled.div<{ theme: ThemeType }>`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  color: ${props => props.theme.colors.textSecondary};
+`;
+
 
