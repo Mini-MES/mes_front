@@ -28,6 +28,7 @@ export interface LotTracking {
   orderID: number;
   currentProcessID: number;
   status: 'RELEASED' | 'WIP' | 'HOLD' | 'COMPLETED';
+  totalBadQty: number;
   updatedBy?: string;
   lastUpdated?: string;
 }

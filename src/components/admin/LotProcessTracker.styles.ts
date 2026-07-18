@@ -138,3 +138,63 @@ export const LotDetailItem = styled.div<{ theme: ThemeType }>`
     font-weight: 500;
   }
 `;
+
+export const FilterToolbar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid ${props => props.theme.colors.borderColor};
+  padding-bottom: 0.75rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+export const FilterButtonGroup = styled.div`
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+export const FilterButton = styled.button<{ $active?: boolean; theme: ThemeType }>`
+  padding: 0.35rem 0.65rem;
+  background: ${props => props.$active ? 'rgba(0, 229, 255, 0.12)' : 'rgba(255, 255, 255, 0.02)'};
+  color: ${props => props.$active ? props.theme.colors.primary : props.theme.colors.textSecondary};
+  border: 1px solid ${props => props.$active ? props.theme.colors.borderColorGlow : props.theme.colors.borderColor};
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: ${props => props.theme.transitions.smooth};
+
+  &:hover {
+    background: rgba(0, 229, 255, 0.08);
+    border-color: ${props => props.theme.colors.primaryGlow};
+    color: ${props => props.theme.colors.textPrimary};
+  }
+`;
+
+export const SearchInput = styled.input<{ theme: ThemeType }>`
+  padding: 0.4rem 0.75rem;
+  background: rgba(11, 15, 25, 0.6);
+  border: 1px solid ${props => props.theme.colors.borderColor};
+  border-radius: 8px;
+  color: ${props => props.theme.colors.textPrimary};
+  font-family: ${props => props.theme.fonts.sans};
+  font-size: 0.85rem;
+  width: 180px;
+  transition: ${props => props.theme.transitions.smooth};
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.25);
+  }
+`;
+
