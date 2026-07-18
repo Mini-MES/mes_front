@@ -147,6 +147,7 @@ const WorkerDashboard: React.FC = () => {
           lotTracking={lotTracking} 
           activeOrderId={activeOrderId} 
           onSelectOrder={setSelectedOrderId} 
+          processStages={processStages}
         />
 
         {/* 우측: 공정 컨트롤러 패널 */}

@@ -18,24 +18,20 @@ interface WorkerOrderListProps {
   lotTracking: LotTracking[];
   activeOrderId: number | null;
   onSelectOrder: (id: number) => void;
+  processStages: string[];
 }
-
-// 공정 ID -> 이름 매핑 헬퍼
-const processMap: Record<number, string> = {
-  1: '자재투입',
-  2: '가공',
-  3: '조립',
-  4: '검사',
-  5: '포장'
-};
-const getStageName = (id: number) => processMap[id] || '자재투입';
 
 const WorkerOrderList: React.FC<WorkerOrderListProps> = ({
   workOrders,
   lotTracking,
   activeOrderId,
-  onSelectOrder
+  onSelectOrder,
+  processStages
 }) => {
+  const getStageName = (id: number) => {
+    return processStages[id - 1] || '대기';
+  };
+
   return (
     <GlassCard style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <CardTitle>
