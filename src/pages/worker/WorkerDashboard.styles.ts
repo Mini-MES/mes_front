@@ -23,6 +23,23 @@ export const TitleSection = styled.div`
   }
 `;
 
+export const HeaderSubText = styled.p`
+  color: ${props => props.theme.colors.textSecondary};
+  margin-top: 0.25rem;
+`;
+
+export const UserStatus = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: ${props => props.theme.colors.success};
+`;
+
+export const UserStatusText = styled.span`
+  font-size: 0.9rem;
+  font-weight: 600;
+`;
+
 export const WorkerLayoutGrid = styled.div`
   display: grid;
   grid-template-columns: 2fr 1fr;

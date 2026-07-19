@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { ThemeType } from '@/styles/theme';
 
 export const WorkItemCard = styled.div<{ $isSelected?: boolean }>`
   padding: 1.25rem;
@@ -42,21 +41,23 @@ export const WorkItemQty = styled.span`
 `;
 
 export const ProgressBarContainer = styled.div`
+  width: 200px;
   height: 8px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   overflow: hidden;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 `;
 
-export const ProgressBarFill = styled.div`
+export const ProgressBarFill = styled.div<{ $widthPercent: number }>`
   height: 100%;
+  width: ${props => props.$widthPercent}%;
   background: linear-gradient(90deg, ${props => props.theme.colors.info}, ${props => props.theme.colors.success});
   border-radius: 4px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
-export const StatusBadge = styled.span<{ theme: ThemeType }>`
+export const StatusBadge = styled.span`
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -79,4 +80,29 @@ export const StatusBadge = styled.span<{ theme: ThemeType }>`
     background: rgba(0, 230, 118, 0.15);
     color: ${props => props.theme.colors.success};
   }
+`;
+
+export const OrderListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+export const StatusGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+`;
+
+export const ProcessLabel = styled.span`
+  font-size: 0.75rem;
+  color: ${props => props.theme.colors.textSecondary};
+  font-weight: 500;
+`;
+
+export const OrderCardWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 `;

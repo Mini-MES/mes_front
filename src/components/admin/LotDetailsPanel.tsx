@@ -134,6 +134,7 @@ export const LotDetailsPanel: React.FC<LotDetailsPanelProps> = ({
                           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
                             양품 등록: <strong style={{ color: 'var(--color-success)' }}>{perf.goodQty}</strong> EA / 
                             불량 등록: <strong style={{ color: 'var(--color-danger)' }}>{perf.badQty}</strong> EA
+                            {perf.reasonCode && <span style={{ color: 'var(--color-danger)', marginLeft: '0.35rem' }}>(사유: <strong>{perf.reasonCode}</strong>)</span>}
                             {perf.toolID && <span> (사용 공구: <strong style={{ color: 'var(--color-primary)', fontFamily: 'var(--font-mono)' }}>{perf.toolID}</strong>)</span>}
                           </div>
                         </S.TimelineDetails>
