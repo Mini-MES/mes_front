@@ -115,11 +115,53 @@ export const useDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
-      queryClient.invalidateQueries({ queryKey: ['shipments'] }); // 출하 이력 무효화 추가
+      queryClient.invalidateQueries({ queryKey: ['shipments'] });
       alert('완제품 출하 처리가 정상적으로 완료되었습니다.');
     },
     onError: (err: any) => {
       alert(`출하 등록 실패: ${err.message}`);
+    }
+  });
+
+  // 7. 자재 신규 등록 Mutation
+  const createMaterialMutation = useMutation({
+    mutationFn: (newMaterial: { productID: string; productName: string; itemType: number; stockQty: number; safetyQty: number }) => 
+      customFetch('/MasterData/product', {
+        method: 'POST',
+        body: JSON.stringify({
+          productID: newMaterial.productID,
+          productName: newMaterial.productName,
+          itemType: newMaterial.itemType,
+          stockQty: newMaterial.stockQty,
+          safetyStock: newMaterial.safetyQty
+        }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
+      alert('신규 원자재 품목이 성공적으로 등록되었습니다.');
+    },
+    onError: (err: any) => {
+      alert(`자재 등록 실패: ${err.message}`);
+    }
+  });
+
+  // 8. 자재 재고 입고/수정 Mutation
+  const updateStockMutation = useMutation({
+    mutationFn: ({ materialId, stockQty, materialName, safetyQty }: { materialId: string; stockQty: number; materialName: string; safetyQty: number }) => 
+      customFetch(`/Inventory/update-stock/${materialId}`, {
+        method: 'POST',
+        body: JSON.stringify({ 
+          stockQty, 
+          materialName, 
+          safetyStock: safetyQty
+        }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
+      alert('자재 재고 수량이 성공적으로 업데이트되었습니다.');
+    },
+    onError: (err: any) => {
+      alert(`재고 수정 실패: ${err.message}`);
     }
   });
 
@@ -148,6 +190,22 @@ export const useDashboard = () => {
     shipProductMutation.mutate(shipment);
   };
 
+  const handleCreateMaterial = (material: { productID: string; productName: string; stockQty: number; safetyQty: number }) => {
+    createMaterialMutation.mutate({
+      ...material,
+      itemType: 0 // 0 = RawMaterial
+    });
+  };
+
+  const handleUpdateStock = (materialId: string, stockQty: number, materialName: string, safetyQty: number) => {
+    updateStockMutation.mutate({
+      materialId,
+      stockQty,
+      materialName,
+      safetyQty
+    });
+  };
+
   return {
     rawMaterials,
     workOrders,
@@ -160,7 +218,10 @@ export const useDashboard = () => {
     handleCompleteOrder,
     handleDeleteOrder,
     handleShipmentSubmit,
+    handleCreateMaterial,
+    handleUpdateStock,
     isCreatePending: createOrderMutation.isPending,
-    isShipPending: shipProductMutation.isPending
+    isShipPending: shipProductMutation.isPending,
+    isMaterialPending: createMaterialMutation.isPending || updateStockMutation.isPending
   };
 };

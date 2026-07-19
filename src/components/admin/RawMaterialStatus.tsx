@@ -1,57 +1,73 @@
-import React from 'react';
-import { Database, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+import { Database, Plus } from 'lucide-react';
 import { RawMaterial } from '@/context/AppContext';
-import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import { 
-  MaterialGrid, 
-  MaterialCard, 
-  MaterialName, 
-  MaterialStock, 
-  StatusBadge 
-} from './RawMaterialStatus.styles';
+import { GlassCard } from '@/pages/admin/Dashboard.styles';
+import * as S from './RawMaterialStatus.styles';
+
+import { CreateMaterialModal } from './CreateMaterialModal';
+import { StockUpdateModal } from './StockUpdateModal';
+import { RawMaterialCard } from './RawMaterialCard';
 
 interface RawMaterialStatusProps {
   rawMaterials: RawMaterial[];
+  onCreateMaterial?: (material: { productID: string; productName: string; stockQty: number; safetyQty: number }) => void;
+  onUpdateStock?: (materialId: string, stockQty: number, materialName: string, safetyQty: number) => void;
+  isPending?: boolean;
 }
 
-const RawMaterialStatus: React.FC<RawMaterialStatusProps> = ({ rawMaterials }) => {
+export function RawMaterialStatus({ 
+  rawMaterials,
+  onCreateMaterial,
+  onUpdateStock,
+  isPending
+}: RawMaterialStatusProps) {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState<RawMaterial | null>(null);
+
   return (
     <GlassCard>
-      <CardTitle>
-        <Database size={18} />
-        실시간 원자재 재고 현황
-      </CardTitle>
-      <MaterialGrid>
+      <S.CardHeaderRow>
+        <S.HeaderLeftGroup>
+          <Database size={18} style={{ color: 'var(--color-primary)' }} />
+          <S.HeaderTitleText>실시간 원자재 재고 현황</S.HeaderTitleText>
+        </S.HeaderLeftGroup>
+        <S.BtnAddMaterial onClick={() => setIsCreateModalOpen(true)}>
+          <Plus size={16} />
+          + 신규 원자재 등록
+        </S.BtnAddMaterial>
+      </S.CardHeaderRow>
+
+      <S.MaterialGrid>
         {rawMaterials
           .filter(item => (item as any).itemType === 'RawMaterial' || (item as any).itemType === 0)
-          .map(mat => {
-            const isWarning = mat.stockQty < mat.safetyStock;
-            return (
-              <MaterialCard key={mat.productID} $isWarning={isWarning}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <MaterialName>{mat.productName}</MaterialName>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{mat.productID}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginTop: '0.5rem' }}>
-                  <MaterialStock $isWarning={isWarning}>{mat.stockQty.toLocaleString()}</MaterialStock>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{mat.unit || '개'}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '0.5rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>안전재고: {mat.safetyStock}</span>
-                  <StatusBadge className={isWarning ? 'alert' : 'completed'} style={{ fontSize: '0.7rem', padding: '0.15rem 0.4rem' }}>
-                    {isWarning ? (
-                      <>
-                        <AlertTriangle size={10} /> 부족
-                      </>
-                    ) : '충분'}
-                  </StatusBadge>
-                </div>
-              </MaterialCard>
-            );
-          })}
-      </MaterialGrid>
+          .map(mat => (
+            <RawMaterialCard
+              key={mat.productID}
+              material={mat}
+              onOpenStockModal={setSelectedMaterial}
+            />
+          ))}
+      </S.MaterialGrid>
+
+      {/* 1. 신규 자재 등록 공통 모달 */}
+      {onCreateMaterial && (
+        <CreateMaterialModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSubmit={onCreateMaterial}
+          isPending={isPending}
+        />
+      )}
+
+      {/* 2. 자재 재고 입고/수정 공통 모달 */}
+      {onUpdateStock && (
+        <StockUpdateModal
+          material={selectedMaterial}
+          onClose={() => setSelectedMaterial(null)}
+          onUpdateStock={onUpdateStock}
+          isPending={isPending}
+        />
+      )}
     </GlassCard>
   );
 };
-
-export default RawMaterialStatus;
