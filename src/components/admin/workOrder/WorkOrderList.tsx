@@ -2,7 +2,7 @@ import React from 'react';
 import { TrendingUp } from 'lucide-react';
 import { WorkOrder } from '@/context/AppContext';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import * as S from './WorkOrderList.styles';
+import * as S from '@/components/admin/workOrder/WorkOrderList.styles';
 
 interface WorkOrderListProps {
   workOrders: WorkOrder[];

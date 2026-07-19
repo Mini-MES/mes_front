@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Play, CheckCircle, AlertCircle, Wrench } from 'lucide-react';
 import { WorkOrder, LotTracking } from '@/context/AppContext';
 import { CardTitle } from '@/pages/worker/WorkerDashboard.styles';
-import * as S from './WorkerControlPanel.styles';
-import WorkerStageStepper from './WorkerStageStepper';
-import WorkerDefectForm from './WorkerDefectForm';
+import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
+import WorkerStageStepper from '@/components/worker/controlPanel/WorkerStageStepper';
+import WorkerDefectForm from '@/components/worker/controlPanel/WorkerDefectForm';
 
 export interface DefectReason {
   reasonCode: string | number;

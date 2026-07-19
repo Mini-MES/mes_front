@@ -1,6 +1,6 @@
 import React from 'react';
 import { LotTracking } from '@/context/AppContext';
-import * as S from './WorkerControlPanel.styles';
+import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
 
 interface WorkerStageStepperProps {
   processStages: string[];

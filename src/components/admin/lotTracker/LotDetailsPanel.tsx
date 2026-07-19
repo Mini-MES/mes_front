@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layers, Clock, User } from 'lucide-react';
 import { LotTracking, WorkOrder } from '@/context/AppContext';
-import * as S from './LotProcessTracker.styles';
+import * as S from '@/components/admin/lotTracker/LotProcessTracker.styles';
 
 interface LotDetailsPanelProps {
   selectedLot: LotTracking | undefined;

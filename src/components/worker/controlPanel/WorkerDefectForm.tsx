@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AlertOctagon } from 'lucide-react';
-import * as S from './WorkerControlPanel.styles';
-import { DefectReason } from './WorkerControlPanel';
+import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
+import { DefectReason } from '@/components/worker/controlPanel/WorkerControlPanel';
 
 interface WorkerDefectFormProps {
   defectReasons?: DefectReason[];

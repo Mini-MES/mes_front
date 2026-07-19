@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import * as S from './WorkOrderForm.styles';
+import * as S from '@/components/admin/workOrder/WorkOrderForm.styles';
 import React from 'react';
 
 interface WorkOrderFormProps {

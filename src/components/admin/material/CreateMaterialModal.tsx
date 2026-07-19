@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import Modal from '@/components/common/Modal';
-import * as S from './RawMaterialStatus.styles';
+import * as S from '@/components/admin/material/RawMaterialStatus.styles';
 
 interface CreateMaterialModalProps {
   isOpen: boolean;

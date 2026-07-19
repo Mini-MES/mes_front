@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PackagePlus, Edit2 } from 'lucide-react';
 import { RawMaterial } from '@/context/AppContext';
 import Modal from '@/components/common/Modal';
-import * as S from './RawMaterialStatus.styles';
+import * as S from '@/components/admin/material/RawMaterialStatus.styles';
 
 interface StockUpdateModalProps {
   material: RawMaterial | null;
@@ -37,7 +37,7 @@ export const StockUpdateModal: React.FC<StockUpdateModalProps> = ({
     onUpdateStock(
       material.productID,
       finalQty,
-      material.productName,
+      material.name,
       editSafetyQty
     );
     onClose();
@@ -47,7 +47,7 @@ export const StockUpdateModal: React.FC<StockUpdateModalProps> = ({
     <Modal
       isOpen={!!material}
       onClose={onClose}
-      title={`자재 재고 입고 & 수량 관리 (${material.productName})`}
+      title={`자재 재고 입고 & 수량 관리 (${material.name})`}
       icon={<PackagePlus size={20} />}
     >
       <S.FormContainer>

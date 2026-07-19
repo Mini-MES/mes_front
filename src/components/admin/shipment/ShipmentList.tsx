@@ -1,7 +1,7 @@
 import React from 'react';
 import { Truck } from 'lucide-react';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import * as S from './ShipmentList.styles';
+import * as S from '@/components/admin/shipment/ShipmentList.styles';
 
 interface ShipmentListProps {
   shipments: any[];

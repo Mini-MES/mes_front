@@ -1,9 +1,8 @@
-import React from 'react';
 import { Send } from 'lucide-react';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import * as S from './ShipmentForm.styles';
+import * as S from '@/components/admin/shipment/ShipmentForm.styles';
 import { WorkOrder } from '@/context/AppContext';
-import { useShipmentForm } from './useShipmentForm';
+import { useShipmentForm } from '@/components/admin/shipment/useShipmentForm';
 
 interface ShipmentFormProps {
   onSubmit: (shipment: { productID: string; workOrderID: number; quantity: number; destination: string }) => void;

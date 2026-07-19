@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertTriangle, PackagePlus } from 'lucide-react';
 import { RawMaterial } from '@/context/AppContext';
-import * as S from './RawMaterialStatus.styles';
+import * as S from '@/components/admin/material/RawMaterialStatus.styles';
 
 interface RawMaterialCardProps {
   material: RawMaterial;
@@ -17,7 +17,7 @@ export const RawMaterialCard: React.FC<RawMaterialCardProps> = ({
   return (
     <S.MaterialCard $isWarning={isWarning}>
       <S.MaterialCardHeader>
-        <S.MaterialName>{material.productName}</S.MaterialName>
+        <S.MaterialName>{material.name}</S.MaterialName>
         <S.MaterialIdText>{material.productID}</S.MaterialIdText>
       </S.MaterialCardHeader>
 

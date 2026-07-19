@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
-import * as S from './Modal.styles';
+import * as S from '@/components/common/Modal.styles';
 
 export interface ModalProps {
   isOpen: boolean;

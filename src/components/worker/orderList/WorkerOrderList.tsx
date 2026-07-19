@@ -2,7 +2,7 @@ import React from 'react';
 import { FileText } from 'lucide-react';
 import { WorkOrder, LotTracking } from '@/context/AppContext';
 import { GlassCard, CardTitle } from '@/pages/worker/WorkerDashboard.styles';
-import * as S from './WorkerOrderList.styles';
+import * as S from '@/components/worker/orderList/WorkerOrderList.styles';
 
 interface WorkerOrderListProps {
   workOrders: WorkOrder[];

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Activity } from 'lucide-react';
 import * as S from '@/pages/admin/Dashboard.styles';
-import { useDashboard } from './useDashboard';
+import { useDashboard } from '@/pages/admin/useDashboard';
 
 // 도메인별 분리된 하위 컴포넌트 임포트
 import RawMaterialStatus from '@/components/admin/material/RawMaterialStatus';

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Database, Plus } from 'lucide-react';
 import { RawMaterial } from '@/context/AppContext';
 import { GlassCard } from '@/pages/admin/Dashboard.styles';
-import * as S from './RawMaterialStatus.styles';
+import * as S from '@/components/admin/material/RawMaterialStatus.styles';
 
-import { CreateMaterialModal } from './CreateMaterialModal';
-import { StockUpdateModal } from './StockUpdateModal';
-import { RawMaterialCard } from './RawMaterialCard';
+import { CreateMaterialModal } from '@/components/admin/material/CreateMaterialModal';
+import { StockUpdateModal } from '@/components/admin/material/StockUpdateModal';
+import { RawMaterialCard } from '@/components/admin/material/RawMaterialCard';
 
 interface RawMaterialStatusProps {
   rawMaterials: RawMaterial[];
