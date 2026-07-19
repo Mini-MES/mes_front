@@ -69,6 +69,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   const isPlanCompleted = activeOrder.totalGoodQty >= activeOrder.targetQty;
   const isOrderCompleted = activeOrder.status === 'Completed';
   const isOrderCreated = activeOrder.status === 'Created';
+  const isLotHold = activeLot?.status?.toUpperCase() === 'HOLD';
 
   return (
     <S.WorkerControlPanelWrapper>
@@ -85,8 +86,8 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
           
           <S.InfoRow $marginTop="1rem">
             <S.InfoLabel>현재 진행 단계</S.InfoLabel>
-            <S.InfoValue $color="var(--color-info)">
-              {activeLot ? getStageName(activeLot.currentProcessID) : '생산 대기'}
+            <S.InfoValue $color={isLotHold ? 'var(--color-danger)' : 'var(--color-info)'}>
+              {activeLot ? `${getStageName(activeLot.currentProcessID)} ${isLotHold ? '(HOLD/보류)' : ''}` : '생산 대기'}
             </S.InfoValue>
           </S.InfoRow>
           
@@ -138,7 +139,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
                 placeholder="예: TOOL-001, TOOL-CUTTER-01"
                 value={toolId}
                 onChange={(e) => setToolId(e.target.value)}
-                disabled={isOrderCompleted}
+                disabled={isOrderCompleted || isLotHold}
               />
             </S.ControlGroup>
 
@@ -148,19 +149,19 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               <S.QuantityController>
                 <S.BtnQty 
                   onClick={() => onIncreaseQty(1, toolId)}
-                  disabled={isOrderCompleted || isPlanCompleted || isPending.qty}
+                  disabled={isOrderCompleted || isPlanCompleted || isPending.qty || isLotHold}
                 >
                   +1
                 </S.BtnQty>
                 <S.BtnQty 
                   onClick={() => onIncreaseQty(10, toolId)}
-                  disabled={isOrderCompleted || (activeOrder.totalGoodQty + 10 > activeOrder.targetQty) || isPending.qty}
+                  disabled={isOrderCompleted || (activeOrder.totalGoodQty + 10 > activeOrder.targetQty) || isPending.qty || isLotHold}
                 >
                   +10
                 </S.BtnQty>
                 <S.BtnQty 
                   onClick={() => onIncreaseQty(activeOrder.targetQty - activeOrder.totalGoodQty, toolId)}
-                  disabled={isOrderCompleted || isPlanCompleted || isPending.qty}
+                  disabled={isOrderCompleted || isPlanCompleted || isPending.qty || isLotHold}
                 >
                   남은 전량 채우기
                 </S.BtnQty>
@@ -180,19 +181,25 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
             <S.ControlGroup>
               <S.FormLabelHeader>
                 <S.FormLabelText>공정 단계 전환</S.FormLabelText>
-                {activeOrder.totalGoodQty === 0 && (
+                {isLotHold ? (
+                  <S.HoldWarningBadge>🚫 LOT 보류(HOLD) 상태 - 공정 이동 불가</S.HoldWarningBadge>
+                ) : activeOrder.totalGoodQty === 0 ? (
                   <S.WarningBadge>⚠️ 실적 등록 후 이동 가능</S.WarningBadge>
-                )}
+                ) : null}
               </S.FormLabelHeader>
               <S.TransitionButton 
                 onClick={() => {
+                  if (isLotHold) {
+                    alert('해당 LOT는 불량 발생으로 인한 보류(HOLD) 상태입니다. 보류 해제 후 이동 가능합니다.');
+                    return;
+                  }
                   if (activeOrder.totalGoodQty === 0) {
                     alert('현재 공정의 양품 실적을 최소 1개 이상 등록한 후 다음 공정으로 이동할 수 있습니다.');
                     return;
                   }
                   onNextStage(toolId);
                 }}
-                disabled={isLastStage || isOrderCompleted || isPending.next || activeOrder.totalGoodQty === 0}
+                disabled={isLastStage || isOrderCompleted || isPending.next || activeOrder.totalGoodQty === 0 || isLotHold}
               >
                 {isPending.next ? '공정 이동 중...' : `다음 공정 단계로 이동 (${getStageName(currentStageID)} ➡️ ${isLastStage ? '종료' : getStageName(currentStageID + 1)})`}
               </S.TransitionButton>

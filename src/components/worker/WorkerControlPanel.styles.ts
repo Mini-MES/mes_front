@@ -345,6 +345,15 @@ export const WarningBadge = styled.span`
   color: #ffb74d;
 `;
 
+export const HoldWarningBadge = styled.span`
+  font-size: 0.75rem;
+  color: #ff1744;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
 export const EmptyNotice = styled.div`
   text-align: center;
   padding: 2rem;
