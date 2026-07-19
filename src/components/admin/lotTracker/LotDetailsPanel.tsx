@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layers, Clock, User } from 'lucide-react';
 import { LotTracking, WorkOrder } from '@/context/AppContext';
-import * as S from '@/components/admin/LotProcessTracker.styles';
+import * as S from './LotProcessTracker.styles';
 
 interface LotDetailsPanelProps {
   selectedLot: LotTracking | undefined;
@@ -28,7 +28,6 @@ export const LotDetailsPanel: React.FC<LotDetailsPanelProps> = ({
     return stageId - 1;
   };
 
-  // 현재 LOT ID에 부합하는 이력만 발췌 후 시간 역순(최신순) 정렬
   const lotPerformances = selectedLot
     ? performances
         .filter((p: any) => p.lotID === selectedLot.lotID)

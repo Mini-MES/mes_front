@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import * as S from '@/components/admin/WorkOrderForm.styles';
+import * as S from './WorkOrderForm.styles';
 import React from 'react';
 
 interface WorkOrderFormProps {
@@ -11,7 +11,6 @@ interface WorkOrderFormProps {
 }
 
 export const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPending, products }) => {
-  // useMemo를 적용하여 매 렌더링마다 새로운 배열이 생성되어 루프가 도는 것을 방지
   const producibleProducts = useMemo(() => {
     return products.filter(
       item => item.itemType === 'FinishedProduct' || item.itemType === 'SemiFinishedProduct' || item.itemType === 0 || item.itemType === 1
@@ -23,7 +22,6 @@ export const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPendin
     planQty: 100
   });
 
-  // 제품 목록이 로드되면 첫 번째 품목을 기본값으로 자동 설정
   useEffect(() => {
     if (producibleProducts.length > 0 && !formData.productID) {
       setFormData(prev => ({
@@ -102,4 +100,3 @@ export const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPendin
     </GlassCard>
   );
 };
-

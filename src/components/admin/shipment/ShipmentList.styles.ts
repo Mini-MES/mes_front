@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { ThemeType } from '@/styles/theme';
 
 export const TableContainer = styled.div`
   overflow-x: auto;
@@ -8,7 +7,7 @@ export const TableContainer = styled.div`
   overflow-y: auto;
 `;
 
-export const CustomTable = styled.table<{ theme: ThemeType }>`
+export const CustomTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -23,7 +22,7 @@ export const CustomTable = styled.table<{ theme: ThemeType }>`
     letter-spacing: 0.05em;
     position: sticky;
     top: 0;
-    background: #0d121f; // 헤더 고정을 위해 배경 지정
+    background: #0d121f;
     z-index: 10;
   }
 

@@ -1,11 +1,10 @@
 import styled from 'styled-components';
-import { ThemeType } from '@/styles/theme';
 
 export const TableContainer = styled.div`
   overflow-x: auto;
 `;
 
-export const CustomTable = styled.table<{ theme: ThemeType }>`
+export const CustomTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -40,14 +39,15 @@ export const ProgressBarContainer = styled.div`
   margin-top: 0.5rem;
 `;
 
-export const ProgressBarFill = styled.div<{ theme: ThemeType }>`
+export const ProgressBarFill = styled.div<{ $widthPercent: number }>`
   height: 100%;
+  width: ${props => props.$widthPercent}%;
   background: linear-gradient(90deg, ${props => props.theme.colors.info}, ${props => props.theme.colors.success});
   border-radius: 4px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
-export const StatusBadge = styled.span<{ theme: ThemeType }>`
+export const StatusBadge = styled.span`
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -72,7 +72,7 @@ export const StatusBadge = styled.span<{ theme: ThemeType }>`
   }
 `;
 
-export const ActionButton = styled.button<{ theme: ThemeType }>`
+export const ActionButton = styled.button`
   padding: 0.35rem 0.65rem;
   border-radius: 6px;
   font-size: 0.75rem;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertTriangle, PackagePlus } from 'lucide-react';
 import { RawMaterial } from '@/context/AppContext';
-import * as S from '@/components/admin/RawMaterialStatus.styles';
+import * as S from './RawMaterialStatus.styles';
 
 interface RawMaterialCardProps {
   material: RawMaterial;
@@ -17,7 +17,7 @@ export const RawMaterialCard: React.FC<RawMaterialCardProps> = ({
   return (
     <S.MaterialCard $isWarning={isWarning}>
       <S.MaterialCardHeader>
-        <S.MaterialName>{material.name}</S.MaterialName>
+        <S.MaterialName>{material.productName}</S.MaterialName>
         <S.MaterialIdText>{material.productID}</S.MaterialIdText>
       </S.MaterialCardHeader>
 
@@ -29,7 +29,7 @@ export const RawMaterialCard: React.FC<RawMaterialCardProps> = ({
       </S.StockDisplayRow>
 
       <S.MaterialCardFooter>
-        <S.SafetyStockText>안전재고: {material.safetyQty}</S.SafetyStockText>
+        <S.SafetyStockText>안전재고: {material.safetyQty.toLocaleString()}</S.SafetyStockText>
         <S.StatusBadge className={isWarning ? 'alert' : 'completed'}>
           {isWarning ? (
             <>

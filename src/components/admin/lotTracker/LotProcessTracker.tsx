@@ -4,10 +4,10 @@ import { Layers } from 'lucide-react';
 import { LotTracking, WorkOrder } from '@/context/AppContext';
 import { customFetch } from '@/api/fetcher';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import * as S from '@/components/admin/LotProcessTracker.styles';
+import * as S from './LotProcessTracker.styles';
 
-import LotSearchPanel from '@/components/admin/LotSearchPanel';
-import LotDetailsPanel from '@/components/admin/LotDetailsPanel';
+import LotSearchPanel from './LotSearchPanel';
+import LotDetailsPanel from './LotDetailsPanel';
 
 interface LotProcessTrackerProps {
   lotTracking: LotTracking[];

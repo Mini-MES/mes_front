@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Database, Plus } from 'lucide-react';
 import { RawMaterial } from '@/context/AppContext';
 import { GlassCard } from '@/pages/admin/Dashboard.styles';
@@ -15,12 +15,12 @@ interface RawMaterialStatusProps {
   isPending?: boolean;
 }
 
-export function RawMaterialStatus({ 
+const RawMaterialStatus: React.FC<RawMaterialStatusProps> = ({ 
   rawMaterials,
   onCreateMaterial,
   onUpdateStock,
   isPending
-}: RawMaterialStatusProps) {
+}) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<RawMaterial | null>(null);
 
@@ -71,3 +71,5 @@ export function RawMaterialStatus({
     </GlassCard>
   );
 };
+
+export default RawMaterialStatus;

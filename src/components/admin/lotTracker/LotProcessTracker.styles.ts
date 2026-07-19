@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { ThemeType } from '@/styles/theme';
 
-export const FormSelect = styled.select<{ theme: ThemeType }>`
+export const FormSelect = styled.select`
   width: 100%;
   padding: 0.65rem 0.85rem;
   background: rgba(11, 15, 25, 0.6);
@@ -19,7 +18,7 @@ export const FormSelect = styled.select<{ theme: ThemeType }>`
   }
 `;
 
-export const StatusBadge = styled.span<{ theme: ThemeType }>`
+export const StatusBadge = styled.span`
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -40,7 +39,7 @@ export const FlowContainer = styled.div`
   gap: 1.5rem;
 `;
 
-export const FlowStepBar = styled.div<{ theme: ThemeType }>`
+export const FlowStepBar = styled.div`
   display: flex;
   justify-content: space-between;
   position: relative;
@@ -68,7 +67,7 @@ export const FlowStep = styled.div`
   flex: 1;
 `;
 
-export const FlowStepCircle = styled.div<{ $active?: boolean; $completed?: boolean; theme: ThemeType }>`
+export const FlowStepCircle = styled.div<{ $active?: boolean; $completed?: boolean }>`
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -96,7 +95,7 @@ export const FlowStepCircle = styled.div<{ $active?: boolean; $completed?: boole
   transition: ${props => props.theme.transitions.smooth};
 `;
 
-export const FlowStepLabel = styled.span<{ $active?: boolean; $completed?: boolean; theme: ThemeType }>`
+export const FlowStepLabel = styled.span<{ $active?: boolean; $completed?: boolean }>`
   font-size: 0.8rem;
   color: ${props => {
     if (props.$completed) return props.theme.colors.success;
@@ -106,7 +105,7 @@ export const FlowStepLabel = styled.span<{ $active?: boolean; $completed?: boole
   font-weight: ${props => props.$active ? '600' : '500'};
 `;
 
-export const LotDetailGrid = styled.div<{ theme: ThemeType }>`
+export const LotDetailGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
@@ -122,7 +121,7 @@ export const LotDetailInfo = styled.div`
   gap: 1rem;
 `;
 
-export const LotDetailItem = styled.div<{ theme: ThemeType }>`
+export const LotDetailItem = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
@@ -162,7 +161,7 @@ export const FilterButtonGroup = styled.div`
   flex-wrap: wrap;
 `;
 
-export const FilterButton = styled.button<{ $active?: boolean; theme: ThemeType }>`
+export const FilterButton = styled.button<{ $active?: boolean }>`
   padding: 0.35rem 0.65rem;
   background: ${props => props.$active ? 'rgba(0, 229, 255, 0.12)' : 'rgba(255, 255, 255, 0.02)'};
   color: ${props => props.$active ? props.theme.colors.primary : props.theme.colors.textSecondary};
@@ -180,7 +179,7 @@ export const FilterButton = styled.button<{ $active?: boolean; theme: ThemeType 
   }
 `;
 
-export const SearchInput = styled.input<{ theme: ThemeType }>`
+export const SearchInput = styled.input`
   padding: 0.4rem 0.75rem;
   background: rgba(11, 15, 25, 0.6);
   border: 1px solid ${props => props.theme.colors.borderColor};
@@ -209,7 +208,7 @@ export const TrackerLayout = styled.div`
   }
 `;
 
-export const LotSearchPanel = styled.div<{ theme: ThemeType }>`
+export const LotSearchPanel = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -224,14 +223,14 @@ export const LotSearchPanel = styled.div<{ theme: ThemeType }>`
   }
 `;
 
-export const SearchInputWrapper = styled.div<{ theme: ThemeType }>`
+export const SearchInputWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 `;
 
-export const LotListContainer = styled.div<{ theme: ThemeType }>`
+export const LotListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -240,7 +239,7 @@ export const LotListContainer = styled.div<{ theme: ThemeType }>`
   padding-right: 0.25rem;
 `;
 
-export const LotListItem = styled.div<{ $active?: boolean; theme: ThemeType }>`
+export const LotListItem = styled.div<{ $active?: boolean }>`
   padding: 0.75rem;
   background: ${props => props.$active ? 'rgba(0, 229, 255, 0.05)' : 'rgba(255, 255, 255, 0.01)'};
   border: 1px solid ${props => props.$active ? props.theme.colors.primary : props.theme.colors.borderColor};
@@ -264,14 +263,14 @@ export const LotListInfo = styled.div`
   gap: 0.2rem;
 `;
 
-export const LotListId = styled.span<{ theme: ThemeType }>`
+export const LotListId = styled.span`
   font-size: 0.85rem;
   font-weight: 600;
   font-family: ${props => props.theme.fonts.mono};
   color: ${props => props.theme.colors.textPrimary};
 `;
 
-export const LotListSub = styled.span<{ theme: ThemeType }>`
+export const LotListSub = styled.span`
   font-size: 0.75rem;
   color: ${props => props.theme.colors.textSecondary};
 `;
@@ -282,7 +281,7 @@ export const LotDetailsPanel = styled.div`
   gap: 1.5rem;
 `;
 
-export const TimelineContainer = styled.div<{ theme: ThemeType }>`
+export const TimelineContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -291,7 +290,7 @@ export const TimelineContainer = styled.div<{ theme: ThemeType }>`
   padding-top: 1.5rem;
 `;
 
-export const TimelineTitle = styled.h3<{ theme: ThemeType }>`
+export const TimelineTitle = styled.h3`
   font-size: 0.95rem;
   font-weight: 600;
   color: ${props => props.theme.colors.textPrimary};
@@ -330,7 +329,7 @@ export const TimelineItem = styled.div`
   }
 `;
 
-export const TimelineMarker = styled.div<{ $hasError?: boolean; theme: ThemeType }>`
+export const TimelineMarker = styled.div<{ $hasError?: boolean }>`
   position: absolute;
   left: -23px;
   top: 6px;
@@ -343,7 +342,7 @@ export const TimelineMarker = styled.div<{ $hasError?: boolean; theme: ThemeType
   z-index: 2;
 `;
 
-export const TimelineContent = styled.div<{ theme: ThemeType }>`
+export const TimelineContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -366,7 +365,7 @@ export const TimelineDetails = styled.div`
   gap: 0.25rem;
 `;
 
-export const TimelineMeta = styled.div<{ theme: ThemeType }>`
+export const TimelineMeta = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -374,5 +373,3 @@ export const TimelineMeta = styled.div<{ theme: ThemeType }>`
   font-size: 0.75rem;
   color: ${props => props.theme.colors.textSecondary};
 `;
-
-

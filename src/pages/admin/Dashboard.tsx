@@ -3,13 +3,13 @@ import { Activity } from 'lucide-react';
 import * as S from '@/pages/admin/Dashboard.styles';
 import { useDashboard } from './useDashboard';
 
-// 분리된 하위 컴포넌트 임포트
-import { RawMaterialStatus } from '@/components/admin/RawMaterialStatus';
-import { WorkOrderList } from '@/components/admin/WorkOrderList';
-import { WorkOrderForm } from '@/components/admin/WorkOrderForm';
-import LotProcessTracker from '@/components/admin/LotProcessTracker';
-import { ShipmentForm } from '@/components/admin/ShipmentForm';
-import { ShipmentList } from '@/components/admin/ShipmentList';
+// 도메인별 분리된 하위 컴포넌트 임포트
+import RawMaterialStatus from '@/components/admin/material/RawMaterialStatus';
+import { WorkOrderList } from '@/components/admin/workOrder/WorkOrderList';
+import { WorkOrderForm } from '@/components/admin/workOrder/WorkOrderForm';
+import LotProcessTracker from '@/components/admin/lotTracker/LotProcessTracker';
+import { ShipmentForm } from '@/components/admin/shipment/ShipmentForm';
+import { ShipmentList } from '@/components/admin/shipment/ShipmentList';
 
 const Dashboard: React.FC = () => {
   const {

@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { ThemeType } from '@/styles/theme';
 
-export const FormGroup = styled.div<{ theme: ThemeType }>`
+export const FormGroup = styled.div`
   margin-bottom: 1rem;
   
   label {
@@ -13,7 +12,7 @@ export const FormGroup = styled.div<{ theme: ThemeType }>`
   }
 `;
 
-export const FormInput = styled.input<{ theme: ThemeType }>`
+export const FormInput = styled.input`
   width: 100%;
   padding: 0.65rem 0.85rem;
   background: rgba(11, 15, 25, 0.6);
@@ -31,7 +30,7 @@ export const FormInput = styled.input<{ theme: ThemeType }>`
   }
 `;
 
-export const FormSelect = styled.select<{ theme: ThemeType }>`
+export const FormSelect = styled.select`
   width: 100%;
   padding: 0.65rem 0.85rem;
   background: rgba(11, 15, 25, 0.6);
@@ -49,7 +48,7 @@ export const FormSelect = styled.select<{ theme: ThemeType }>`
   }
 `;
 
-export const BtnSubmit = styled.button<{ theme: ThemeType }>`
+export const BtnSubmit = styled.button`
   width: 100%;
   padding: 0.75rem;
   background: rgba(0, 229, 255, 0.1);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Send } from 'lucide-react';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import * as S from '@/components/admin/ShipmentForm.styles';
+import * as S from './ShipmentForm.styles';
 import { WorkOrder } from '@/context/AppContext';
 import { useShipmentForm } from './useShipmentForm';
 

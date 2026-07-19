@@ -37,7 +37,7 @@ export const StockUpdateModal: React.FC<StockUpdateModalProps> = ({
     onUpdateStock(
       material.productID,
       finalQty,
-      material.name,
+      material.productName,
       editSafetyQty
     );
     onClose();
@@ -47,13 +47,13 @@ export const StockUpdateModal: React.FC<StockUpdateModalProps> = ({
     <Modal
       isOpen={!!material}
       onClose={onClose}
-      title={`자재 재고 입고 & 수량 관리 (${material.name})`}
+      title={`자재 재고 입고 & 수량 관리 (${material.productName})`}
       icon={<PackagePlus size={20} />}
     >
       <S.FormContainer>
         <S.StockInfoBox>
           <div>코드: <strong>{material.productID}</strong></div>
-          <div>현재 재고: <strong>{material.stockQty}</strong> (안전재고: {material.safetyQty})</div>
+          <div>현재 재고: <strong>{material.stockQty.toLocaleString()} EA</strong> (안전재고: {material.safetyQty.toLocaleString()} EA)</div>
         </S.StockInfoBox>
 
         {/* 1. 빠른 입고 Form */}

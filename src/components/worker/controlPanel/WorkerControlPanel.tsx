@@ -209,16 +209,22 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
             <S.ActionFooter>
               <S.BtnActionPrimary 
                 onClick={onComplete}
-                disabled={isOrderCompleted || !isLastStage || !isPlanCompleted || isPending.complete}
+                disabled={isOrderCompleted || !isLastStage || !isPlanCompleted || isPending.complete || isLotHold}
               >
                 <CheckCircle size={18} />
                 {isOrderCompleted ? '작업 완료됨' : '최종 공정 완료 처리'}
               </S.BtnActionPrimary>
               
-              {!isOrderCompleted && (!isLastStage || !isPlanCompleted) && (
+              {!isOrderCompleted && (!isLastStage || !isPlanCompleted || isLotHold) && (
                 <S.CompleteHint>
                   <AlertCircle size={12} />
-                  <span>마지막 '{processStages[processStages.length - 1]}' 단계 및 목표 수량({activeOrder.targetQty} EA) 도달 시 완료 가능</span>
+                  {isLotHold ? (
+                    <span style={{ color: '#ff1744' }}>🚫 LOT 보류(HOLD) 상태 해제 후 완료 가능</span>
+                  ) : !isLastStage ? (
+                    <span>마지막 '{processStages[processStages.length - 1]}' 단계 및 목표 수량({activeOrder.targetQty} EA) 도달 시 완료 가능</span>
+                  ) : (
+                    <span>목표 생산 수량({activeOrder.targetQty} EA) 달성 필요 (현재: {activeOrder.totalGoodQty} EA)</span>
+                  )}
                 </S.CompleteHint>
               )}
             </S.ActionFooter>

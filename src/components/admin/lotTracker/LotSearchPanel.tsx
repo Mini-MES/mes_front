@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import { LotTracking, WorkOrder } from '@/context/AppContext';
-import * as S from '@/components/admin/LotProcessTracker.styles';
+import * as S from './LotProcessTracker.styles';
 
 interface LotSearchPanelProps {
   filteredLots: LotTracking[];

@@ -2,14 +2,7 @@ import React from 'react';
 import { TrendingUp } from 'lucide-react';
 import { WorkOrder } from '@/context/AppContext';
 import { GlassCard, CardTitle } from '@/pages/admin/Dashboard.styles';
-import {
-  TableContainer,
-  CustomTable,
-  ProgressBarContainer,
-  ProgressBarFill,
-  StatusBadge,
-  ActionButton
-} from './WorkOrderList.styles';
+import * as S from './WorkOrderList.styles';
 
 interface WorkOrderListProps {
   workOrders: WorkOrder[];
@@ -32,8 +25,8 @@ export const WorkOrderList: React.FC<WorkOrderListProps> = ({
         <TrendingUp size={18} />
         생산 작업 지시 현황
       </CardTitle>
-      <TableContainer>
-        <CustomTable>
+      <S.TableContainer>
+        <S.CustomTable>
           <thead>
             <tr>
               <th>지시번호</th>
@@ -51,7 +44,6 @@ export const WorkOrderList: React.FC<WorkOrderListProps> = ({
               const isCompleted = order.status === 'Completed';
               const isProcessing = order.status === 'InProgress';
               
-              // productID에 대응하는 실제 제품명(productName) 검색
               const matchedProduct = products.find(p => p.productID === order.productID);
               const displayName = matchedProduct ? matchedProduct.productName : order.productID;
               
@@ -64,36 +56,36 @@ export const WorkOrderList: React.FC<WorkOrderListProps> = ({
                   <td style={{ width: '150px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{progress}%</span>
-                      <ProgressBarContainer>
-                        <ProgressBarFill style={{ width: `${progress}%` }} />
-                      </ProgressBarContainer>
+                      <S.ProgressBarContainer>
+                        <S.ProgressBarFill $widthPercent={progress} />
+                      </S.ProgressBarContainer>
                     </div>
                   </td>
                   <td>
-                    <StatusBadge className={isCompleted ? 'completed' : isProcessing ? 'processing' : 'pending'}>
+                    <S.StatusBadge className={isCompleted ? 'completed' : isProcessing ? 'processing' : 'pending'}>
                       {isCompleted ? '완료' : isProcessing ? '진행중' : '대기'}
-                    </StatusBadge>
+                    </S.StatusBadge>
                   </td>
                   <td style={{ width: '130px', textAlign: 'center' }}>
                     {order.status === 'Created' && (
                       <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'center' }}>
-                        <ActionButton className="start" onClick={() => onStartOrder?.(order.orderID)}>
+                        <S.ActionButton className="start" onClick={() => onStartOrder?.(order.orderID)}>
                           시작
-                        </ActionButton>
-                        <ActionButton className="delete" onClick={() => {
+                        </S.ActionButton>
+                        <S.ActionButton className="delete" onClick={() => {
                           if (confirm(`지시번호 [${order.orderID}]를 삭제하시겠습니까?`)) {
                             onDeleteOrder?.(order.orderID);
                           }
                         }}>
                           삭제
-                        </ActionButton>
+                        </S.ActionButton>
                       </div>
                     )}
                     {isProcessing && (
                       <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <ActionButton className="complete" onClick={() => onCompleteOrder?.(order.orderID)}>
+                        <S.ActionButton className="complete" onClick={() => onCompleteOrder?.(order.orderID)}>
                           완료
-                        </ActionButton>
+                        </S.ActionButton>
                       </div>
                     )}
                     {isCompleted && (
@@ -104,9 +96,8 @@ export const WorkOrderList: React.FC<WorkOrderListProps> = ({
               );
             })}
           </tbody>
-        </CustomTable>
-      </TableContainer>
+        </S.CustomTable>
+      </S.TableContainer>
     </GlassCard>
   );
 };
-
