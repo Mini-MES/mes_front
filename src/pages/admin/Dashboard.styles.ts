@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { ThemeType } from '@/styles/theme';
 
 export const DashboardContent = styled.div`
   flex: 1;
@@ -24,7 +23,25 @@ export const TitleSection = styled.div`
   }
 `;
 
-export const GlassCard = styled.section<{ theme: ThemeType }>`
+export const HeaderSubText = styled.p`
+  color: ${props => props.theme.colors.textSecondary};
+  margin-top: 0.25rem;
+`;
+
+export const LiveMonitoringBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: ${props => props.theme.colors.primary};
+`;
+
+export const LiveMonitoringText = styled.span`
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: ${props => props.theme.fonts.mono};
+`;
+
+export const GlassCard = styled.section`
   background: ${props => props.theme.colors.bgCard};
   backdrop-filter: blur(16px);
   border: 1px solid ${props => props.theme.colors.borderColor};
@@ -39,7 +56,7 @@ export const GlassCard = styled.section<{ theme: ThemeType }>`
   }
 `;
 
-export const CardTitle = styled.h2<{ theme: ThemeType }>`
+export const CardTitle = styled.h2`
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1.25rem;
@@ -57,7 +74,7 @@ export const MaterialGrid = styled.div`
   gap: 1rem;
 `;
 
-export const MaterialCard = styled.div<{ $isWarning?: boolean; theme: ThemeType }>`
+export const MaterialCard = styled.div<{ $isWarning?: boolean }>`
   padding: 1rem;
   border-radius: 12px;
   border: 1px solid ${props => props.$isWarning ? 'rgba(255, 23, 68, 0.3)' : props.theme.colors.borderColor};
@@ -67,12 +84,12 @@ export const MaterialCard = styled.div<{ $isWarning?: boolean; theme: ThemeType 
   gap: 0.5rem;
 `;
 
-export const MaterialName = styled.span<{ theme: ThemeType }>`
+export const MaterialName = styled.span`
   font-size: 0.85rem;
   color: ${props => props.theme.colors.textSecondary};
 `;
 
-export const MaterialStock = styled.span<{ $isWarning?: boolean; theme: ThemeType }>`
+export const MaterialStock = styled.span<{ $isWarning?: boolean }>`
   font-size: 1.5rem;
   font-weight: 600;
   font-family: ${props => props.theme.fonts.mono};
@@ -89,7 +106,7 @@ export const AdminGrid = styled.div`
   }
 `;
 
-export const FormGroup = styled.div<{ theme: ThemeType }>`
+export const FormGroup = styled.div`
   margin-bottom: 1rem;
   
   label {
@@ -101,7 +118,7 @@ export const FormGroup = styled.div<{ theme: ThemeType }>`
   }
 `;
 
-export const FormInput = styled.input<{ theme: ThemeType }>`
+export const FormInput = styled.input`
   width: 100%;
   padding: 0.65rem 0.85rem;
   background: rgba(11, 15, 25, 0.6);
@@ -119,7 +136,7 @@ export const FormInput = styled.input<{ theme: ThemeType }>`
   }
 `;
 
-export const FormSelect = styled.select<{ theme: ThemeType }>`
+export const FormSelect = styled.select`
   width: 100%;
   padding: 0.65rem 0.85rem;
   background: rgba(11, 15, 25, 0.6);
@@ -137,7 +154,7 @@ export const FormSelect = styled.select<{ theme: ThemeType }>`
   }
 `;
 
-export const BtnSubmit = styled.button<{ theme: ThemeType }>`
+export const BtnSubmit = styled.button`
   width: 100%;
   padding: 0.75rem;
   background: rgba(0, 229, 255, 0.1);
@@ -160,7 +177,7 @@ export const TableContainer = styled.div`
   overflow-x: auto;
 `;
 
-export const CustomTable = styled.table<{ theme: ThemeType }>`
+export const CustomTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -195,14 +212,14 @@ export const ProgressBarContainer = styled.div`
   margin-top: 0.5rem;
 `;
 
-export const ProgressBarFill = styled.div<{ theme: ThemeType }>`
+export const ProgressBarFill = styled.div`
   height: 100%;
   background: linear-gradient(90deg, ${props => props.theme.colors.info}, ${props => props.theme.colors.success});
   border-radius: 4px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
-export const StatusBadge = styled.span<{ theme: ThemeType }>`
+export const StatusBadge = styled.span`
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -238,7 +255,7 @@ export const FlowContainer = styled.div`
   gap: 1.5rem;
 `;
 
-export const FlowStepBar = styled.div<{ theme: ThemeType }>`
+export const FlowStepBar = styled.div`
   display: flex;
   justify-content: space-between;
   position: relative;
@@ -266,7 +283,7 @@ export const FlowStep = styled.div`
   flex: 1;
 `;
 
-export const FlowStepCircle = styled.div<{ $active?: boolean; $completed?: boolean; theme: ThemeType }>`
+export const FlowStepCircle = styled.div<{ $active?: boolean; $completed?: boolean }>`
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -294,7 +311,7 @@ export const FlowStepCircle = styled.div<{ $active?: boolean; $completed?: boole
   transition: ${props => props.theme.transitions.smooth};
 `;
 
-export const FlowStepLabel = styled.span<{ $active?: boolean; $completed?: boolean; theme: ThemeType }>`
+export const FlowStepLabel = styled.span<{ $active?: boolean; $completed?: boolean }>`
   font-size: 0.8rem;
   color: ${props => {
     if (props.$completed) return props.theme.colors.success;
@@ -304,7 +321,7 @@ export const FlowStepLabel = styled.span<{ $active?: boolean; $completed?: boole
   font-weight: ${props => props.$active ? '600' : '500'};
 `;
 
-export const LotDetailGrid = styled.div<{ theme: ThemeType }>`
+export const LotDetailGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
@@ -320,7 +337,7 @@ export const LotDetailInfo = styled.div`
   gap: 1rem;
 `;
 
-export const LotDetailItem = styled.div<{ theme: ThemeType }>`
+export const LotDetailItem = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;

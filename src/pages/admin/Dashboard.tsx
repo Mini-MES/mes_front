@@ -1,10 +1,10 @@
 import React from 'react';
 import { Activity } from 'lucide-react';
-import { DashboardContent, TitleSection, AdminGrid } from '@/pages/admin/Dashboard.styles';
+import * as S from '@/pages/admin/Dashboard.styles';
 import { useDashboard } from './useDashboard';
 
 // 분리된 하위 컴포넌트 임포트
-import RawMaterialStatus from '@/components/admin/RawMaterialStatus';
+import { RawMaterialStatus } from '@/components/admin/RawMaterialStatus';
 import { WorkOrderList } from '@/components/admin/WorkOrderList';
 import { WorkOrderForm } from '@/components/admin/WorkOrderForm';
 import LotProcessTracker from '@/components/admin/LotProcessTracker';
@@ -24,29 +24,37 @@ const Dashboard: React.FC = () => {
     handleCompleteOrder,
     handleDeleteOrder,
     handleShipmentSubmit,
+    handleCreateMaterial,
+    handleUpdateStock,
     isCreatePending,
-    isShipPending
+    isShipPending,
+    isMaterialPending
   } = useDashboard();
 
   return (
-    <DashboardContent>
+    <S.DashboardContent>
       {/* 타이틀 영역 */}
-      <TitleSection>
+      <S.TitleSection>
         <div>
           <h1>생산 관리 대시보드</h1>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>실시간 공정 흐름 모니터링 및 자재 현황</p>
+          <S.HeaderSubText>실시간 공정 흐름 모니터링 및 자재 현황</S.HeaderSubText>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-primary)' }}>
+        <S.LiveMonitoringBadge>
           <Activity size={18} className="logo-icon" />
-          <span style={{ fontSize: '0.9rem', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>LIVE MONITORING ACTIVE</span>
-        </div>
-      </TitleSection>
+          <S.LiveMonitoringText>LIVE MONITORING ACTIVE</S.LiveMonitoringText>
+        </S.LiveMonitoringBadge>
+      </S.TitleSection>
 
       {/* 1. 원자재 현황 컴포넌트 */}
-      <RawMaterialStatus rawMaterials={rawMaterials} />
+      <RawMaterialStatus 
+        rawMaterials={rawMaterials} 
+        onCreateMaterial={handleCreateMaterial}
+        onUpdateStock={handleUpdateStock}
+        isPending={isMaterialPending}
+      />
 
       {/* 2. 작업지시 등록 / 목록 / 출하 등록 컴포넌트 */}
-      <AdminGrid>
+      <S.AdminGrid>
         <WorkOrderList 
           workOrders={workOrders} 
           products={rawMaterials}
@@ -67,7 +75,7 @@ const Dashboard: React.FC = () => {
             workOrders={workOrders}
           />
         </div>
-      </AdminGrid>
+      </S.AdminGrid>
 
       {/* 3. 실시간 LOT 추적 및 공정 흐름도 컴포넌트 */}
       <LotProcessTracker 
@@ -81,7 +89,7 @@ const Dashboard: React.FC = () => {
         shipments={shipments} 
         isLoading={isShipmentsLoading} 
       />
-    </DashboardContent>
+    </S.DashboardContent>
   );
 };
 
