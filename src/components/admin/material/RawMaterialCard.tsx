@@ -23,13 +23,13 @@ export const RawMaterialCard: React.FC<RawMaterialCardProps> = ({
 
       <S.StockDisplayRow>
         <S.MaterialStock $isWarning={isWarning}>
-          {material.stockQty.toLocaleString()}
+          {material.stockQty}
         </S.MaterialStock>
         <S.StockUnit>{material.unit || '개'}</S.StockUnit>
       </S.StockDisplayRow>
 
       <S.MaterialCardFooter>
-        <S.SafetyStockText>안전재고: {material.safetyQty.toLocaleString()}</S.SafetyStockText>
+        <S.SafetyStockText>안전재고: {material.safetyQty}</S.SafetyStockText>
         <S.StatusBadge className={isWarning ? 'alert' : 'completed'}>
           {isWarning ? (
             <>
