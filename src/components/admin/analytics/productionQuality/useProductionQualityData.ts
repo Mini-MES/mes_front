@@ -4,10 +4,11 @@ import { WorkOrder, RawMaterial } from '@/context/AppContext';
 export interface ProcessedOrderData {
   name: string;
   targetQty: number;
-  finishedGoodQty: number; // 완제품 양품
-  semiGoodQty: number;     // 반제품 양품
-  totalBadQty: number;     // 불량 수량
-  defectRate: number;      // 불량률 (%)
+  totalGoodQty: number;    
+  finishedGoodQty: number; 
+  semiGoodQty: number;     
+  totalBadQty: number;    
+  defectRate: number;     
   isFinishedProduct: boolean;
 }
 
@@ -25,11 +26,9 @@ export const useProductionQualityData = (
   workOrders: WorkOrder[] = [],
   rawMaterials: RawMaterial[] = []
 ) => {
-  // 제품 ID -> itemType / 제품 타입 맵 생성
   const productMap = useMemo(() => {
     const map = new Map<string, { name: string; isSemi: boolean }>();
     rawMaterials.forEach((m: any) => {
-      // itemType: 1이 반제품이거나 품목명에 반제품/WIP가 포함되면 반제품으로 판별
       const isSemi = m.itemType === 1 || m.productName?.includes('반제품') || m.productID?.startsWith('SF-');
       map.set(m.productID, {
         name: m.productName || m.name || m.productID,
@@ -39,23 +38,14 @@ export const useProductionQualityData = (
     return map;
   }, [rawMaterials]);
 
-  // 1. 지시별 데이터 가공 (완제품 양품 vs 반제품 양품 분리)
   const chartData = useMemo<ProcessedOrderData[]>(() => {
-    if (!workOrders || workOrders.length === 0) {
-      return [
-        { name: '스마트 모터 (#101)', targetQty: 500, finishedGoodQty: 450, semiGoodQty: 0, totalBadQty: 12, defectRate: 2.6, isFinishedProduct: true },
-        { name: '하우징 반제품 (#102)', targetQty: 300, finishedGoodQty: 0, semiGoodQty: 280, totalBadQty: 5, defectRate: 1.8, isFinishedProduct: false },
-        { name: '센서 모듈 (#103)', targetQty: 200, finishedGoodQty: 150, semiGoodQty: 0, totalBadQty: 8, defectRate: 5.1, isFinishedProduct: true },
-        { name: '기어 1차반제품 (#104)', targetQty: 400, finishedGoodQty: 0, semiGoodQty: 380, totalBadQty: 10, defectRate: 2.6, isFinishedProduct: false },
-      ];
-    }
 
     return workOrders.map((order) => {
       const target = order.targetQty || 0;
       const good = order.totalGoodQty || 0;
       const bad = order.totalBadQty || 0;
-      const totalProduced = good + bad;
-      const defectRate = totalProduced > 0 ? parseFloat(((bad / totalProduced) * 100).toFixed(1)) : 0;
+      // 목표 수량(targetQty) 대비 불량률 계산식 적용 (bad / target * 100)
+      const defectRate = target > 0 ? parseFloat(((bad / target) * 100).toFixed(1)) : 0;
 
       const productInfo = productMap.get(order.productID);
       const isSemi = productInfo ? productInfo.isSemi : order.productID?.startsWith('SF-') || false;
@@ -69,6 +59,7 @@ export const useProductionQualityData = (
       return {
         name: labelName,
         targetQty: target,
+        totalGoodQty: good,
         finishedGoodQty,
         semiGoodQty,
         totalBadQty: bad,
@@ -93,7 +84,7 @@ export const useProductionQualityData = (
     ];
   }, [workOrders]);
 
-  // 3. KPI 총계 요약 계산
+  // 3. KPI 총계 요약 계산 (목표 수량 대비 전체 불량률)
   const summaryKPI = useMemo<SummaryKPI>(() => {
     let totalTarget = 0;
     let totalFinishedGood = 0;
@@ -107,8 +98,7 @@ export const useProductionQualityData = (
       totalBad += d.totalBadQty;
     });
 
-    const totalProduced = totalFinishedGood + totalSemiGood + totalBad;
-    const overallDefectRate = totalProduced > 0 ? ((totalBad / totalProduced) * 100).toFixed(1) : '0';
+    const overallDefectRate = totalTarget > 0 ? ((totalBad / totalTarget) * 100).toFixed(1) : '0';
     const totalGoodSum = totalFinishedGood + totalSemiGood;
     const overallAchievement = totalTarget > 0 ? Math.min(100, Math.round((totalGoodSum / totalTarget) * 100)) : 0;
 

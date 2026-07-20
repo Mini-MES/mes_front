@@ -39,10 +39,9 @@ export const ProductionBarChart: React.FC<ProductionBarChartProps> = ({ data }) 
               }}
             />
             <Legend wrapperStyle={{ color: '#B0C4DE', fontSize: '12px' }} />
-            <Bar yAxisId="left" dataKey="targetQty" name="목표량" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={14} />
-            <Bar yAxisId="left" dataKey="finishedGoodQty" name="완제품 양품" fill="#00FF66" radius={[4, 4, 0, 0]} barSize={14} />
-            <Bar yAxisId="left" dataKey="semiGoodQty" name="반제품 양품" fill="#FFB800" radius={[4, 4, 0, 0]} barSize={14} />
-            <Bar yAxisId="left" dataKey="totalBadQty" name="불량 수량" fill="#FF0055" radius={[4, 4, 0, 0]} barSize={14} />
+            <Bar yAxisId="left" dataKey="targetQty" name="목표량" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={16} />
+            <Bar yAxisId="left" dataKey="totalGoodQty" name="양품 수량" fill="#00FF66" radius={[4, 4, 0, 0]} barSize={16} />
+            <Bar yAxisId="left" dataKey="totalBadQty" name="불량 수량" fill="#FF0055" radius={[4, 4, 0, 0]} barSize={16} />
             <Line yAxisId="right" type="monotone" dataKey="defectRate" name="불량률 (%)" stroke="#FF0055" strokeWidth={2.5} dot={{ r: 4 }} />
           </ComposedChart>
         </ResponsiveContainer>
