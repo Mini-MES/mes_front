@@ -10,6 +10,7 @@ import { WorkOrderForm } from '@/components/admin/workOrder/WorkOrderForm';
 import LotProcessTracker from '@/components/admin/lotTracker/LotProcessTracker';
 import { ShipmentForm } from '@/components/admin/shipment/ShipmentForm';
 import { ShipmentList } from '@/components/admin/shipment/ShipmentList';
+import { AnalyticsSection } from '@/components/admin/analytics/AnalyticsSection';
 
 const Dashboard: React.FC = () => {
   const {
@@ -44,6 +45,14 @@ const Dashboard: React.FC = () => {
           <S.LiveMonitoringText>LIVE MONITORING ACTIVE</S.LiveMonitoringText>
         </S.LiveMonitoringBadge>
       </S.TitleSection>
+
+      {/* 탭 기반 통합 모니터링 차트 섹션 (1개 위젯 공간만 사용) */}
+      <AnalyticsSection 
+        workOrders={workOrders} 
+        rawMaterials={rawMaterials}
+        lotTracking={lotTracking}
+        processStages={processStages}
+      />
 
       {/* 1. 원자재 현황 컴포넌트 */}
       <RawMaterialStatus 
