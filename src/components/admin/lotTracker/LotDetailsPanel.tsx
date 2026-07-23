@@ -134,7 +134,7 @@ export const LotDetailsPanel: React.FC<LotDetailsPanelProps> = ({
               <S.HistoryLoadingText>이력 조회 중...</S.HistoryLoadingText>
             ) : lotPerformances.length > 0 ? (
               <S.TimelineList>
-                {lotPerformances.map((perf: any) => {
+                {lotPerformances.map((perf: any, index: number) => {
                   const hasBad = (perf?.badQty || 0) > 0;
                   const formattedTime = perf?.workDate 
                     ? new Date(perf.workDate).toLocaleString('ko-KR', {
@@ -148,7 +148,7 @@ export const LotDetailsPanel: React.FC<LotDetailsPanelProps> = ({
                     : '-';
 
                   return (
-                    <S.TimelineItem key={perf.perfID || Math.random()}>
+                    <S.TimelineItem key={perf.perfID ?? `perf-${index}`}>
                       <S.TimelineMarker $hasError={hasBad} />
                       <S.TimelineContent>
                         <S.TimelineDetails>

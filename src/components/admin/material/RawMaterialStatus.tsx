@@ -45,7 +45,7 @@ const RawMaterialStatus: React.FC<RawMaterialStatusProps> = ({
 
         <S.MaterialGrid>
           {rawMaterials
-            .filter(item => (item as any).itemType === 'RawMaterial' || (item as any).itemType === 0)
+            .filter(item => (item as any).itemType === 'RawMaterial' || (item as any).itemType === 2)
             .map(mat => (
               <RawMaterialCard
                 key={mat.productID}
