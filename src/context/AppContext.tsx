@@ -3,10 +3,10 @@ import { customFetch } from '@/api/fetcher';
 
 export interface RawMaterial {
   productID: string;
-  name: string;
+  productName: string;
   stockQty: number;
   unit: string;
-  safetyQty: number;
+  safetyStock: number;
   status: '충분' | '부족';
 }
 

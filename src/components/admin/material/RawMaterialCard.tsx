@@ -12,12 +12,12 @@ export const RawMaterialCard: React.FC<RawMaterialCardProps> = ({
   material,
   onOpenStockModal
 }) => {
-  const isWarning = material.stockQty < material.safetyQty;
+  const isWarning = material.stockQty < material.safetyStock;
 
   return (
     <S.MaterialCard $isWarning={isWarning}>
       <S.MaterialCardHeader>
-        <S.MaterialName>{material.name}</S.MaterialName>
+        <S.MaterialName>{material.productName}</S.MaterialName>
         <S.MaterialIdText>{material.productID}</S.MaterialIdText>
       </S.MaterialCardHeader>
 
@@ -29,7 +29,7 @@ export const RawMaterialCard: React.FC<RawMaterialCardProps> = ({
       </S.StockDisplayRow>
 
       <S.MaterialCardFooter>
-        <S.SafetyStockText>안전재고: {material.safetyQty}</S.SafetyStockText>
+        <S.SafetyStockText>안전재고: {material.safetyStock}</S.SafetyStockText>
         <S.StatusBadge className={isWarning ? 'alert' : 'completed'}>
           {isWarning ? (
             <>
