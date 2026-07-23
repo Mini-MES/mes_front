@@ -7,12 +7,14 @@ export const ModalOverlay = styled.div`
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.75);
+  width: 100%;
+  height: 100%;
   backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: 0.5rem;
   animation: fadeIn 0.2s ease-out;
 
   @keyframes fadeIn {

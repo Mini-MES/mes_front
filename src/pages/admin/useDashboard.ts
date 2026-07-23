@@ -193,7 +193,7 @@ export const useDashboard = () => {
   const handleCreateMaterial = (material: { productID: string; productName: string; stockQty: number; safetyQty: number }) => {
     createMaterialMutation.mutate({
       ...material,
-      itemType: 0 // 0 = RawMaterial
+      itemType: 2 // RawMaterial로 고정
     });
   };
 
