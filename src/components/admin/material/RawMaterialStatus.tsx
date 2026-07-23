@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Database, Plus } from 'lucide-react';
 import { RawMaterial } from '@/context/AppContext';
 import { GlassCard } from '@/pages/admin/Dashboard.styles';
@@ -23,12 +23,6 @@ const RawMaterialStatus: React.FC<RawMaterialStatusProps> = ({
 }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<RawMaterial | null>(null);
-
-  useEffect(() => {
-    
-    console.log(rawMaterials);
-  }, [rawMaterials]);
-
   return (
     <>
       <GlassCard>

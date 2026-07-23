@@ -31,7 +31,8 @@ const Dashboard: React.FC = () => {
     isCreatePending,
     isShipPending,
     isMaterialPending,
-    isUnholdPending
+    isUnholdPending,
+    unholdingLotId
   } = useDashboard();
 
   return (
@@ -95,6 +96,7 @@ const Dashboard: React.FC = () => {
         processStages={processStages} 
         onUnholdLot={handleUnholdLot}
         isUnholdPending={isUnholdPending}
+        unholdingLotId={unholdingLotId}
       />
 
       {/* 4. 완제품 출하 이력 현황판 컴포넌트 */}

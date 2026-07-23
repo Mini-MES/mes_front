@@ -15,6 +15,7 @@ interface LotProcessTrackerProps {
   processStages: string[];
   onUnholdLot?: (lotId: string) => void;
   isUnholdPending?: boolean;
+  unholdingLotId?: string;
 }
 
 export function LotProcessTracker({
@@ -22,7 +23,8 @@ export function LotProcessTracker({
   workOrders,
   processStages,
   onUnholdLot,
-  isUnholdPending
+  isUnholdPending,
+  unholdingLotId
 }: LotProcessTrackerProps) {
   const [selectedLotId, setSelectedLotId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -125,6 +127,7 @@ export function LotProcessTracker({
           isHistoryLoading={isHistoryLoading}
           onUnholdLot={onUnholdLot}
           isUnholdPending={isUnholdPending}
+          unholdingLotId={unholdingLotId}
         />
       </S.TrackerLayout>
     </GlassCard>

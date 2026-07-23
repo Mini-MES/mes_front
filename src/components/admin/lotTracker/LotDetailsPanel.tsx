@@ -14,6 +14,7 @@ interface LotDetailsPanelProps {
   isHistoryLoading: boolean;
   onUnholdLot?: (lotId: string) => void;
   isUnholdPending?: boolean;
+  unholdingLotId?: string;
 }
 
 export const LotDetailsPanel: React.FC<LotDetailsPanelProps> = ({
@@ -26,7 +27,8 @@ export const LotDetailsPanel: React.FC<LotDetailsPanelProps> = ({
   performances = [],
   isHistoryLoading,
   onUnholdLot,
-  isUnholdPending
+  isUnholdPending,
+  unholdingLotId
 }) => {
   const getStageIndex = (stageId: number) => {
     return stageId - 1;
@@ -42,6 +44,7 @@ export const LotDetailsPanel: React.FC<LotDetailsPanelProps> = ({
     : [];
 
   const lotStatusUpper = selectedLot?.status ? String(selectedLot.status).toUpperCase() : '';
+  const isThisLotUnholding = Boolean(isUnholdPending && selectedLot && unholdingLotId === selectedLot.lotID);
 
   return (
     <S.LotDetailsPanel>
@@ -90,9 +93,9 @@ export const LotDetailsPanel: React.FC<LotDetailsPanelProps> = ({
                     <S.BtnUnhold
                       type="button"
                       onClick={() => onUnholdLot(selectedLot.lotID)}
-                      disabled={isUnholdPending}
+                      disabled={isThisLotUnholding}
                     >
-                      {isUnholdPending ? '해제 중...' : '🔓 보류 해제 (Un-HOLD)'}
+                      {isThisLotUnholding ? '해제 중...' : '🔓 보류 해제 (Un-HOLD)'}
                     </S.BtnUnhold>
                   )}
                 </S.StatusColumnGroup>

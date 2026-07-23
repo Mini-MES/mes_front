@@ -246,6 +246,7 @@ export const useDashboard = () => {
     isCreatePending: createOrderMutation.isPending,
     isShipPending: shipProductMutation.isPending,
     isMaterialPending: createMaterialMutation.isPending || updateStockMutation.isPending,
-    isUnholdPending: unholdLotMutation.isPending
+    isUnholdPending: unholdLotMutation.isPending,
+    unholdingLotId: unholdLotMutation.variables
   };
 };
