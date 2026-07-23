@@ -373,3 +373,132 @@ export const TimelineMeta = styled.div`
   font-size: 0.75rem;
   color: ${props => props.theme.colors.textSecondary};
 `;
+
+export const BtnUnhold = styled.button`
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  transition: ${props => props.theme.transitions.smooth};
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+export const StatusColumnGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+`;
+
+export const PrimaryTextSpan = styled.span`
+  color: ${props => props.theme.colors.primary};
+  font-weight: 600;
+`;
+
+export const BadQtySpan = styled.span<{ $hasBad?: boolean }>`
+  color: ${props => props.$hasBad ? props.theme.colors.danger : 'inherit'};
+  font-weight: ${props => props.$hasBad ? '600' : 'normal'};
+`;
+
+export const SectionLabel = styled.span`
+  font-size: 0.85rem;
+  color: ${props => props.theme.colors.textSecondary};
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+`;
+
+export const HistoryLoadingText = styled.div`
+  padding: 1rem;
+  color: ${props => props.theme.colors.textMuted};
+  font-size: 0.85rem;
+`;
+
+export const TimelinePerfHeader = styled.div<{ $hasBad?: boolean }>`
+  font-weight: 600;
+  color: ${props => props.$hasBad ? props.theme.colors.danger : props.theme.colors.textPrimary};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const TimelineBadBadge = styled.span`
+  font-size: 0.7rem;
+  background: rgba(255, 23, 68, 0.15);
+  color: ${props => props.theme.colors.danger};
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+`;
+
+export const TimelinePerfBody = styled.div`
+  font-size: 0.8rem;
+  color: ${props => props.theme.colors.textSecondary};
+  margin-top: 0.25rem;
+
+  strong.success {
+    color: ${props => props.theme.colors.success};
+  }
+
+  strong.danger {
+    color: ${props => props.theme.colors.danger};
+  }
+
+  strong.primary {
+    color: ${props => props.theme.colors.primary};
+    font-family: ${props => props.theme.fonts.mono};
+  }
+`;
+
+export const TimelineUserGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
+export const TimelineTimeText = styled.span`
+  font-size: 0.7rem;
+  color: ${props => props.theme.colors.textMuted};
+  font-family: ${props => props.theme.fonts.mono};
+`;
+
+export const EmptyTimelineState = styled.div`
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed ${props => props.theme.colors.borderColor};
+  border-radius: 8px;
+  text-align: center;
+  color: ${props => props.theme.colors.textMuted};
+  font-size: 0.85rem;
+`;
+
+export const EmptyLotSelectionState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  color: ${props => props.theme.colors.textMuted};
+
+  svg {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+`;
+

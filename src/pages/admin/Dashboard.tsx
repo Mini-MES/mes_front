@@ -27,9 +27,12 @@ const Dashboard: React.FC = () => {
     handleShipmentSubmit,
     handleCreateMaterial,
     handleUpdateStock,
+    handleUnholdLot,
     isCreatePending,
     isShipPending,
-    isMaterialPending
+    isMaterialPending,
+    isUnholdPending,
+    unholdingLotId
   } = useDashboard();
 
   return (
@@ -91,6 +94,9 @@ const Dashboard: React.FC = () => {
         lotTracking={lotTracking} 
         workOrders={workOrders} 
         processStages={processStages} 
+        onUnholdLot={handleUnholdLot}
+        isUnholdPending={isUnholdPending}
+        unholdingLotId={unholdingLotId}
       />
 
       {/* 4. 완제품 출하 이력 현황판 컴포넌트 */}
