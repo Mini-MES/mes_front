@@ -165,6 +165,22 @@ export const useDashboard = () => {
     }
   });
 
+  // 9. Lot 보류 해제 Mutation
+  const unholdLotMutation = useMutation({
+    mutationFn: (lotId: string) => 
+      customFetch(`/Production/lot/${lotId}/unhold`, {
+        method: 'PUT',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      alert('LOT 보류(HOLD) 상태가 성공적으로 해제되어 공정이 다시 진행 가능합니다.');
+    },
+    onError: (err: any) => {
+      alert(`보류 해제 실패: ${err.message}`);
+    }
+  });
+
   const handleOrderSubmit = (order: { productID: string; planQty: number }) => {
     createOrderMutation.mutate({
       productID: order.productID,
@@ -206,6 +222,12 @@ export const useDashboard = () => {
     });
   };
 
+  const handleUnholdLot = (lotId: string) => {
+    if (confirm(`LOT ID [${lotId}]의 보류(HOLD) 상태를 해제하시겠습니까?`)) {
+      unholdLotMutation.mutate(lotId);
+    }
+  };
+
   return {
     rawMaterials,
     workOrders,
@@ -220,8 +242,10 @@ export const useDashboard = () => {
     handleShipmentSubmit,
     handleCreateMaterial,
     handleUpdateStock,
+    handleUnholdLot,
     isCreatePending: createOrderMutation.isPending,
     isShipPending: shipProductMutation.isPending,
-    isMaterialPending: createMaterialMutation.isPending || updateStockMutation.isPending
+    isMaterialPending: createMaterialMutation.isPending || updateStockMutation.isPending,
+    isUnholdPending: unholdLotMutation.isPending
   };
 };
