@@ -33,7 +33,7 @@ const Layout: React.FC = () => {
       case 'Connected':
         return { text: '실시간 (SignalR)', color: '#00e676', border: 'rgba(0, 230, 118, 0.4)' };
       case 'Connecting':
-        return { text: '연결 중...', color: '`#ffb703`', border: 'rgba(255, 183, 3, 0.4)' };
+        return { text: '연결 중...', color: '#ffb703', border: 'rgba(255, 183, 3, 0.4)' };
       case 'Reconnecting':
         return { text: '재연결 중...', color: '#ffb703', border: 'rgba(255, 183, 3, 0.4)' };
       default:
