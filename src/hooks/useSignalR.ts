@@ -13,10 +13,13 @@ interface UseSignalROptions {
  */
 export const useSignalR = (options: UseSignalROptions = {}) => {
   const {
-    hubUrl = import.meta.env.VITE_SIGNALR_HUB_URL,
+    hubUrl = import.meta.env.VITE_SIGNALR_HUB_URL ,
     autoStart = true,
   } = options;
 
+  if(!hubUrl) {
+    console.error('🔴 SignalR Hub URL이 설정되지 않았습니다. VITE_SIGNALR_HUB_URL을 확인하세요.');
+  }
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [connectionState, setConnectionState] = useState<SignalRConnectionState>('Disconnected');
   const connectionRef = useRef<signalR.HubConnection | null>(null);
