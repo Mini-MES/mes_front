@@ -30,6 +30,7 @@ export const useSignalR = (options: UseSignalROptions = {}) => {
       .withUrl(hubUrl, {
         skipNegotiation: false,
         transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.ServerSentEvents,
+        withCredentials: true, 
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // 자동 재연결 간격
       .configureLogging(import.meta.env.DEV ? signalR.LogLevel.Information : signalR.LogLevel.Warning)
