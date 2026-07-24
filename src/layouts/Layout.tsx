@@ -1,7 +1,8 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
-import { Shield, User, LogOut } from 'lucide-react';
+import { useSignalRContext } from '@/context/SignalRContext';
+import { Shield, User, LogOut, Radio } from 'lucide-react';
 import { 
   AppContainer, 
   MainHeader, 
@@ -17,6 +18,7 @@ import {
 
 const Layout: React.FC = () => {
   const { userRole, currentUser, logout } = useApp();
+  const { connectionState } = useSignalRContext();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -25,6 +27,20 @@ const Layout: React.FC = () => {
       navigate('/login');
     }
   };
+
+  const getSignalRBadge = () => {
+    switch (connectionState) {
+      case 'Connected':
+        return { text: '실시간 (SignalR)', color: '#00e676', border: 'rgba(0, 230, 118, 0.4)' };
+      case 'Connecting':
+      case 'Reconnecting':
+        return { text: '재연결 중...', color: '#ffb703', border: 'rgba(255, 183, 3, 0.4)' };
+      default:
+        return { text: '오프라인', color: '#ff4b5c', border: 'rgba(255, 75, 92, 0.4)' };
+    }
+  };
+
+  const signalStatus = getSignalRBadge();
 
   return (
     <AppContainer>
@@ -35,6 +51,24 @@ const Layout: React.FC = () => {
         </LogoSection>
         
         <HeaderControls>
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              padding: '4px 10px', 
+              borderRadius: '20px', 
+              background: 'rgba(15, 23, 42, 0.6)',
+              border: `1px solid ${signalStatus.border}`,
+              fontSize: '12px',
+              color: signalStatus.color,
+              fontWeight: 600
+            }}
+          >
+            <Radio size={12} style={{ color: signalStatus.color }} />
+            {signalStatus.text}
+          </div>
+
           <UserInfo>
             {userRole === 'admin' ? (
               <Shield size={16} className="role-badge admin" />

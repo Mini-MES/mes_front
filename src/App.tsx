@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppProvider, useApp } from '@/context/AppContext';
+import { SignalRProvider } from '@/context/SignalRContext';
+import { useSignalRListener } from '@/hooks/useSignalRListener';
 import { theme } from '@/styles/theme';
 import { GlobalStyle } from '@/styles/GlobalStyle';
 import Layout from '@/layouts/Layout';
@@ -31,6 +33,9 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 const AppRoutes: React.FC = () => {
+  // 실시간 SignalR 이벤트 구독 훅 동작
+  useSignalRListener();
+
   return (
     <BrowserRouter>
       <Routes>
@@ -62,11 +67,13 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <GlobalStyle />
         <AppProvider>
-          <AppRoutes />
+          <SignalRProvider>
+            <AppRoutes />
+          </SignalRProvider>
         </AppProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
-}
+};
 
 export default App;
