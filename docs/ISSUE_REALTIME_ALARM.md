@@ -85,7 +85,7 @@ sequenceDiagram
 
 - [x] **Task 1**: `src/types/notification.ts` 알림 인터페이스 및 타입 정의
 - [x] **Task 2**: `src/context/NotificationContext.tsx` 생성 및 `App.tsx` 프로바인더 배치
-- [ ] **Task 3**: `src/components/common/toast/ToastContainer.tsx` & `ToastItem.styles.ts` 네온 토스트 컴포넌트 구현
+- [x] **Task 3**: `src/components/common/toast/ToastContainer.tsx` & `ToastItem.styles.ts` 네온 토스트 컴포넌트 구현
 - [ ] **Task 4**: `src/components/common/notification/NotificationDrawer.tsx` 및 헤더 🔔 아이콘 연동
 - [ ] **Task 5**: `src/hooks/useSignalRListener.ts` 수정 - SignalR 수신 시 `addNotification` 연동
 - [ ] **Task 6**: UAT 및 테스트 - 현장 작업자 화면에서 불량 등록 시 관리자 화면에 1초 이내 토스트 팝업 표출 확인

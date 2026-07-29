@@ -9,6 +9,7 @@ import { useSignalRListener } from '@/hooks/useSignalRListener';
 import { theme } from '@/styles/theme';
 import { GlobalStyle } from '@/styles/GlobalStyle';
 import Layout from '@/layouts/Layout';
+import ToastContainer from '@/components/common/toast/ToastContainer';
 import Dashboard from '@/pages/admin/Dashboard';
 import WorkerDashboard from '@/pages/worker/WorkerDashboard';
 import Login from '@/pages/login/Login';
@@ -39,6 +40,7 @@ const AppRoutes: React.FC = () => {
 
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         {/* 공개 라우트 */}
         <Route path="/login" element={<Login />} />
