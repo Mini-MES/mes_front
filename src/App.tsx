@@ -4,6 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppProvider, useApp } from '@/context/AppContext';
 import { SignalRProvider } from '@/context/SignalRContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import { useSignalRListener } from '@/hooks/useSignalRListener';
 import { theme } from '@/styles/theme';
 import { GlobalStyle } from '@/styles/GlobalStyle';
@@ -67,9 +68,11 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <GlobalStyle />
         <AppProvider>
-          <SignalRProvider>
-            <AppRoutes />
-          </SignalRProvider>
+          <NotificationProvider>
+            <SignalRProvider>
+              <AppRoutes />
+            </SignalRProvider>
+          </NotificationProvider>
         </AppProvider>
       </ThemeProvider>
     </QueryClientProvider>
