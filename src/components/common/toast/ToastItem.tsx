@@ -7,15 +7,7 @@ import {
   X,
 } from 'lucide-react';
 import { NotificationItem, NotificationType } from '@/types/notification';
-import {
-  ToastCard,
-  IconWrapper,
-  ToastContent,
-  ToastTitle,
-  ToastMessage,
-  CloseButton,
-  ProgressBar,
-} from './ToastItem.styles';
+import * as S from './ToastItem.styles';
 
 interface ToastItemProps {
   item: NotificationItem;
@@ -98,20 +90,20 @@ export const ToastItem: React.FC<ToastItemProps> = ({
   const progressPercentage = (remainingTime / duration) * 100;
 
   return (
-    <ToastCard
+    <S.ToastCard
       $type={item.type}
       $isExiting={isExiting}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <IconWrapper $type={item.type}>
+      <S.IconWrapper $type={item.type}>
         {getNotificationIcon(item.type)}
-      </IconWrapper>
-      <ToastContent>
-        <ToastTitle $type={item.type}>{item.title}</ToastTitle>
-        <ToastMessage>{item.message}</ToastMessage>
-      </ToastContent>
-      <CloseButton
+      </S.IconWrapper>
+      <S.ToastContent>
+        <S.ToastTitle $type={item.type}>{item.title}</S.ToastTitle>
+        <S.ToastMessage>{item.message}</S.ToastMessage>
+      </S.ToastContent>
+      <S.CloseButton
         onClick={(e) => {
           e.stopPropagation();
           handleDismiss();
@@ -119,8 +111,8 @@ export const ToastItem: React.FC<ToastItemProps> = ({
         aria-label="닫기"
       >
         <X size={16} />
-      </CloseButton>
-      <ProgressBar $type={item.type} $progress={progressPercentage} />
-    </ToastCard>
+      </S.CloseButton>
+      <S.ProgressBar $type={item.type} $progress={progressPercentage} />
+    </S.ToastCard>
   );
 };

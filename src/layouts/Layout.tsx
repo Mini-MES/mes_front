@@ -1,24 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { useSignalRContext } from '@/context/SignalRContext';
-import { Shield, User, LogOut, Radio } from 'lucide-react';
-import { 
-  AppContainer, 
-  MainHeader, 
-  LogoSection, 
-  LogoIcon, 
-  LogoText, 
-  HeaderControls, 
-  UserInfo, 
-  RoleBadge, 
-  LogoutButton,
-  Main 
-} from '@/layouts/Layout.styles';
+import { useNotification } from '@/context/NotificationContext';
+import NotificationDrawer from '@/components/common/notification/NotificationDrawer';
+import { Shield, User, LogOut, Radio, Bell } from 'lucide-react';
+import * as S from '@/layouts/Layout.styles';
 
 const Layout: React.FC = () => {
   const { userRole, currentUser, logout } = useApp();
   const { connectionState } = useSignalRContext();
+  const { unreadCount } = useNotification();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -44,54 +37,72 @@ const Layout: React.FC = () => {
   const signalStatus = getSignalRBadge();
 
   return (
-    <AppContainer>
-      <MainHeader>
-        <LogoSection>
-          <LogoIcon size={28} />
-          <LogoText>ANTIGRAVITY MES</LogoText>
-        </LogoSection>
-        
-        <HeaderControls>
-          <div 
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px', 
-              padding: '4px 10px', 
-              borderRadius: '20px', 
+    <S.AppContainer>
+      <S.MainHeader>
+        <S.LogoSection>
+          <S.LogoIcon size={28} />
+          <S.LogoText>ANTIGRAVITY MES</S.LogoText>
+        </S.LogoSection>
+
+        <S.HeaderControls>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '20px',
               background: 'rgba(15, 23, 42, 0.6)',
               border: `1px solid ${signalStatus.border}`,
               fontSize: '12px',
               color: signalStatus.color,
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             <Radio size={12} style={{ color: signalStatus.color }} />
             {signalStatus.text}
           </div>
 
-          <UserInfo>
+          <S.NotificationBellButton
+            onClick={() => setIsDrawerOpen(true)}
+            aria-label="알림 센터 열기"
+            title="알림 센터"
+          >
+            <Bell size={18} />
+            {unreadCount > 0 && (
+              <S.BellBadge>{unreadCount > 99 ? '99+' : unreadCount}</S.BellBadge>
+            )}
+          </S.NotificationBellButton>
+
+          <S.UserInfo>
             {userRole === 'admin' ? (
               <Shield size={16} className="role-badge admin" />
             ) : (
               <User size={16} className="role-badge worker" />
             )}
-            <RoleBadge className={userRole}>
+            <S.RoleBadge className={userRole}>
               {userRole === 'admin' ? '관리자 모드' : '작업자 모드'}
-            </RoleBadge>
-            <span style={{ fontWeight: 500 }}>{currentUser.name} ({currentUser.id})</span>
-          </UserInfo>
-          <LogoutButton onClick={handleLogout}>
+            </S.RoleBadge>
+            <span style={{ fontWeight: 500 }}>
+              {currentUser.name} ({currentUser.id})
+            </span>
+          </S.UserInfo>
+          <S.LogoutButton onClick={handleLogout}>
             <LogOut size={14} />
             로그아웃
-          </LogoutButton>
-        </HeaderControls>
-      </MainHeader>
+          </S.LogoutButton>
+        </S.HeaderControls>
+      </S.MainHeader>
 
-      <Main>
+      <NotificationDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
+
+      <S.Main>
         <Outlet />
-      </Main>
-    </AppContainer>
+      </S.Main>
+    </S.AppContainer>
   );
 };
 

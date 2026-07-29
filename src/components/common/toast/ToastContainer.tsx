@@ -1,22 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useNotification } from '@/context/NotificationContext';
 import { ToastItem } from './ToastItem';
-
-const ContainerWrapper = styled.div`
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  pointer-events: none;
-
-  > * {
-    pointer-events: auto;
-  }
-`;
+import * as S from './ToastContainer.styles';
 
 export const ToastContainer: React.FC = () => {
   const { notifications, removeNotification } = useNotification();
@@ -25,7 +10,7 @@ export const ToastContainer: React.FC = () => {
   const activeToasts = notifications.slice(0, 5);
 
   return (
-    <ContainerWrapper>
+    <S.ContainerWrapper>
       {activeToasts.map((item) => (
         <ToastItem
           key={item.id}
@@ -33,7 +18,7 @@ export const ToastContainer: React.FC = () => {
           onClose={removeNotification}
         />
       ))}
-    </ContainerWrapper>
+    </S.ContainerWrapper>
   );
 };
 
