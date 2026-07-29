@@ -2,10 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customFetch } from '@/api/fetcher';
 import { useApp } from '@/context/AppContext';
 import { RawMaterial, WorkOrder, LotTracking } from '@/context/AppContext';
+import { useNotification } from '@/context/NotificationContext';
 
 export const useDashboard = () => {
   const queryClient = useQueryClient();
   const { processStages } = useApp();
+  const { addNotification } = useNotification();
 
   // 1. React Query를 활용한 서버 상태 조회 (폴링 5초 주기로 실시간 연동)
   const { data: rawMaterials = [] } = useQuery<RawMaterial[]>({
@@ -46,10 +48,18 @@ export const useDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
-      alert('작업 지시가 정상적으로 등록되었으며, 새로운 LOT가 생성되었습니다.');
+      addNotification({
+        type: 'SUCCESS',
+        title: '✅ [지시 등록] 신규 작업 지시 생성',
+        message: '작업 지시가 정상 등록되었으며 새로운 LOT가 발행되었습니다.',
+      });
     },
     onError: (err: any) => {
-      alert(`등록 에러: ${err.message}`);
+      addNotification({
+        type: 'WARN',
+        title: '⚠️ [지시 등록 실패]',
+        message: err.message || '작업 지시 등록 중 오류가 발생했습니다.',
+      });
     }
   });
 
@@ -59,14 +69,23 @@ export const useDashboard = () => {
       customFetch(`/Production/start/${orderId}`, {
         method: 'POST',
       }),
-    onSuccess: () => {
+    onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
-      alert('생산이 시작되었습니다. 작업지시 상태가 변경되고 새로운 LOT가 활성화되었습니다.');
+      addNotification({
+        type: 'SUCCESS',
+        title: '▶️ [생산 시작] 생산 투입 완료',
+        message: `작업지시 [ORDER-${orderId}] 생산 프로세스가 시작되었습니다.`,
+      });
     },
     onError: (err: any) => {
-      alert(`생산 시작 실패: ${err.message}`);
+      const msg = err.message || '원자재 재고가 부족하거나 시작할 수 없는 상태입니다.';
+      addNotification({
+        type: 'WARN',
+        title: '⚠️ [생산 지시 불가] 원자재 재고 부족 경고',
+        message: `원자재 부족으로 생산을 시작할 수 없습니다: ${msg}`,
+      });
     }
   });
 
@@ -76,14 +95,22 @@ export const useDashboard = () => {
       customFetch(`/Production/complete/${orderId}`, {
         method: 'POST',
       }),
-    onSuccess: () => {
+    onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
-      alert('생산이 완료되었습니다.');
+      addNotification({
+        type: 'SUCCESS',
+        title: '✅ [완료] 작업지시 마감 완료',
+        message: `작업지시 [ORDER-${orderId}] 생산 마감 처리가 완료되었습니다.`,
+      });
     },
     onError: (err: any) => {
-      alert(`생산 완료 실패: ${err.message}`);
+      addNotification({
+        type: 'WARN',
+        title: '⚠️ [생산 완료 실패]',
+        message: err.message || '생산 완료 처리 실패',
+      });
     }
   });
 
@@ -93,14 +120,22 @@ export const useDashboard = () => {
       customFetch(`/Production/order/${orderId}`, {
         method: 'DELETE',
       }),
-    onSuccess: () => {
+    onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
-      alert('작업 지시가 삭제되었습니다.');
+      addNotification({
+        type: 'INFO',
+        title: '🗑️ [지시 삭제]',
+        message: `작업지시 [ORDER-${orderId}]가 삭제되었습니다.`,
+      });
     },
     onError: (err: any) => {
-      alert(`지시 삭제 실패: ${err.message}`);
+      addNotification({
+        type: 'WARN',
+        title: '⚠️ [지시 삭제 실패]',
+        message: err.message || '작업지시 삭제 실패',
+      });
     }
   });
 
@@ -116,10 +151,18 @@ export const useDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['shipments'] });
-      alert('완제품 출하 처리가 정상적으로 완료되었습니다.');
+      addNotification({
+        type: 'SUCCESS',
+        title: '📦 [완제품 출하]',
+        message: '완제품 출하 처리가 완료되었습니다.',
+      });
     },
     onError: (err: any) => {
-      alert(`출하 등록 실패: ${err.message}`);
+      addNotification({
+        type: 'WARN',
+        title: '⚠️ [출하 등록 실패]',
+        message: err.message || '출하 등록 처리 실패',
+      });
     }
   });
 
@@ -138,10 +181,18 @@ export const useDashboard = () => {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
-      alert('신규 원자재 품목이 성공적으로 등록되었습니다.');
+      addNotification({
+        type: 'SUCCESS',
+        title: '🧱 [원자재 등록]',
+        message: '신규 원자재 품목이 등록되었습니다.',
+      });
     },
     onError: (err: any) => {
-      alert(`자재 등록 실패: ${err.message}`);
+      addNotification({
+        type: 'WARN',
+        title: '⚠️ [자재 등록 실패]',
+        message: err.message || '자재 등록 실패',
+      });
     }
   });
 
@@ -158,10 +209,18 @@ export const useDashboard = () => {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
-      alert('자재 재고 수량이 성공적으로 업데이트되었습니다.');
+      addNotification({
+        type: 'SUCCESS',
+        title: '📥 [재고 업데이트]',
+        message: '자재 재고 수량이 업데이트되었습니다.',
+      });
     },
     onError: (err: any) => {
-      alert(`재고 수정 실패: ${err.message}`);
+      addNotification({
+        type: 'WARN',
+        title: '⚠️ [재고 수정 실패]',
+        message: err.message || '재고 수정 실패',
+      });
     }
   });
 
@@ -171,13 +230,21 @@ export const useDashboard = () => {
       customFetch(`/Production/lot/${lotId}/unhold`, {
         method: 'PUT',
       }),
-    onSuccess: () => {
+    onSuccess: (_, lotId) => {
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
-      alert('LOT 보류(HOLD) 상태가 성공적으로 해제되어 공정이 다시 진행 가능합니다.');
+      addNotification({
+        type: 'SUCCESS',
+        title: '🔓 [보류 해제 완료]',
+        message: `LOT [${lotId}] 보류(HOLD)가 해제되어 공정이 재개됩니다.`,
+      });
     },
     onError: (err: any) => {
-      alert(`보류 해제 실패: ${err.message}`);
+      addNotification({
+        type: 'WARN',
+        title: '⚠️ [보류 해제 실패]',
+        message: err.message || '보류 해제 처리 실패',
+      });
     }
   });
 

@@ -4,10 +4,12 @@ import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppProvider, useApp } from '@/context/AppContext';
 import { SignalRProvider } from '@/context/SignalRContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import { useSignalRListener } from '@/hooks/useSignalRListener';
 import { theme } from '@/styles/theme';
 import { GlobalStyle } from '@/styles/GlobalStyle';
 import Layout from '@/layouts/Layout';
+import ToastContainer from '@/components/common/toast/ToastContainer';
 import Dashboard from '@/pages/admin/Dashboard';
 import WorkerDashboard from '@/pages/worker/WorkerDashboard';
 import Login from '@/pages/login/Login';
@@ -38,6 +40,7 @@ const AppRoutes: React.FC = () => {
 
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         {/* 공개 라우트 */}
         <Route path="/login" element={<Login />} />
@@ -67,9 +70,11 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <GlobalStyle />
         <AppProvider>
-          <SignalRProvider>
-            <AppRoutes />
-          </SignalRProvider>
+          <NotificationProvider>
+            <SignalRProvider>
+              <AppRoutes />
+            </SignalRProvider>
+          </NotificationProvider>
         </AppProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -125,3 +125,41 @@ export const LogoutButton = styled.button<{ theme: ThemeType }>`
     box-shadow: 0 4px 15px rgba(255, 23, 68, 0.25);
   }
 `;
+
+export const NotificationBellButton = styled.button<{ theme: ThemeType }>`
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid ${props => props.theme.colors.borderColor};
+  color: ${props => props.theme.colors.textPrimary};
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: ${props => props.theme.transitions.smooth};
+
+  &:hover {
+    background: rgba(0, 229, 255, 0.1);
+    border-color: rgba(0, 229, 255, 0.4);
+    color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 12px ${props => props.theme.colors.primaryGlow};
+  }
+`;
+
+export const BellBadge = styled.span`
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ff4b5c;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  border: 2px solid #0b0f19;
+  box-shadow: 0 0 8px rgba(255, 75, 92, 0.6);
+  line-height: 1;
+`;
+
