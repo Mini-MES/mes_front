@@ -68,7 +68,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               <Bell size={20} style={{ color: '#00e5ff' }} />
               알림 센터
             </S.HeaderTitle>
-            {unreadCount > 0 && <S.UnreadBadge>{unreadCount} N</S.UnreadBadge>}
+            {unreadCount > 0 && <S.UnreadBadge>{unreadCount}</S.UnreadBadge>}
           </S.HeaderTitleSection>
 
           <S.HeaderActions>

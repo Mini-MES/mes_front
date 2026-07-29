@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customFetch } from '@/api/fetcher';
 import { WorkOrder, LotTracking } from '@/context/AppContext';
-import { DefectReason } from '@/components/worker/WorkerControlPanel';
+import { DefectReason } from '@/components/worker/controlPanel/WorkerControlPanel';
 import { useNotification } from '@/context/NotificationContext';
 
 export function useWorkerDashboard() {
@@ -90,7 +90,7 @@ export function useWorkerDashboard() {
       const msg = err?.message || '실적 등록 실패';
       addNotification({
         type: 'WARN',
-        title: '⚠️ [실적 등록 실패] 500 오류 발생',
+        title: '⚠️ [실적 등록 실패]',
         message: msg,
       });
     },

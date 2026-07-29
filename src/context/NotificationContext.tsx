@@ -5,6 +5,8 @@ import {
   NotificationContextType,
 } from '@/types/notification';
 
+const MAX_NOTIFICATIONS = 100; // 최대 알림 개수 제한
+
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -20,7 +22,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       isRead: false,
     };
 
-    setNotifications((prev) => [newItem, ...prev]);
+    setNotifications((prev) =>  {
+      const notification = [newItem, ...prev];
+      return notification.slice(0, MAX_NOTIFICATIONS);
+    });
   }, []);
 
   const markAsRead = useCallback((id: string) => {
