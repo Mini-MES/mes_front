@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSignalRContext } from '@/context/SignalRContext';
+import { useNotification } from '@/context/NotificationContext';
 
 /**
- * SignalR 백엔드 이벤트를 구독하고 React Query 쿼리 캐시를 실시간 갱신하는 훅
+ * SignalR 백엔드 이벤트를 구독하고 React Query 쿼리 캐시 갱신 및 전역 알림 토스트를 트리거하는 훅
  */
 export const useSignalRListener = () => {
   const queryClient = useQueryClient();
   const { connection, isConnected } = useSignalRContext();
+  const { addNotification } = useNotification();
 
   useEffect(() => {
     if (!connection || !isConnected) return;
@@ -17,18 +19,57 @@ export const useSignalRListener = () => {
       console.log('⚡ [SignalR] LotUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['lot-tracking'] });
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+
+      const lotId = data?.lotId || data?.lotNumber || (typeof data === 'string' ? data : '');
+      const status = data?.status || data?.state;
+
+      if (status === 'HOLD') {
+        addNotification({
+          type: 'HOLD',
+          title: '🚨 LOT 품질 보류(HOLD) 발생',
+          message: `LOT ${lotId ? `[${lotId}]` : ''} 공정 상태가 보류(HOLD)로 전환되었습니다.`,
+        });
+      }
     };
 
     // 재고 수량 갱신 이벤트 수신
     const handleStockUpdated = (data?: any) => {
       console.log('⚡ [SignalR] StockUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['products'] });
+
+      const name = data?.productName || data?.materialName || data?.name || '원자재/부품';
+      const isWarning =
+        data?.isWarning ||
+        data?.isLowStock ||
+        data?.type === 'WARN' ||
+        (data?.currentStock !== undefined &&
+          data?.safetyStock !== undefined &&
+          data.currentStock < data.safetyStock);
+
+      if (isWarning) {
+        addNotification({
+          type: 'WARN',
+          title: '⚠️ [재고 경고] 원자재 재고 부족',
+          message: `${name} 의 재고가 안전 재고 미만입니다.`,
+        });
+      }
     };
 
     // 작업 지시 상태 갱신 이벤트 수신
     const handleWorkOrderUpdated = (data?: any) => {
       console.log('⚡ [SignalR] WorkOrderUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+
+      const orderNo = data?.workOrderId || data?.orderNo || (typeof data === 'string' ? data : '');
+      const status = data?.status || data?.state;
+
+      if (status === 'COMPLETE' || status === 'COMPLETED' || data?.isComplete) {
+        addNotification({
+          type: 'SUCCESS',
+          title: '✅ [완료] 작업지시 마감 완료',
+          message: `작업지시 ${orderNo ? `[${orderNo}]` : ''} 생산 작업이 마감 완료되었습니다.`,
+        });
+      }
     };
 
     // 불량 보고 및 보류(HOLD) 전환 이벤트 수신
@@ -36,6 +77,16 @@ export const useSignalRListener = () => {
       console.log('⚡ [SignalR] DefectReported 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
       queryClient.invalidateQueries({ queryKey: ['lot-tracking'] });
+
+      const lotId = data?.lotId || data?.lotNumber || 'LOT';
+      const reason = data?.reason || data?.reasonCode || data?.defectType || '불량 발생';
+      const badQty = data?.badQty || data?.defectQty || data?.count;
+
+      addNotification({
+        type: 'HOLD',
+        title: '🚨 LOT 품질 보류(HOLD) 발생',
+        message: `LOT [${lotId}] 불량 ${badQty ? `${badQty}EA ` : ''}등록 (${reason}) - 보류 상태 전환`,
+      });
     };
 
     // 이벤트 리스너 바인딩
@@ -51,5 +102,5 @@ export const useSignalRListener = () => {
       connection.off('WorkOrderUpdated', handleWorkOrderUpdated);
       connection.off('DefectReported', handleDefectReported);
     };
-  }, [connection, isConnected, queryClient]);
+  }, [connection, isConnected, queryClient, addNotification]);
 };
