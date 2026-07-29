@@ -19,9 +19,10 @@ export const useSignalRListener = () => {
       console.log('⚡ [SignalR] LotUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['lot-tracking'] });
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['lots'] });
 
-      const lotId = data?.lotId || data?.lotNumber || (typeof data === 'string' ? data : '');
-      const status = data?.status || data?.state;
+      const lotId = data?.lotID || data?.lotId || data?.lotNumber || (typeof data === 'string' ? data : '');
+      const status = (data?.status || data?.state || '').toString().toUpperCase();
 
       if (status === 'HOLD') {
         addNotification({
@@ -36,6 +37,7 @@ export const useSignalRListener = () => {
     const handleStockUpdated = (data?: any) => {
       console.log('⚡ [SignalR] StockUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
 
       const name = data?.productName || data?.materialName || data?.name || '원자재/부품';
       const isWarning =
@@ -59,9 +61,10 @@ export const useSignalRListener = () => {
     const handleWorkOrderUpdated = (data?: any) => {
       console.log('⚡ [SignalR] WorkOrderUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
 
-      const orderNo = data?.workOrderId || data?.orderNo || (typeof data === 'string' ? data : '');
-      const status = data?.status || data?.state;
+      const orderNo = data?.workOrderID || data?.workOrderId || data?.orderNo || data?.orderID || (typeof data === 'string' ? data : '');
+      const status = (data?.status || data?.state || '').toString().toUpperCase();
 
       if (status === 'COMPLETE' || status === 'COMPLETED' || data?.isComplete) {
         addNotification({
@@ -76,9 +79,11 @@ export const useSignalRListener = () => {
     const handleDefectReported = (data?: any) => {
       console.log('⚡ [SignalR] DefectReported 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lot-tracking'] });
+      queryClient.invalidateQueries({ queryKey: ['lots'] });
 
-      const lotId = data?.lotId || data?.lotNumber || 'LOT';
+      const lotId = data?.lotID || data?.lotId || data?.lotNumber || 'LOT';
       const reason = data?.reason || data?.reasonCode || data?.defectType || '불량 발생';
       const badQty = data?.badQty || data?.defectQty || data?.count;
 
@@ -89,18 +94,32 @@ export const useSignalRListener = () => {
       });
     };
 
-    // 이벤트 리스너 바인딩
+    // 이벤트 리스너 바인딩 (대소문자 지원)
     connection.on('LotUpdated', handleLotUpdated);
+    connection.on('lotUpdated', handleLotUpdated);
+
     connection.on('StockUpdated', handleStockUpdated);
+    connection.on('stockUpdated', handleStockUpdated);
+
     connection.on('WorkOrderUpdated', handleWorkOrderUpdated);
+    connection.on('workOrderUpdated', handleWorkOrderUpdated);
+
     connection.on('DefectReported', handleDefectReported);
+    connection.on('defectReported', handleDefectReported);
 
     // 언마운트 시 이벤트 오프
     return () => {
       connection.off('LotUpdated', handleLotUpdated);
+      connection.off('lotUpdated', handleLotUpdated);
+
       connection.off('StockUpdated', handleStockUpdated);
+      connection.off('stockUpdated', handleStockUpdated);
+
       connection.off('WorkOrderUpdated', handleWorkOrderUpdated);
+      connection.off('workOrderUpdated', handleWorkOrderUpdated);
+
       connection.off('DefectReported', handleDefectReported);
+      connection.off('defectReported', handleDefectReported);
     };
   }, [connection, isConnected, queryClient, addNotification]);
 };

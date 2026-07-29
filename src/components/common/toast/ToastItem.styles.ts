@@ -57,6 +57,15 @@ const slideOut = keyframes`
   }
 `;
 
+const shrinkProgress = keyframes`
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+`;
+
 export const ToastCard = styled.div<{ $type: NotificationType; $isExiting: boolean }>`
   position: relative;
   display: flex;
@@ -147,13 +156,13 @@ export const CloseButton = styled.button`
   }
 `;
 
-export const ProgressBar = styled.div<{ $type: NotificationType; $progress: number }>`
+export const ProgressBar = styled.div<{ $type: NotificationType; $duration: number; $isPaused: boolean }>`
   position: absolute;
   bottom: 0;
   left: 0;
   height: 3px;
-  width: ${({ $progress }) => $progress}%;
   background-color: ${({ $type }) => getTypeColors($type).main};
   box-shadow: 0 0 8px ${({ $type }) => getTypeColors($type).glow};
-  transition: width 0.1s linear;
+  animation: ${shrinkProgress} ${({ $duration }) => $duration}ms linear forwards;
+  animation-play-state: ${({ $isPaused }) => ($isPaused ? 'paused' : 'running')};
 `;

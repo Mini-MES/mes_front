@@ -35,12 +35,11 @@ export const ToastItem: React.FC<ToastItemProps> = ({
   onClose,
 }) => {
   const [isExiting, setIsExiting] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(duration);
   const [isPaused, setIsPaused] = useState(false);
 
   const startTimeRef = useRef<number>(Date.now());
+  const remainingTimeRef = useRef<number>(duration);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
 
   const handleDismiss = useCallback(() => {
     setIsExiting(true);
@@ -49,52 +48,31 @@ export const ToastItem: React.FC<ToastItemProps> = ({
     }, 350);
   }, [item.id, onClose]);
 
-  // 자동 소멸 타이머 관리
   useEffect(() => {
-    if (isPaused || isExiting) return;
+    if (isExiting) return;
 
-    startTimeRef.current = Date.now();
-    timerRef.current = setTimeout(() => {
-      handleDismiss();
-    }, remainingTime);
-
-    const updateProgress = () => {
+    if (isPaused) {
+      if (timerRef.current) clearTimeout(timerRef.current);
       const elapsed = Date.now() - startTimeRef.current;
-      const newRemaining = Math.max(0, remainingTime - elapsed);
-
-      if (newRemaining > 0) {
-        animationFrameRef.current = requestAnimationFrame(updateProgress);
-      }
-    };
-
-    animationFrameRef.current = requestAnimationFrame(updateProgress);
+      remainingTimeRef.current = Math.max(0, remainingTimeRef.current - elapsed);
+    } else {
+      startTimeRef.current = Date.now();
+      timerRef.current = setTimeout(() => {
+        handleDismiss();
+      }, remainingTimeRef.current);
+    }
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [isPaused, isExiting, remainingTime, handleDismiss]);
-
-  const handleMouseEnter = () => {
-    if (isExiting) return;
-    setIsPaused(true);
-    const elapsed = Date.now() - startTimeRef.current;
-    setRemainingTime((prev) => Math.max(0, prev - elapsed));
-  };
-
-  const handleMouseLeave = () => {
-    if (isExiting) return;
-    setIsPaused(false);
-  };
-
-  const progressPercentage = (remainingTime / duration) * 100;
+  }, [isPaused, isExiting, handleDismiss]);
 
   return (
     <S.ToastCard
       $type={item.type}
       $isExiting={isExiting}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => !isExiting && setIsPaused(true)}
+      onMouseLeave={() => !isExiting && setIsPaused(false)}
     >
       <S.IconWrapper $type={item.type}>
         {getNotificationIcon(item.type)}
@@ -112,7 +90,11 @@ export const ToastItem: React.FC<ToastItemProps> = ({
       >
         <X size={16} />
       </S.CloseButton>
-      <S.ProgressBar $type={item.type} $progress={progressPercentage} />
+      <S.ProgressBar
+        $type={item.type}
+        $duration={duration}
+        $isPaused={isPaused}
+      />
     </S.ToastCard>
   );
 };
