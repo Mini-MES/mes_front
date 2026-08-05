@@ -17,9 +17,14 @@ const WorkerDashboard: React.FC = () => {
     activeOrderId,
     activeOrder,
     activeLot,
+    sensorStatus,
+    accumulatedGood,
+    accumulatedBad,
+    lastPulseTime,
     setSelectedOrderId,
     handleStart,
-    handleIncreaseQty,
+    handleTogglePause,
+    handleConfirmPerformance,
     handleRegisterDefect,
     handleNextStage,
     handleComplete,
@@ -32,7 +37,7 @@ const WorkerDashboard: React.FC = () => {
       <S.TitleSection>
         <div>
           <h1>작업자 작업 실행 패널</h1>
-          <S.HeaderSubText>할당된 작업 공정 진행 및 실적 입력</S.HeaderSubText>
+          <S.HeaderSubText>실시간 센서 수량 자동 수집 및 실적 마감 승인</S.HeaderSubText>
         </div>
         <S.UserStatus>
           <UserCheck size={18} />
@@ -50,18 +55,28 @@ const WorkerDashboard: React.FC = () => {
           processStages={processStages}
         />
 
-        {/* 우측: 공정 컨트롤러 패널 */}
+        {/* 우측: 센서 연동 컨트롤러 패널 */}
         <WorkerControlPanel 
           activeOrder={activeOrder}
           activeLot={activeLot}
           processStages={processStages}
           defectReasons={defectReasons}
+          sensorStatus={sensorStatus}
+          accumulatedGood={accumulatedGood}
+          accumulatedBad={accumulatedBad}
+          lastPulseTime={lastPulseTime}
           onStart={handleStart}
-          onIncreaseQty={handleIncreaseQty}
+          onTogglePause={handleTogglePause}
+          onConfirmPerformance={handleConfirmPerformance}
           onRegisterDefect={handleRegisterDefect}
           onNextStage={handleNextStage}
           onComplete={handleComplete}
-          isPending={isPending}
+          isPending={{
+            start: isPending.start,
+            confirm: isPending.qty,
+            next: isPending.next,
+            complete: isPending.complete,
+          }}
         />
       </S.WorkerLayoutGrid>
     </S.DashboardContent>

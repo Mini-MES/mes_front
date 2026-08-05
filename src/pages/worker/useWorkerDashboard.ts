@@ -169,7 +169,7 @@ export function useWorkerDashboard() {
     setSensorStatus((prev) => (prev === 'RUNNING' ? 'STOPPED' : 'RUNNING'));
   }
 
-  const handleConfirmPerformance = (toolId: string) => {
+  const handleConfirmPerformance = (toolId?: string) => {
     if (!activeOrder || !activeLot) return;
     if(accumulatedGood + accumulatedBad <= 0) return;
 
@@ -198,7 +198,7 @@ export function useWorkerDashboard() {
     });
   };
 
-  const handleNextStage = (toolId: string) => {
+  const handleNextStage = (toolId?: string) => {
     if (!activeOrder || !activeLot) return;
     const nextProcessId = activeLot.currentProcessID + 1;
     moveProcessMutation.mutate({

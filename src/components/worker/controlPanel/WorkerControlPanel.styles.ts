@@ -371,3 +371,143 @@ export const DefectNoticeText = styled.div`
   color: #ff8a80;
   font-weight: 600;
 `;
+
+export const SensorBadge = styled.div<{ $color: string; $bg: string }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: ${(props) => props.$bg};
+  color: ${(props) => props.$color};
+  border: 1px solid ${(props) => props.$color}44;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+  }
+`;
+
+export const SensorDisplayBox = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1.2rem;
+  background: rgba(18, 24, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin-top: 1rem;
+`;
+
+export const CounterBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+`;
+
+export const CounterLabel = styled.span`
+  font-size: 0.8rem;
+  color: #a0aec0;
+`;
+
+export const CounterValue = styled.div<{ $color: string }>`
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: ${(props) => props.$color};
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+
+  .unit {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 400;
+  }
+`;
+
+export const PulseAddBadge = styled.span`
+  font-size: 0.75rem;
+  color: #00e676;
+  font-weight: 600;
+`;
+
+export const PulseTimeText = styled.span`
+  font-size: 0.75rem;
+  color: #718096;
+`;
+
+export const PauseButton = styled.button<{ $isPaused?: boolean }>`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.8rem;
+  background: ${(props) => (props.$isPaused ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255, 171, 0, 0.15)')};
+  color: ${(props) => (props.$isPaused ? '#00e676' : '#ffab00')};
+  border: 1px solid ${(props) => (props.$isPaused ? 'rgba(0, 230, 118, 0.3)' : 'rgba(255, 171, 0, 0.3)')};
+  transition: all 0.2s;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+`;
+
+export const VerificationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 1rem;
+  background: rgba(0, 230, 118, 0.05);
+  border: 1px dashed rgba(0, 230, 118, 0.3);
+  border-radius: 8px;
+  margin-top: 1rem;
+`;
+
+export const VerificationHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.9rem;
+`;
+
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #cbd5e0;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    accent-color: #00e676;
+  }
+`;
+
+export const BtnConfirm = styled.button`
+  padding: 10px;
+  background: #00e676;
+  color: #000;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+`;
+

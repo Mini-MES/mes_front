@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Play, CheckCircle, AlertCircle, Wrench } from 'lucide-react';
+import { Play, CheckCircle, AlertCircle, Wrench, Radio, Pause, ShieldCheck } from 'lucide-react';
 import { WorkOrder, LotTracking } from '@/context/AppContext';
 import { CardTitle } from '@/pages/worker/WorkerDashboard.styles';
 import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
 import WorkerStageStepper from '@/components/worker/controlPanel/WorkerStageStepper';
 import WorkerDefectForm from '@/components/worker/controlPanel/WorkerDefectForm';
+import { SensorStatus, SENSOR_STATUS_MAP } from '@/types/sensor';
 
 export interface DefectReason {
   reasonCode: string | number;
@@ -16,14 +17,19 @@ interface WorkerControlPanelProps {
   activeLot?: LotTracking;
   processStages: string[];
   defectReasons?: DefectReason[];
+  sensorStatus: SensorStatus;
+  accumulatedGood: number;
+  accumulatedBad: number;
+  lastPulseTime?: string | null;
   onStart: () => void;
-  onIncreaseQty: (amount: number, toolId?: string) => void;
+  onTogglePause: () => void;
+  onConfirmPerformance: (toolId?: string) => void;
   onRegisterDefect: (badQty: number, reasonCode: string, toolId?: string) => void;
   onNextStage: (toolId?: string) => void;
   onComplete: () => void;
   isPending: {
     start: boolean;
-    qty: boolean;
+    confirm: boolean;
     next: boolean;
     complete: boolean;
   };
@@ -34,25 +40,29 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   activeLot,
   processStages,
   defectReasons = [],
+  sensorStatus,
+  accumulatedGood,
+  accumulatedBad,
+  lastPulseTime,
   onStart,
-  onIncreaseQty,
+  onTogglePause,
+  onConfirmPerformance,
   onRegisterDefect,
   onNextStage,
   onComplete,
   isPending
 }) => {
   const [toolId, setToolId] = useState<string>('TOOL-001');
+  const [isVerified, setIsVerified] = useState<boolean>(false);
 
-  const getStageName = (id: number) => {
-    return processStages[id - 1] || '대기';
-  };
+  const getStageName = (id: number) => processStages[id - 1] || '대기';
 
   if (!activeOrder) {
     return (
       <S.WorkerControlPanelWrapper>
         <CardTitle>
-          <Play size={18} />
-          작업 공정 및 실적 관리
+          <Radio size={18} />
+          실시간 센서 연동 작업 패널
         </CardTitle>
         <S.EmptyNotice>
           진행할 작업 지시를 왼쪽 목록에서 선택해 주세요.
@@ -61,56 +71,57 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
     );
   }
 
-  const getStageIndex = (stageId: number) => stageId - 1;
   const currentStageID = activeLot ? activeLot.currentProcessID : 1;
-  const currentStageIndex = getStageIndex(currentStageID);
+  const currentStageIndex = currentStageID - 1;
   const isLastStage = currentStageIndex === processStages.length - 1;
 
-  const isPlanCompleted = activeOrder.totalGoodQty >= activeOrder.targetQty;
+  const totalGoodCount = activeOrder.totalGoodQty + accumulatedGood;
+  const totalBadCount = activeOrder.totalBadQty + accumulatedBad;
+  const isPlanCompleted = totalGoodCount >= activeOrder.targetQty;
   const isOrderCompleted = activeOrder.status === 'Completed';
   const isOrderCreated = activeOrder.status === 'Created';
   const isLotHold = activeLot?.status?.toUpperCase() === 'HOLD';
 
+  const statusInfo = SENSOR_STATUS_MAP[sensorStatus] || SENSOR_STATUS_MAP.IDLE;
+
   return (
     <S.WorkerControlPanelWrapper>
-      <CardTitle>
-        <Play size={18} />
-        작업 공정 및 실적 관리
+      <CardTitle style={{ justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Radio size={18} />
+          실시간 센서 연동 작업 패널
+        </div>
+        <S.SensorBadge $color={statusInfo.color} $bg={statusInfo.bg}>
+          <span className="dot" />
+          {statusInfo.label}
+        </S.SensorBadge>
       </CardTitle>
 
       <S.ControlContainer>
-        {/* 현재 상태 정보 */}
         <S.CardInfoBlock>
           <S.WoBadge>WO-{activeOrder.orderID}</S.WoBadge>
           <S.ProductIdTitle>{activeOrder.productID}</S.ProductIdTitle>
           
           <S.InfoRow $marginTop="1rem">
-            <S.InfoLabel>현재 진행 단계</S.InfoLabel>
+            <S.InfoLabel>현재 공정</S.InfoLabel>
             <S.InfoValue $color={isLotHold ? 'var(--color-danger)' : 'var(--color-info)'}>
               {activeLot ? `${getStageName(activeLot.currentProcessID)} ${isLotHold ? '(HOLD/보류)' : ''}` : '생산 대기'}
             </S.InfoValue>
           </S.InfoRow>
-          
-          <S.InfoRow $marginTop="0.5rem">
-            <S.InfoLabel>생산 수량</S.InfoLabel>
-            <S.InfoValue>{activeOrder.totalGoodQty} / {activeOrder.targetQty} EA</S.InfoValue>
-          </S.InfoRow>
         </S.CardInfoBlock>
 
-        {/* 생산 시작 버튼 제어 */}
         {isOrderCreated && (
           <S.StartGroup>
             <S.BtnActionPrimary onClick={onStart} disabled={isPending.start}>
               <Play size={16} />
-              {isPending.start ? '시작 요청 중...' : '생산 지시 시작 처리'}
+              {isPending.start ? '시작 요청 중...' : '생산 지시 시작 & 센서 가동'}
             </S.BtnActionPrimary>
             <S.NoticeText>
-              지시를 시작해야 실적 입력 및 공정 전환이 가능합니다.
+              생산을 시작하면 백엔드 센서 서비스가 가동되어 실시간 수량이 수집됩니다.
             </S.NoticeText>
           </S.StartGroup>
         )}
 
-        {/* 공정 스태퍼 및 생산 컨트롤러 */}
         {!isOrderCreated && (
           <>
             <WorkerStageStepper 
@@ -121,7 +132,38 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               getStageName={getStageName}
             />
 
-            {/* 사용 공구 (Tool ID) 설정 */}
+            <S.SensorDisplayBox>
+              <S.CounterBlock>
+                <S.CounterLabel>🟢 실시간 양품 수량 (센서 누적)</S.CounterLabel>
+                <S.CounterValue $color="#00e676">
+                  {totalGoodCount} <span className="unit">/ {activeOrder.targetQty} EA</span>
+                </S.CounterValue>
+                {accumulatedGood > 0 && (
+                  <S.PulseAddBadge>+ {accumulatedGood} EA 수집됨</S.PulseAddBadge>
+                )}
+              </S.CounterBlock>
+
+              <S.CounterBlock>
+                <S.CounterLabel>🔴 실시간 불량 수량</S.CounterLabel>
+                <S.CounterValue $color="#ff1744">
+                  {totalBadCount} <span className="unit">EA</span>
+                </S.CounterValue>
+                {lastPulseTime && (
+                  <S.PulseTimeText>최근 수신: {lastPulseTime}</S.PulseTimeText>
+                )}
+              </S.CounterBlock>
+            </S.SensorDisplayBox>
+
+            {!isOrderCompleted && (
+              <S.PauseButton 
+                onClick={onTogglePause} 
+                $isPaused={sensorStatus === 'STOPPED'}
+              >
+                {sensorStatus === 'STOPPED' ? <Play size={16} /> : <Pause size={16} />}
+                {sensorStatus === 'STOPPED' ? '센서 수집 재개' : '생산 일시 중지 (비가동)'}
+              </S.PauseButton>
+            )}
+
             <S.ControlGroup>
               <S.FormLabelHeader>
                 <S.FormLabelText>
@@ -129,104 +171,64 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
                   사용 공구 ID (Tool ID)
                 </S.FormLabelText>
                 {toolId && (
-                  <S.ConfiguredBadge>
-                    설정됨: {toolId}
-                  </S.ConfiguredBadge>
+                  <S.ConfiguredBadge>설정됨: {toolId}</S.ConfiguredBadge>
                 )}
               </S.FormLabelHeader>
               <S.FormInput 
                 type="text"
-                placeholder="예: TOOL-001, TOOL-CUTTER-01"
                 value={toolId}
                 onChange={(e) => setToolId(e.target.value)}
                 disabled={isOrderCompleted || isLotHold}
               />
             </S.ControlGroup>
 
-            {/* 실적 추가 버튼 */}
-            <S.ControlGroup>
-              <S.FormLabelText>생산 수량 실적 등록 (+EA)</S.FormLabelText>
-              <S.QuantityController>
-                <S.BtnQty 
-                  onClick={() => onIncreaseQty(1, toolId)}
-                  disabled={isOrderCompleted || isPlanCompleted || isPending.qty || isLotHold}
-                >
-                  +1
-                </S.BtnQty>
-                <S.BtnQty 
-                  onClick={() => onIncreaseQty(10, toolId)}
-                  disabled={isOrderCompleted || (activeOrder.totalGoodQty + 10 > activeOrder.targetQty) || isPending.qty || isLotHold}
-                >
-                  +10
-                </S.BtnQty>
-                <S.BtnQty 
-                  onClick={() => onIncreaseQty(activeOrder.targetQty - activeOrder.totalGoodQty, toolId)}
-                  disabled={isOrderCompleted || isPlanCompleted || isPending.qty || isLotHold}
-                >
-                  남은 전량 채우기
-                </S.BtnQty>
-              </S.QuantityController>
-            </S.ControlGroup>
-
-            {/* 불량 실적 등록 폼 */}
             <WorkerDefectForm 
               defectReasons={defectReasons}
               isOrderCompleted={isOrderCompleted}
-              isPendingQty={isPending.qty}
+              isPendingQty={false}
               toolId={toolId}
               onRegisterDefect={onRegisterDefect}
             />
 
-            {/* 공정 이동 버튼 */}
-            <S.ControlGroup>
-              <S.FormLabelHeader>
-                <S.FormLabelText>공정 단계 전환</S.FormLabelText>
-                {isLotHold ? (
-                  <S.HoldWarningBadge>🚫 LOT 보류(HOLD) 상태 - 공정 이동 불가</S.HoldWarningBadge>
-                ) : activeOrder.totalGoodQty === 0 ? (
-                  <S.WarningBadge>⚠️ 실적 등록 후 이동 가능</S.WarningBadge>
-                ) : null}
-              </S.FormLabelHeader>
+            <S.VerificationContainer>
+              <S.VerificationHeader>
+                <ShieldCheck size={18} style={{ color: '#00e676' }} />
+                센서 수집 수량 검증 및 최종 실적 승인
+              </S.VerificationHeader>
+              <S.CheckboxLabel>
+                <input 
+                  type="checkbox" 
+                  checked={isVerified}
+                  onChange={(e) => setIsVerified(e.target.checked)}
+                  disabled={isOrderCompleted || isLotHold || accumulatedGood === 0}
+                />
+                <span>센서 집계 수량({accumulatedGood} EA)이 실제 생산 수량과 일치함을 확인했습니다.</span>
+              </S.CheckboxLabel>
+              <S.BtnConfirm 
+                onClick={() => onConfirmPerformance(toolId)}
+                disabled={!isVerified || isOrderCompleted || isPending.confirm || isLotHold || accumulatedGood === 0}
+              >
+                {isPending.confirm ? '등록 중...' : '최종 실적 등록 승인'}
+              </S.BtnConfirm>
+            </S.VerificationContainer>
+
+            <S.ControlGroup style={{ marginTop: '1rem' }}>
               <S.TransitionButton 
-                onClick={() => {
-                  if (isLotHold) {
-                    alert('해당 LOT는 불량 발생으로 인한 보류(HOLD) 상태입니다. 보류 해제 후 이동 가능합니다.');
-                    return;
-                  }
-                  if (activeOrder.totalGoodQty === 0) {
-                    alert('현재 공정의 양품 실적을 최소 1개 이상 등록한 후 다음 공정으로 이동할 수 있습니다.');
-                    return;
-                  }
-                  onNextStage(toolId);
-                }}
-                disabled={isLastStage || isOrderCompleted || isPending.next || activeOrder.totalGoodQty === 0 || isLotHold}
+                onClick={() => onNextStage(toolId)}
+                disabled={isLastStage || isOrderCompleted || isPending.next || isLotHold}
               >
                 {isPending.next ? '공정 이동 중...' : `다음 공정 단계로 이동 (${getStageName(currentStageID)} ➡️ ${isLastStage ? '종료' : getStageName(currentStageID + 1)})`}
               </S.TransitionButton>
             </S.ControlGroup>
 
-            {/* 최종 작업 완료 처리 버튼 */}
             <S.ActionFooter>
               <S.BtnActionPrimary 
                 onClick={onComplete}
                 disabled={isOrderCompleted || !isLastStage || !isPlanCompleted || isPending.complete || isLotHold}
               >
                 <CheckCircle size={18} />
-                {isOrderCompleted ? '작업 완료됨' : '최종 공정 완료 처리'}
+                {isOrderCompleted ? '작업 완료됨' : '최종 공정 완료 마감'}
               </S.BtnActionPrimary>
-              
-              {!isOrderCompleted && (!isLastStage || !isPlanCompleted || isLotHold) && (
-                <S.CompleteHint>
-                  <AlertCircle size={12} />
-                  {isLotHold ? (
-                    <span style={{ color: '#ff1744' }}>🚫 LOT 보류(HOLD) 상태 해제 후 완료 가능</span>
-                  ) : !isLastStage ? (
-                    <span>마지막 '{processStages[processStages.length - 1]}' 단계 및 목표 수량({activeOrder.targetQty} EA) 도달 시 완료 가능</span>
-                  ) : (
-                    <span>목표 생산 수량({activeOrder.targetQty} EA) 달성 필요 (현재: {activeOrder.totalGoodQty} EA)</span>
-                  )}
-                </S.CompleteHint>
-              )}
             </S.ActionFooter>
           </>
         )}

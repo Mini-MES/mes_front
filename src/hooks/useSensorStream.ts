@@ -1,8 +1,8 @@
 import { useSignalRContext } from "@/context/SignalRContext";
 import { useEffect, useRef, useState } from "react";
 
-export function useSensorStream(tartgetLotId: string | null) {
-    const {connection, isConnected } = useSignalRContext();
+export function useSensorStream(targetLotId: string | null | undefined) {
+    const { connection, isConnected } = useSignalRContext();
     const [accumulatedGood, setAccumulatedGood] = useState(0);
     const [accumulatedBad, setAccumulatedBad] = useState(0);
     const [lastPulseTime, setLastPulseTime] = useState<string | null>(null);
@@ -12,7 +12,7 @@ export function useSensorStream(tartgetLotId: string | null) {
     useEffect(() => {
         setAccumulatedGood(0);
         setAccumulatedBad(0);
-    }, [tartgetLotId]);
+    }, [targetLotId]);
 
     useEffect(() => {
         if (!connection || !isConnected) return;
@@ -20,35 +20,37 @@ export function useSensorStream(tartgetLotId: string | null) {
         const handleReceiveSensor = (data: any) => {
             console.log("Received sensor data:", data);
 
-            if(!data) return;
+            if (!data) return;
 
-            const incomingLotId = data.LotID;
-            const goodInc = data.GoodIncrement;
-            const badInc = data.BadIncrement;
+            const incomingLotId = data.LotID ?? data.lotID;
+            const goodInc = data.GoodIncrement ?? data.goodIncrement ?? 0;
+            const badInc = data.BadIncrement ?? data.badIncrement ?? 0;
 
-            if (incomingLotId === tartgetLotId) {
+            if (incomingLotId && targetLotId && String(incomingLotId) === String(targetLotId)) {
                 const now = Date.now();
 
-                if(now - lastUpdateRef.current > 10) {
+                if (now - lastUpdateRef.current > 100) {
                     lastUpdateRef.current = now;
-                    if(goodInc > 0) setAccumulatedGood(prev => prev + goodInc);
-                    if(badInc > 0) setAccumulatedBad(prev => prev + badInc);
-                    setLastPulseTime(new Date().toISOString());
+                    if (goodInc > 0) setAccumulatedGood(prev => prev + goodInc);
+                    if (badInc > 0) setAccumulatedBad(prev => prev + badInc);
+                    setLastPulseTime(new Date().toLocaleTimeString());
                 }
             }
-        }
+        };
 
         connection.on("ReceiveSensorCountUpdated", handleReceiveSensor);
+        connection.on("receiveSensorCountUpdated", handleReceiveSensor);
 
         return () => {
             connection.off("ReceiveSensorCountUpdated", handleReceiveSensor);
+            connection.off("receiveSensorCountUpdated", handleReceiveSensor);
         };
-    }, [connection, isConnected, tartgetLotId]);
+    }, [connection, isConnected, targetLotId]);
 
     return {
         accumulatedGood,
         accumulatedBad,
         lastPulseTime,
         isConnected
-    }
-}
+    };
+}
