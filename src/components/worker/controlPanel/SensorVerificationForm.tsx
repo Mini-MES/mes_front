@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
 
@@ -20,6 +20,11 @@ export const SensorVerificationForm: React.FC<SensorVerificationFormProps> = ({
   toolId,
 }) => {
   const [isVerified, setIsVerified] = useState<boolean>(false);
+
+  // 💡 센서 수량이 추가 수집되어 변경되면 이전 검증 체크박스를 자동으로 해제하여 재검증 유도
+  useEffect(() => {
+    setIsVerified(false);
+  }, [accumulatedGood]);
 
   const isDisabled = isOrderCompleted || isLotHold || accumulatedGood === 0;
 

@@ -55,6 +55,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   const isLotHold = activeLot?.status?.toUpperCase() === 'HOLD';
 
   const statusInfo = SENSOR_STATUS_MAP[sensorStatus] || SENSOR_STATUS_MAP.IDLE;
+  const canTogglePause = !isOrderCompleted && !isLotHold && (sensorStatus === 'RUNNING' || sensorStatus === 'STOPPED');
 
   return (
     <S.WorkerControlPanelWrapper>
@@ -104,6 +105,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               getStageName={getStageName}
             />
 
+            {/* 실시간 센서 자동 수량 디스플레이 */}
             <SensorCounterDisplay 
               totalGoodCount={totalGoodCount}
               targetQty={activeOrder.targetQty}
@@ -116,6 +118,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               <S.PauseButton 
                 onClick={onTogglePause} 
                 $isPaused={sensorStatus === 'STOPPED'}
+                disabled={!canTogglePause}
               >
                 {sensorStatus === 'STOPPED' ? <Play size={16} /> : <Pause size={16} />}
                 {sensorStatus === 'STOPPED' ? '센서 수집 재개' : '생산 일시 중지 (비가동)'}
@@ -143,7 +146,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
             <WorkerDefectForm 
               defectReasons={defectReasons}
               isOrderCompleted={isOrderCompleted}
-              isPendingQty={false}
+              isPendingQty={isPending?.confirm ?? false}
               toolId={toolId}
               onRegisterDefect={onRegisterDefect}
             />
@@ -152,24 +155,36 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               accumulatedGood={accumulatedGood}
               isOrderCompleted={isOrderCompleted}
               isLotHold={isLotHold}
-              isPendingConfirm={isPending.confirm}
+              isPendingConfirm={isPending?.confirm ?? false}
               onConfirmPerformance={onConfirmPerformance}
               toolId={toolId}
             />
 
             <S.ControlGroup style={{ marginTop: '1rem' }}>
               <S.TransitionButton 
-                onClick={() => onNextStage(toolId)}
-                disabled={isLastStage || isOrderCompleted || isPending.next || isLotHold}
+                onClick={() => {
+                  if (accumulatedGood > 0) {
+                    alert('미승인된 센서 집계 수량이 존재합니다. 먼저 실적 등록 승인을 완료해 주세요.');
+                    return;
+                  }
+                  onNextStage(toolId);
+                }}
+                disabled={isLastStage || isOrderCompleted || Boolean(isPending?.next) || Boolean(isPending?.confirm) || isLotHold || accumulatedGood > 0}
               >
-                {isPending.next ? '공정 이동 중...' : `다음 공정 단계로 이동 (${getStageName(currentStageID)} ➡️ ${isLastStage ? '종료' : getStageName(currentStageID + 1)})`}
+                {isPending?.next ? '공정 이동 중...' : `다음 공정 단계로 이동 (${getStageName(currentStageID)} ➡️ ${isLastStage ? '종료' : getStageName(currentStageID + 1)})`}
               </S.TransitionButton>
             </S.ControlGroup>
 
             <S.ActionFooter>
               <S.BtnActionPrimary 
-                onClick={onComplete}
-                disabled={isOrderCompleted || !isLastStage || !isPlanCompleted || isPending.complete || isLotHold}
+                onClick={() => {
+                  if (accumulatedGood > 0) {
+                    alert('미승인된 센서 집계 수량이 존재합니다. 먼저 실적 등록 승인을 완료해 주세요.');
+                    return;
+                  }
+                  onComplete();
+                }}
+                disabled={isOrderCompleted || !isLastStage || !isPlanCompleted || Boolean(isPending?.complete) || Boolean(isPending?.confirm) || isLotHold || accumulatedGood > 0}
               >
                 <CheckCircle size={18} />
                 {isOrderCompleted ? '작업 완료됨' : '최종 공정 완료 마감'}

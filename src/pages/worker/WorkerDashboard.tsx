@@ -71,12 +71,7 @@ const WorkerDashboard: React.FC = () => {
           onRegisterDefect={handleRegisterDefect}
           onNextStage={handleNextStage}
           onComplete={handleComplete}
-          isPending={{
-            start: isPending.start,
-            confirm: isPending.qty,
-            next: isPending.next,
-            complete: isPending.complete,
-          }}
+          isPending={isPending}
         />
       </S.WorkerLayoutGrid>
     </S.DashboardContent>
