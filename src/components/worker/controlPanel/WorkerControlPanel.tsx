@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, CheckCircle, AlertCircle, Wrench, Radio, Pause, ShieldCheck } from 'lucide-react';
+import { Play, CheckCircle, Wrench, Radio, Pause, ShieldCheck } from 'lucide-react';
 import { WorkOrder, LotTracking } from '@/context/AppContext';
 import { CardTitle } from '@/pages/worker/WorkerDashboard.styles';
 import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
