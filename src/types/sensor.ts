@@ -1,9 +1,8 @@
 export interface SensorCountData {
-    workOrderID: number;
     lotID: string;
     equipmentID: string;
-    goodCount: number;
-    badCount: number;
+    goodIncrement: number;
+    badIncrement: number;
     timestamp: string; 
 }
 
