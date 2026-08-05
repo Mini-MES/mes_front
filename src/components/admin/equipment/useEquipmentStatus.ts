@@ -18,7 +18,7 @@ export function useEquipmentStatus() {
 
     const {data: downtimeReasons = []} = useQuery({
         queryKey: ['downtimeReasons'],
-        queryFn: () => customFetch('/MasterData/downtime-reasons'),
+        queryFn: () => customFetch('/Equipment/downtime-reasons'),
         staleTime: 1000 * 60 * 10, // 10분
     });
 
@@ -80,66 +80,66 @@ export function useEquipmentStatus() {
       });
 
 
-      const handleChangeStatus = (equipmentID: string, newStatus: string, currentLotID?: string | null) => {
-        changeStatusMutation.mutate({ equipmentID, newStatus: newStatus as any, currentLotID });
-      }
-
-      const handleOpenDowntimeModal = (equipment: EquipmentItem) => {
-        setSelectedEquipment(equipment);
-        setIsDowntimeModalOpen(true);
-      }
-
-        const handleCloseDowntimeModal = () => {
-        setIsDowntimeModalOpen(false);
-        setSelectedEquipment(null);
-        }
-
-        const handleSubmitDowntimeReason = async (reasonCode: string, operatorMemo?: string, userID?: string) => {                                                                                       
-        if (!selectedEquipment) return;                                                                                                                                                                
-                                                                                                                                                                                                       
-        try {                                                                                                                                                                                          
-          // 해당 설비의 비가동 이력 중 가장 최근 LogID 가져오기                                                                                                                                       
-          const history = await customFetch(`/Equipment/${selectedEquipment.equipmentID}/downtime-history`);                                                                                           
-          const latestLog = history && history.length > 0 ? history[0] : null;                                                                                                                         
-                                                                                                                                                                                                       
-          if (!latestLog || !latestLog.downtimeLogID) {                                                                                                                                                
-            addNotification({                                                                                                                                                                          
-              type: 'WARN',                                                                                                                                                                            
-              title: '⚠️ [이력 미존재]',                                                                                                                                                               
-              message: '등록할 비가동 이력을 찾을 수 없습니다.',                                                                                                                                       
-            });                                                                                                                                                                                        
-            return;                                                                                                                                                                                    
-          }                                                                                                                                                                                            
-                                                                                                                                                                                                       
-          registerDowntimeMutation.mutate({                                                                                                                                                            
-            downtimeLogID: latestLog.downtimeLogID,                                                                                                                                                    
-            equipmentID: selectedEquipment.equipmentID,                                                                                                                                                
-            reasonCode,                                                                                                                                                                                
-            operatorMemo,                                                                                                                                                                              
-            userID: userID || 'ADMIN-01',                                                                                                                                                              
-          });                                                                                                                                                                                          
-        } catch (err: any) {                                                                                                                                                                           
-          addNotification({                                                                                                                                                                            
-            type: 'WARN',                                                                                                                                                                              
-            title: '⚠️ [이력 조회 실패]',                                                                                                                                                              
-            message: err?.message || '비가동 이력을 가져오지 못했습니다.',                                                                                                                             
-          });                                                                                                                                                                                          
-        }                                                                                                                                                                                                                                                                                                                                                                                
-      };                                                                                                                                                                                               
-                                                                                                                                                                                                       
-      return {                                                                                                                                                                                         
-        equipments,                                                                                                                                                                                    
-        downtimeReasons,                                                                                                                                                                               
-        isLoading,                                                                                                                                                                                     
-        isDowntimeModalOpen,                                                                                                                                                                           
-        selectedEquipment,                                                                                                                                                                             
-        handleChangeStatus,                                                                                                                                                                            
-        handleOpenDowntimeModal,                                                                                                                                                                       
-        handleCloseDowntimeModal,                                                                                                                                                                      
-        handleSubmitDowntimeReason,                                                                                                                                                                    
-        isPending: {                                                                                                                                                                                   
-          status: changeStatusMutation.isPending,                                                                                                                                                      
-          downtime: registerDowntimeMutation.isPending,                                                                                                                                                
-        },                                                                                                                                                                                             
-      };             
+    const handleChangeStatus = (equipmentID: string, newStatus: string, currentLotID?: string | null) => {
+    changeStatusMutation.mutate({ equipmentID, newStatus: newStatus as any, currentLotID });
     }
+
+    const handleOpenDowntimeModal = (equipment: EquipmentItem) => {
+    setSelectedEquipment(equipment);
+    setIsDowntimeModalOpen(true);
+    }
+
+    const handleCloseDowntimeModal = () => {
+    setIsDowntimeModalOpen(false);
+    setSelectedEquipment(null);
+    }
+
+    const handleSubmitDowntimeReason = async (reasonCode: string, operatorMemo?: string, userID?: string) => {                                                                                       
+    if (!selectedEquipment) return;                                                                                                                                                                
+                                                                                                                                                                                                    
+    try {                                                                                                                                                                                          
+        // 해당 설비의 비가동 이력 중 가장 최근 LogID 가져오기                                                                                                                                       
+        const history = await customFetch(`/Equipment/${selectedEquipment.equipmentID}/downtime-history`);                                                                                           
+        const latestLog = history && history.length > 0 ? history[0] : null;                                                                                                                         
+                                                                                                                                                                                                    
+        if (!latestLog || !latestLog.downtimeLogID) {                                                                                                                                                
+        addNotification({                                                                                                                                                                          
+            type: 'WARN',                                                                                                                                                                            
+            title: '⚠️ [이력 미존재]',                                                                                                                                                               
+            message: '등록할 비가동 이력을 찾을 수 없습니다.',                                                                                                                                       
+        });                                                                                                                                                                                        
+        return;                                                                                                                                                                                    
+        }                                                                                                                                                                                            
+                                                                                                                                                                                                    
+        registerDowntimeMutation.mutate({                                                                                                                                                            
+        downtimeLogID: latestLog.downtimeLogID,                                                                                                                                                    
+        equipmentID: selectedEquipment.equipmentID,                                                                                                                                                
+        reasonCode,                                                                                                                                                                                
+        operatorMemo,                                                                                                                                                                              
+        userID: userID || 'ADMIN-01',                                                                                                                                                              
+        });                                                                                                                                                                                          
+    } catch (err: any) {                                                                                                                                                                           
+        addNotification({                                                                                                                                                                            
+        type: 'WARN',                                                                                                                                                                              
+        title: '⚠️ [이력 조회 실패]',                                                                                                                                                              
+        message: err?.message || '비가동 이력을 가져오지 못했습니다.',                                                                                                                             
+        });                                                                                                                                                                                          
+    }                                                                                                                                                                                                                                                                                                                                                                                
+    };                                                                                                                                                                                               
+                                                                                                                                                                                                    
+    return {                                                                                                                                                                                         
+    equipments,                                                                                                                                                                                    
+    downtimeReasons,                                                                                                                                                                               
+    isLoading,                                                                                                                                                                                     
+    isDowntimeModalOpen,                                                                                                                                                                           
+    selectedEquipment,                                                                                                                                                                             
+    handleChangeStatus,                                                                                                                                                                            
+    handleOpenDowntimeModal,                                                                                                                                                                       
+    handleCloseDowntimeModal,                                                                                                                                                                      
+    handleSubmitDowntimeReason,                                                                                                                                                                    
+    isPending: {                                                                                                                                                                                   
+        status: changeStatusMutation.isPending,                                                                                                                                                      
+        downtime: registerDowntimeMutation.isPending,                                                                                                                                                
+    },                                                                                                                                                                                             
+    };             
+}
