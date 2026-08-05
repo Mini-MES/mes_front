@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customFetch } from '@/api/fetcher';
 import { WorkOrder, LotTracking } from '@/context/AppContext';
 import { DefectReason } from '@/components/worker/controlPanel/WorkerControlPanel';
 import { useNotification } from '@/context/NotificationContext';
+import {SensorStatus} from '@/types/sensor';
+import {useSensorStream} from '@/hooks/useSensorStream';
 
 export function useWorkerDashboard() {
   const queryClient = useQueryClient();
@@ -33,6 +35,18 @@ export function useWorkerDashboard() {
   const activeOrderId = selectedOrderId || workOrders[0]?.orderID || null;
   const activeOrder = workOrders.find((o) => o.orderID === activeOrderId);
   const activeLot = lotTracking.find((l) => l.orderID === activeOrderId);
+
+  // 센서 수량 수신
+  const [sensorStatus, setSensorStatus] = useState<SensorStatus>('IDLE');
+  const { accumulatedGood, accumulatedBad, lastPulseTime, isConnected } = useSensorStream(activeLot?.lotID || null);
+
+  useEffect(() => {                                                                                                                                                                                  
+      if (activeOrder?.status === 'InProgress') {                                                                                                                                                      
+        setSensorStatus('RUNNING');                                                                                                                                                                    
+      } else {                                                                                                                                                                                         
+        setSensorStatus('IDLE');                                                                                                                                                                       
+      }                                                                                                                                                                                                
+    }, [activeOrder?.status]); 
 
   // 2. 생산 시작 Mutation
   const startProductionMutation = useMutation({
@@ -151,15 +165,21 @@ export function useWorkerDashboard() {
     startProductionMutation.mutate(activeOrderId);
   };
 
-  const handleIncreaseQty = (amount: number, toolId?: string) => {
+  const handleTogglePause = () => {
+    setSensorStatus((prev) => (prev === 'RUNNING' ? 'STOPPED' : 'RUNNING'));
+  }
+
+  const handleConfirmPerformance = (toolId: string) => {
     if (!activeOrder || !activeLot) return;
+    if(accumulatedGood + accumulatedBad <= 0) return;
+
     registerPerformanceMutation.mutate({
       workOrderID: activeOrder.orderID,
       lotID: activeLot.lotID,
       processID: activeLot.currentProcessID,
-      inputQty: amount,
-      goodQty: amount,
-      badQty: 0,
+      inputQty: accumulatedGood + accumulatedBad,
+      goodQty: accumulatedGood,
+      badQty: accumulatedBad,
       toolID: toolId?.trim() || undefined,
     });
   };
@@ -178,7 +198,7 @@ export function useWorkerDashboard() {
     });
   };
 
-  const handleNextStage = (toolId?: string) => {
+  const handleNextStage = (toolId: string) => {
     if (!activeOrder || !activeLot) return;
     const nextProcessId = activeLot.currentProcessID + 1;
     moveProcessMutation.mutate({
@@ -207,9 +227,15 @@ export function useWorkerDashboard() {
     activeOrderId,
     activeOrder,
     activeLot,
+    sensorStatus,
+    accumulatedGood,
+    accumulatedBad,
+    lastPulseTime,
+    isConnected,
     setSelectedOrderId,
     handleStart,
-    handleIncreaseQty,
+    handleTogglePause,
+    handleConfirmPerformance,
     handleRegisterDefect,
     handleNextStage,
     handleComplete,

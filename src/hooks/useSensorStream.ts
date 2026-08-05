@@ -1,7 +1,4 @@
 import { useSignalRContext } from "@/context/SignalRContext";
-import { SensorCountData } from "@/types/sensor";
-import { Subject } from "@microsoft/signalr";
-import { sampleTime } from "rxjs";
 import { useEffect, useRef, useState } from "react";
 
 export function useSensorStream(tartgetLotId: string | null) {
