@@ -51,7 +51,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const processStages = ['CNC선삭', 'CNC밀링', '열처리', '연삭', '세척', '최종 검사', '출하'];
+const processStages = ['CNC선삭', 'CNC밀링', '열처리', '연삭', '세척', '최종 검사'];
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [userRole, setUserRole] = useState<UserRole>('admin');

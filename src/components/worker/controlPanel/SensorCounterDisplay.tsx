@@ -15,11 +15,10 @@ export const SensorCounterDisplay: React.FC<SensorCounterDisplayProps> = ({
   targetQty,
   accumulatedGood,
   totalBadCount,
-  accumulatedBad = 0,
   lastPulseTime,
 }) => {
-  const currentGoodDisplay = totalGoodCount + accumulatedGood;
-  const currentBadDisplay = totalBadCount + accumulatedBad;
+  const currentGoodDisplay = totalGoodCount;
+  const currentBadDisplay = totalBadCount;
 
   return (
     <S.SensorDisplayBox>

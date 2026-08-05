@@ -5,7 +5,8 @@ import { SensorStatus } from '@/types/sensor';
 
 export function useSensorStream(
   targetLotId: string | null | undefined,
-  sensorStatus: SensorStatus = 'RUNNING'
+  sensorStatus: SensorStatus = 'RUNNING',
+  currentProcessId?: number
 ) {
   const { connection, isConnected } = useSignalRContext();
   const [accumulatedGood, setAccumulatedGood] = useState(0);
@@ -23,19 +24,24 @@ export function useSensorStream(
   }, [sensorStatus]);
 
   const prevLotIdRef = useRef<string | null>(targetLotId);
+  const prevProcessIdRef = useRef<number | undefined>(currentProcessId);
 
-  // LOT 변경 시 누적 수량 및 버퍼 리셋 (이전 LOT ID와 실제 변경되었을 때만 초기화)
+  // LOT 또는 공정 변경 시 누적 수량 및 버퍼 리셋
   useEffect(() => {
-    if (prevLotIdRef.current !== targetLotId) {
-      console.log('🔄 [useSensorStream] LOT ID 변경됨 - 수량 초기화:', { prev: prevLotIdRef.current, next: targetLotId });
+    if (prevLotIdRef.current !== targetLotId || prevProcessIdRef.current !== currentProcessId) {
+      console.log('🔄 [useSensorStream] LOT ID 또는 공정 변경됨 - 수량 초기화:', { 
+        prevLot: prevLotIdRef.current, nextLot: targetLotId,
+        prevProc: prevProcessIdRef.current, nextProc: currentProcessId 
+      });
       prevLotIdRef.current = targetLotId;
+      prevProcessIdRef.current = currentProcessId;
       setAccumulatedGood(0);
       setAccumulatedBad(0);
       setLastPulseTime(null);
       pendingGoodRef.current = 0;
       pendingBadRef.current = 0;
     }
-  }, [targetLotId]);
+  }, [targetLotId, currentProcessId]);
 
   // 주기적으로 버퍼에 쌓인 펄스 수량을 React 상태로 일괄 반영 (이벤트 유실 원천 방지)
   useEffect(() => {
@@ -85,11 +91,9 @@ export function useSensorStream(
     };
 
     connection.on(SIGNALR_EVENTS.RECEIVE_SENSOR_COUNT, handleReceiveSensor);
-    connection.on(SIGNALR_EVENTS.RECEIVE_SENSOR_COUNT_LOWER, handleReceiveSensor);
 
     return () => {
       connection.off(SIGNALR_EVENTS.RECEIVE_SENSOR_COUNT, handleReceiveSensor);
-      connection.off(SIGNALR_EVENTS.RECEIVE_SENSOR_COUNT_LOWER, handleReceiveSensor);
     };
   }, [connection, isConnected, targetLotId]);
 

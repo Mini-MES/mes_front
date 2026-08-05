@@ -17,13 +17,15 @@ const WorkerStageStepper: React.FC<WorkerStageStepperProps> = ({
   activeLot,
   getStageName
 }) => {
+  const filteredStages = processStages.filter(stage => !stage.includes('출하') && !stage.toLowerCase().includes('shipment'));
+
   return (
     <div>
       <S.StepperTitle>전체 공정 현황</S.StepperTitle>
       <S.StepperTrack>
-        {processStages.map((stage, idx) => {
-          const isActive = idx === currentStageIndex;
-          const isCompleted = idx < currentStageIndex || isOrderCompleted;
+        {filteredStages.map((stage, idx) => {
+          const isActive = idx === currentStageIndex && !isOrderCompleted;
+          const isCompleted = idx < currentStageIndex || (isOrderCompleted && idx <= currentStageIndex);
           return (
             <S.StepperBar 
               key={stage} 
@@ -35,9 +37,9 @@ const WorkerStageStepper: React.FC<WorkerStageStepperProps> = ({
         })}
       </S.StepperTrack>
       <S.StepperLabels>
-        <span>{processStages[0]}</span>
+        <span>{filteredStages[0]}</span>
         <span>{activeLot ? getStageName(activeLot.currentProcessID) : ''}</span>
-        <span>{processStages[processStages.length - 1]}</span>
+        <span>{filteredStages[filteredStages.length - 1]}</span>
       </S.StepperLabels>
     </div>
   );

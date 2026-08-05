@@ -30,6 +30,12 @@ export function useWorkerDashboard() {
     staleTime: 1000 * 60 * 10,
   });
 
+  const { data: processes = [] } = useQuery<any[]>({
+    queryKey: ['processes'],
+    queryFn: () => customFetch('/MasterData/processes'),
+    staleTime: 1000 * 60 * 10,
+  });
+
   // 현재 활성화된 지시 및 LOT 확인
   const activeOrderId = selectedOrderId || workOrders[0]?.orderID || null;
   const activeOrder = workOrders.find((o) => o.orderID === activeOrderId);
@@ -44,7 +50,7 @@ export function useWorkerDashboard() {
     lastPulseTime,
     isConnected,
     resetAccumulated,
-  } = useSensorStream(activeLot?.lotID || null, sensorStatus);
+  } = useSensorStream(activeLot?.lotID || null, sensorStatus, activeLot?.currentProcessID);
 
   // SignalR 연결 상태 및 주문 상태에 따른 센서 상태 자동 업데이트
   useEffect(() => {
@@ -175,10 +181,13 @@ export function useWorkerDashboard() {
         method: 'POST',
         body: JSON.stringify(perf),
       }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
+      if (variables.perf) {
+        resetAccumulated(variables.perf.goodQty || 0, variables.perf.badQty || 0);
+      }
       addNotification({
         type: 'SUCCESS',
         title: '🔄 [공정 이동] 성공',
@@ -259,15 +268,29 @@ export function useWorkerDashboard() {
 
   const handleNextStage = (toolId?: string) => {
     if (!activeOrder || !activeLot) return;
-    const nextProcessId = activeLot.currentProcessID + 1;
+
+    let nextProcessId = activeLot.currentProcessID + 1;
+    if (processes.length > 0) {
+      const currentProc = processes.find((p: any) => p.processID === activeLot.currentProcessID);
+      const sortedProcs = [...processes].sort((a: any, b: any) => (a.sequenceOrder ?? 0) - (b.sequenceOrder ?? 0));
+      const nextProc = currentProc
+        ? sortedProcs.find((p: any) => (p.sequenceOrder ?? 0) > (currentProc.sequenceOrder ?? 0))
+        : sortedProcs.find((p: any) => p.processID > activeLot.currentProcessID);
+
+      if (nextProc) {
+        nextProcessId = nextProc.processID;
+      }
+    }
+
+    const inputQty = accumulatedGood + accumulatedBad;
     moveProcessMutation.mutate({
       perf: {
         workOrderID: activeOrder.orderID,
         lotID: activeLot.lotID,
         processID: activeLot.currentProcessID,
-        inputQty: 0,
-        goodQty: 0,
-        badQty: 0,
+        inputQty: inputQty,
+        goodQty: accumulatedGood,
+        badQty: accumulatedBad,
         toolID: toolId?.trim() || undefined,
       },
       nextProcessId,
