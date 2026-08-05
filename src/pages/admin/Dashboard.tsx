@@ -11,6 +11,7 @@ import LotProcessTracker from '@/components/admin/lotTracker/LotProcessTracker';
 import { ShipmentForm } from '@/components/admin/shipment/ShipmentForm';
 import { ShipmentList } from '@/components/admin/shipment/ShipmentList';
 import { AnalyticsSection } from '@/components/admin/analytics/AnalyticsSection';
+import EquipmentStatusSection from '@/components/admin/equipment/EquipmentStatusSection';
 
 const Dashboard: React.FC = () => {
   const {
@@ -41,7 +42,7 @@ const Dashboard: React.FC = () => {
       <S.TitleSection>
         <div>
           <h1>생산 관리 대시보드</h1>
-          <S.HeaderSubText>실시간 공정 흐름 모니터링 및 자재 현황</S.HeaderSubText>
+          <S.HeaderSubText>실시간 공정 흐름 모니터링 및 자재/설비 현황</S.HeaderSubText>
         </div>
         <S.LiveMonitoringBadge>
           <Activity size={18} className="logo-icon" />
@@ -49,7 +50,7 @@ const Dashboard: React.FC = () => {
         </S.LiveMonitoringBadge>
       </S.TitleSection>
 
-      {/* 탭 기반 통합 모니터링 차트 섹션 (1개 위젯 공간만 사용) */}
+      {/* 탭 기반 통합 모니터링 차트 섹션 */}
       <AnalyticsSection 
         workOrders={workOrders} 
         rawMaterials={rawMaterials}
@@ -57,7 +58,10 @@ const Dashboard: React.FC = () => {
         processStages={processStages}
       />
 
-      {/* 1. 원자재 현황 컴포넌트 */}
+      {/* 1. 공장 전체 설비 실시간 가동 / 비가동 현황판 컴포넌트 */}
+      <EquipmentStatusSection />
+
+      {/* 2. 원자재 현황 컴포넌트 */}
       <RawMaterialStatus 
         rawMaterials={rawMaterials} 
         onCreateMaterial={handleCreateMaterial}
@@ -65,7 +69,7 @@ const Dashboard: React.FC = () => {
         isPending={isMaterialPending}
       />
 
-      {/* 2. 작업지시 등록 / 목록 / 출하 등록 컴포넌트 */}
+      {/* 3. 작업지시 등록 / 목록 / 출하 등록 컴포넌트 */}
       <S.AdminGrid>
         <WorkOrderList 
           workOrders={workOrders} 
@@ -89,7 +93,7 @@ const Dashboard: React.FC = () => {
         </div>
       </S.AdminGrid>
 
-      {/* 3. 실시간 LOT 추적 및 공정 흐름도 컴포넌트 */}
+      {/* 4. 실시간 LOT 추적 및 공정 흐름도 컴포넌트 */}
       <LotProcessTracker 
         lotTracking={lotTracking} 
         workOrders={workOrders} 
@@ -99,7 +103,7 @@ const Dashboard: React.FC = () => {
         unholdingLotId={unholdingLotId}
       />
 
-      {/* 4. 완제품 출하 이력 현황판 컴포넌트 */}
+      {/* 5. 완제품 출하 이력 현황판 컴포넌트 */}
       <ShipmentList 
         shipments={shipments} 
         isLoading={isShipmentsLoading} 
