@@ -1,39 +1,12 @@
 import React, { useState } from 'react';
-import { Play, CheckCircle, Wrench, Radio, Pause, ShieldCheck } from 'lucide-react';
-import { WorkOrder, LotTracking } from '@/context/AppContext';
+import { Play, CheckCircle, Wrench, Radio, Pause } from 'lucide-react';
 import { CardTitle } from '@/pages/worker/WorkerDashboard.styles';
 import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
 import WorkerStageStepper from '@/components/worker/controlPanel/WorkerStageStepper';
 import WorkerDefectForm from '@/components/worker/controlPanel/WorkerDefectForm';
-import { SensorStatus, SENSOR_STATUS_MAP } from '@/types/sensor';
-
-export interface DefectReason {
-  reasonCode: string | number;
-  reasonDescription: string;
-}
-
-interface WorkerControlPanelProps {
-  activeOrder?: WorkOrder;
-  activeLot?: LotTracking;
-  processStages: string[];
-  defectReasons?: DefectReason[];
-  sensorStatus: SensorStatus;
-  accumulatedGood: number;
-  accumulatedBad: number;
-  lastPulseTime?: string | null;
-  onStart: () => void;
-  onTogglePause: () => void;
-  onConfirmPerformance: (toolId?: string) => void;
-  onRegisterDefect: (badQty: number, reasonCode: string, toolId?: string) => void;
-  onNextStage: (toolId?: string) => void;
-  onComplete: () => void;
-  isPending: {
-    start: boolean;
-    confirm: boolean;
-    next: boolean;
-    complete: boolean;
-  };
-}
+import SensorCounterDisplay from '@/components/worker/controlPanel/SensorCounterDisplay';
+import SensorVerificationForm from '@/components/worker/controlPanel/SensorVerificationForm';
+import { SENSOR_STATUS_MAP, WorkerControlPanelProps } from '@/types';
 
 const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   activeOrder,
@@ -53,7 +26,6 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   isPending
 }) => {
   const [toolId, setToolId] = useState<string>('TOOL-001');
-  const [isVerified, setIsVerified] = useState<boolean>(false);
 
   const getStageName = (id: number) => processStages[id - 1] || '대기';
 
@@ -132,27 +104,13 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               getStageName={getStageName}
             />
 
-            <S.SensorDisplayBox>
-              <S.CounterBlock>
-                <S.CounterLabel>🟢 실시간 양품 수량 (센서 누적)</S.CounterLabel>
-                <S.CounterValue $color="#00e676">
-                  {totalGoodCount} <span className="unit">/ {activeOrder.targetQty} EA</span>
-                </S.CounterValue>
-                {accumulatedGood > 0 && (
-                  <S.PulseAddBadge>+ {accumulatedGood} EA 수집됨</S.PulseAddBadge>
-                )}
-              </S.CounterBlock>
-
-              <S.CounterBlock>
-                <S.CounterLabel>🔴 실시간 불량 수량</S.CounterLabel>
-                <S.CounterValue $color="#ff1744">
-                  {totalBadCount} <span className="unit">EA</span>
-                </S.CounterValue>
-                {lastPulseTime && (
-                  <S.PulseTimeText>최근 수신: {lastPulseTime}</S.PulseTimeText>
-                )}
-              </S.CounterBlock>
-            </S.SensorDisplayBox>
+            <SensorCounterDisplay 
+              totalGoodCount={totalGoodCount}
+              targetQty={activeOrder.targetQty}
+              accumulatedGood={accumulatedGood}
+              totalBadCount={totalBadCount}
+              lastPulseTime={lastPulseTime}
+            />
 
             {!isOrderCompleted && (
               <S.PauseButton 
@@ -190,27 +148,14 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               onRegisterDefect={onRegisterDefect}
             />
 
-            <S.VerificationContainer>
-              <S.VerificationHeader>
-                <ShieldCheck size={18} style={{ color: '#00e676' }} />
-                센서 수집 수량 검증 및 최종 실적 승인
-              </S.VerificationHeader>
-              <S.CheckboxLabel>
-                <input 
-                  type="checkbox" 
-                  checked={isVerified}
-                  onChange={(e) => setIsVerified(e.target.checked)}
-                  disabled={isOrderCompleted || isLotHold || accumulatedGood === 0}
-                />
-                <span>센서 집계 수량({accumulatedGood} EA)이 실제 생산 수량과 일치함을 확인했습니다.</span>
-              </S.CheckboxLabel>
-              <S.BtnConfirm 
-                onClick={() => onConfirmPerformance(toolId)}
-                disabled={!isVerified || isOrderCompleted || isPending.confirm || isLotHold || accumulatedGood === 0}
-              >
-                {isPending.confirm ? '등록 중...' : '최종 실적 등록 승인'}
-              </S.BtnConfirm>
-            </S.VerificationContainer>
+            <SensorVerificationForm 
+              accumulatedGood={accumulatedGood}
+              isOrderCompleted={isOrderCompleted}
+              isLotHold={isLotHold}
+              isPendingConfirm={isPending.confirm}
+              onConfirmPerformance={onConfirmPerformance}
+              toolId={toolId}
+            />
 
             <S.ControlGroup style={{ marginTop: '1rem' }}>
               <S.TransitionButton 

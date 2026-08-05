@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customFetch } from '@/api/fetcher';
 import { WorkOrder, LotTracking } from '@/context/AppContext';
-import { DefectReason } from '@/components/worker/controlPanel/WorkerControlPanel';
 import { useNotification } from '@/context/NotificationContext';
-import {SensorStatus} from '@/types/sensor';
-import {useSensorStream} from '@/hooks/useSensorStream';
+import { DefectReason, SensorStatus } from '@/types';
+import { useSensorStream } from '@/hooks/useSensorStream';
 
 export function useWorkerDashboard() {
   const queryClient = useQueryClient();
