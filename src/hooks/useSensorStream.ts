@@ -26,6 +26,7 @@ export function useSensorStream(
   useEffect(() => {
     setAccumulatedGood(0);
     setAccumulatedBad(0);
+    setLastPulseTime(null);
     pendingGoodRef.current = 0;
     pendingBadRef.current = 0;
   }, [targetLotId]);
@@ -56,7 +57,7 @@ export function useSensorStream(
     const handleReceiveSensor = (data: any) => {
       if (!data) return;
 
-      // 💡 일시 중지(STOPPED), 유휴(IDLE), 에러(ERROR) 등 센서 정지 상태일 때는 수집 차단
+      // 일시 중지(STOPPED), 유휴(IDLE), 에러(ERROR) 등 센서 정지 상태일 때는 수집 차단
       if (sensorStatusRef.current !== 'RUNNING') {
         console.log('⏸️ [Sensor Stream] 센서 정지/일시중지 상태 - 수집 스킵:', sensorStatusRef.current);
         return;
@@ -82,7 +83,7 @@ export function useSensorStream(
     };
   }, [connection, isConnected, targetLotId]);
 
-  // 💡 승인 완료 후 전송된 수량을 차감하는 리셋 핸들러 (승인 처리 중 새로 들어온 펄스 유실 방지)
+  // 승인 완료 후 전송된 수량을 차감하는 리셋 핸들러 (승인 처리 중 새로 들어온 펄스 유실 방지)
   const resetAccumulated = useCallback((confirmedGood: number, confirmedBad: number) => {
     setAccumulatedGood((prev) => Math.max(0, prev - confirmedGood));
     setAccumulatedBad((prev) => Math.max(0, prev - confirmedBad));
