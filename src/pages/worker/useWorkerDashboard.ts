@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customFetch } from '@/api/fetcher';
 import { WorkOrder, LotTracking } from '@/context/AppContext';
-import { DefectReason } from '@/components/worker/controlPanel/WorkerControlPanel';
 import { useNotification } from '@/context/NotificationContext';
+import { DefectReason, SensorStatus } from '@/types';
+import { useSensorStream } from '@/hooks/useSensorStream';
 
 export function useWorkerDashboard() {
   const queryClient = useQueryClient();
@@ -34,6 +35,28 @@ export function useWorkerDashboard() {
   const activeOrder = workOrders.find((o) => o.orderID === activeOrderId);
   const activeLot = lotTracking.find((l) => l.orderID === activeOrderId);
 
+  // 센서 수량 수신 & 상태 관리
+  const [sensorStatus, setSensorStatus] = useState<SensorStatus>('IDLE');
+
+  const {
+    accumulatedGood,
+    accumulatedBad,
+    lastPulseTime,
+    isConnected,
+    resetAccumulated,
+  } = useSensorStream(activeLot?.lotID || null, sensorStatus);
+
+  // SignalR 연결 상태 및 주문 상태에 따른 센서 상태 자동 업데이트
+  useEffect(() => {
+    if (!isConnected) {
+      setSensorStatus('ERROR');
+    } else if (activeOrder?.status === 'InProgress') {
+      setSensorStatus((prev) => (prev === 'STOPPED' ? 'STOPPED' : 'RUNNING'));
+    } else {
+      setSensorStatus('IDLE');
+    }
+  }, [activeOrder?.status, isConnected]);
+
   // 2. 생산 시작 Mutation
   const startProductionMutation = useMutation({
     mutationFn: (orderId: number) =>
@@ -41,6 +64,7 @@ export function useWorkerDashboard() {
     onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
+      setSensorStatus('RUNNING');
       addNotification({
         type: 'SUCCESS',
         title: '▶️ [생산 시작] 생산 투입 완료',
@@ -78,11 +102,20 @@ export function useWorkerDashboard() {
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
 
+      // 💡 승인 등록된 실적 수량을 누적 버퍼에서 차감하여 중복 등록 방지
+      resetAccumulated(variables.goodQty, variables.badQty);
+
       if (variables.badQty > 0) {
         addNotification({
           type: 'HOLD',
           title: '🚨 LOT 품질 보류(HOLD) 발생',
           message: `LOT [${variables.lotID}] 불량 ${variables.badQty}EA 등록 (${variables.reasonCode || 'SCRATCH'}) - 보류 상태 전환`,
+        });
+      } else {
+        addNotification({
+          type: 'SUCCESS',
+          title: '✅ [실적 승인 완료]',
+          message: '센서 수집 실적이 등록되었습니다.',
         });
       }
     },
@@ -130,6 +163,7 @@ export function useWorkerDashboard() {
     onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
+      setSensorStatus('IDLE');
       addNotification({
         type: 'SUCCESS',
         title: '✅ [완료] 작업지시 마감 완료',
@@ -151,15 +185,21 @@ export function useWorkerDashboard() {
     startProductionMutation.mutate(activeOrderId);
   };
 
-  const handleIncreaseQty = (amount: number, toolId?: string) => {
+  const handleTogglePause = () => {
+    setSensorStatus((prev) => (prev === 'RUNNING' ? 'STOPPED' : 'RUNNING'));
+  };
+
+  const handleConfirmPerformance = (toolId?: string) => {
     if (!activeOrder || !activeLot) return;
+    if (accumulatedGood + accumulatedBad <= 0) return;
+
     registerPerformanceMutation.mutate({
       workOrderID: activeOrder.orderID,
       lotID: activeLot.lotID,
       processID: activeLot.currentProcessID,
-      inputQty: amount,
-      goodQty: amount,
-      badQty: 0,
+      inputQty: accumulatedGood + accumulatedBad,
+      goodQty: accumulatedGood,
+      badQty: accumulatedBad,
       toolID: toolId?.trim() || undefined,
     });
   };
@@ -207,15 +247,21 @@ export function useWorkerDashboard() {
     activeOrderId,
     activeOrder,
     activeLot,
+    sensorStatus,
+    accumulatedGood,
+    accumulatedBad,
+    lastPulseTime,
+    isConnected,
     setSelectedOrderId,
     handleStart,
-    handleIncreaseQty,
+    handleTogglePause,
+    handleConfirmPerformance,
     handleRegisterDefect,
     handleNextStage,
     handleComplete,
     isPending: {
       start: startProductionMutation.isPending,
-      qty: registerPerformanceMutation.isPending,
+      confirm: registerPerformanceMutation.isPending,
       next: moveProcessMutation.isPending,
       complete: completeProductionMutation.isPending,
     },
