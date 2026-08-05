@@ -14,6 +14,12 @@ export const useSignalRListener = () => {
   useEffect(() => {
     if (!connection || !isConnected) return;
 
+    // 설비 상태 이벤트 수신
+    const handleEquipmentStatusUpdated = (data?: any) => {
+      console.log('⚡ [SignalR] EquipmentStatusUpdated 수신:', data);
+      queryClient.invalidateQueries({ queryKey: ['equipments'] });
+    }
+
     // LOT 공정 갱신 이벤트 수신
     const handleLotUpdated = (data?: any) => {
       console.log('⚡ [SignalR] LotUpdated 수신:', data);
@@ -100,6 +106,9 @@ export const useSignalRListener = () => {
 
     connection.on('StockUpdated', handleStockUpdated);
     connection.on('stockUpdated', handleStockUpdated);
+    
+    connection.on('EquipmentStatusUpdated', handleEquipmentStatusUpdated);
+    connection.on('equipmentStatusUpdated', handleEquipmentStatusUpdated);
 
     connection.on('WorkOrderUpdated', handleWorkOrderUpdated);
     connection.on('workOrderUpdated', handleWorkOrderUpdated);
@@ -114,6 +123,9 @@ export const useSignalRListener = () => {
 
       connection.off('StockUpdated', handleStockUpdated);
       connection.off('stockUpdated', handleStockUpdated);
+
+      connection.off('EquipmentStatusUpdated', handleEquipmentStatusUpdated);
+      connection.off('equipmentStatusUpdated', handleEquipmentStatusUpdated);
 
       connection.off('WorkOrderUpdated', handleWorkOrderUpdated);
       connection.off('workOrderUpdated', handleWorkOrderUpdated);
