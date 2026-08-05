@@ -50,20 +50,59 @@ export function useWorkerDashboard() {
   useEffect(() => {
     if (!isConnected) {
       setSensorStatus('ERROR');
-    } else if (activeOrder?.status === 'InProgress') {
+    } else if (activeOrder && activeOrder.status !== 'Completed') {
       setSensorStatus((prev) => (prev === 'STOPPED' ? 'STOPPED' : 'RUNNING'));
     } else {
       setSensorStatus('IDLE');
     }
-  }, [activeOrder?.status, isConnected]);
+  }, [activeOrder, isConnected]);
+
+  // 💡 선택된 activeLot이 변경될 때 백엔드 설비의 CurrentLotID를 해당 LotID(BNOA56 등)로 즉시 바인딩
+  useEffect(() => {
+    if (activeLot?.lotID && isConnected && activeOrder?.status === 'InProgress') {
+      console.log('🔗 [useWorkerDashboard] 백엔드 설비에 CurrentLotID 동기화:', activeLot.lotID);
+      customFetch('/Equipment/status', {
+        method: 'POST',
+        body: JSON.stringify({
+          equipmentID: 'EQ-CNC-01',
+          newStatus: 'RUNNING',
+          currentLotID: activeLot.lotID,
+        }),
+      })
+        .then(() => queryClient.invalidateQueries({ queryKey: ['equipments'] }))
+        .catch((err) => console.warn('Equipment lot sync error:', err));
+    }
+  }, [activeLot?.lotID, activeOrder?.status, isConnected, queryClient]);
 
   // 2. 생산 시작 Mutation
   const startProductionMutation = useMutation({
-    mutationFn: (orderId: number) =>
-      customFetch(`/Production/start/${orderId}`, { method: 'POST' }),
+    mutationFn: async (orderId: number) => {
+      const res = await customFetch(`/Production/start/${orderId}`, { method: 'POST' });
+      
+      // 설비 상태를 RUNNING으로 전환하고 현재 LotID를 백엔드 설비에 동기화
+      const targetLot = lotTracking.find((l) => l.orderID === orderId);
+      const lotId = targetLot?.lotID || activeLot?.lotID;
+      
+      if (lotId) {
+        try {
+          await customFetch('/Equipment/status', {
+            method: 'POST',
+            body: JSON.stringify({
+              equipmentID: 'EQ-CNC-01',
+              newStatus: 'RUNNING',
+              currentLotID: lotId,
+            }),
+          });
+        } catch (e) {
+          console.warn('Equipment sync skipped:', e);
+        }
+      }
+      return res;
+    },
     onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['equipments'] });
       setSensorStatus('RUNNING');
       addNotification({
         type: 'SUCCESS',

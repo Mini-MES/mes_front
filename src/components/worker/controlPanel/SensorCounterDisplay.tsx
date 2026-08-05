@@ -6,6 +6,7 @@ interface SensorCounterDisplayProps {
   targetQty: number;
   accumulatedGood: number;
   totalBadCount: number;
+  accumulatedBad?: number;
   lastPulseTime?: string | null;
 }
 
@@ -14,24 +15,28 @@ export const SensorCounterDisplay: React.FC<SensorCounterDisplayProps> = ({
   targetQty,
   accumulatedGood,
   totalBadCount,
+  accumulatedBad = 0,
   lastPulseTime,
 }) => {
+  const currentGoodDisplay = totalGoodCount + accumulatedGood;
+  const currentBadDisplay = totalBadCount + accumulatedBad;
+
   return (
     <S.SensorDisplayBox>
       <S.CounterBlock>
         <S.CounterLabel>🟢 실시간 양품 수량 (센서 누적)</S.CounterLabel>
         <S.CounterValue $color="#00e676">
-          {totalGoodCount} <span className="unit">/ {targetQty} EA</span>
+          {currentGoodDisplay} <span className="unit">/ {targetQty} EA</span>
         </S.CounterValue>
         {accumulatedGood > 0 && (
-          <S.PulseAddBadge>+ {accumulatedGood} EA 수집됨</S.PulseAddBadge>
+          <S.PulseAddBadge>⚡ 센서 수집중 (+{accumulatedGood} EA)</S.PulseAddBadge>
         )}
       </S.CounterBlock>
 
       <S.CounterBlock>
         <S.CounterLabel>🔴 실시간 불량 수량</S.CounterLabel>
         <S.CounterValue $color="#ff1744">
-          {totalBadCount} <span className="unit">EA</span>
+          {currentBadDisplay} <span className="unit">EA</span>
         </S.CounterValue>
         {lastPulseTime && (
           <S.PulseTimeText>최근 수신: {lastPulseTime}</S.PulseTimeText>

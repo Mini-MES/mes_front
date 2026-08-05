@@ -111,6 +111,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               targetQty={activeOrder.targetQty}
               accumulatedGood={accumulatedGood}
               totalBadCount={totalBadCount}
+              accumulatedBad={accumulatedBad}
               lastPulseTime={lastPulseTime}
             />
 

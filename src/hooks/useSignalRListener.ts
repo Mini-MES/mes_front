@@ -107,6 +107,8 @@ export const useSignalRListener = () => {
     connection.on('StockUpdated', handleStockUpdated);
     connection.on('stockUpdated', handleStockUpdated);
     
+    connection.on('ReceiveEquipmentStatusChanged', handleEquipmentStatusUpdated);
+    connection.on('receiveEquipmentStatusChanged', handleEquipmentStatusUpdated);
     connection.on('EquipmentStatusUpdated', handleEquipmentStatusUpdated);
     connection.on('equipmentStatusUpdated', handleEquipmentStatusUpdated);
 
@@ -124,6 +126,8 @@ export const useSignalRListener = () => {
       connection.off('StockUpdated', handleStockUpdated);
       connection.off('stockUpdated', handleStockUpdated);
 
+      connection.off('ReceiveEquipmentStatusChanged', handleEquipmentStatusUpdated);
+      connection.off('receiveEquipmentStatusChanged', handleEquipmentStatusUpdated);
       connection.off('EquipmentStatusUpdated', handleEquipmentStatusUpdated);
       connection.off('equipmentStatusUpdated', handleEquipmentStatusUpdated);
 
