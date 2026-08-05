@@ -47,8 +47,8 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   const currentStageIndex = currentStageID - 1;
   const isLastStage = currentStageIndex === processStages.length - 1;
 
-  const totalGoodCount = activeOrder.totalGoodQty + accumulatedGood;
-  const totalBadCount = activeOrder.totalBadQty + accumulatedBad;
+  const totalGoodCount = Math.max(activeOrder.totalGoodQty, accumulatedGood);
+  const totalBadCount = Math.max(activeOrder.totalBadQty, accumulatedBad);
   const isPlanCompleted = totalGoodCount >= activeOrder.targetQty;
   const isOrderCompleted = activeOrder.status === 'Completed';
   const isOrderCreated = activeOrder.status === 'Created';
@@ -111,6 +111,7 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
               targetQty={activeOrder.targetQty}
               accumulatedGood={accumulatedGood}
               totalBadCount={totalBadCount}
+              accumulatedBad={accumulatedBad}
               lastPulseTime={lastPulseTime}
             />
 

@@ -5,7 +5,8 @@ import { SensorStatus } from '@/types/sensor';
 
 export function useSensorStream(
   targetLotId: string | null | undefined,
-  sensorStatus: SensorStatus = 'RUNNING'
+  sensorStatus: SensorStatus = 'RUNNING',
+  currentProcessId?: number
 ) {
   const { connection, isConnected } = useSignalRContext();
   const [accumulatedGood, setAccumulatedGood] = useState(0);
@@ -22,14 +23,25 @@ export function useSensorStream(
     sensorStatusRef.current = sensorStatus;
   }, [sensorStatus]);
 
-  // LOT 변경 시 누적 수량 및 버퍼 리셋
+  const prevLotIdRef = useRef<string | null>(targetLotId);
+  const prevProcessIdRef = useRef<number | undefined>(currentProcessId);
+
+  // LOT 또는 공정 변경 시 누적 수량 및 버퍼 리셋
   useEffect(() => {
-    setAccumulatedGood(0);
-    setAccumulatedBad(0);
-    setLastPulseTime(null);
-    pendingGoodRef.current = 0;
-    pendingBadRef.current = 0;
-  }, [targetLotId]);
+    if (prevLotIdRef.current !== targetLotId || prevProcessIdRef.current !== currentProcessId) {
+      console.log('🔄 [useSensorStream] LOT ID 또는 공정 변경됨 - 수량 초기화:', { 
+        prevLot: prevLotIdRef.current, nextLot: targetLotId,
+        prevProc: prevProcessIdRef.current, nextProc: currentProcessId 
+      });
+      prevLotIdRef.current = targetLotId;
+      prevProcessIdRef.current = currentProcessId;
+      setAccumulatedGood(0);
+      setAccumulatedBad(0);
+      setLastPulseTime(null);
+      pendingGoodRef.current = 0;
+      pendingBadRef.current = 0;
+    }
+  }, [targetLotId, currentProcessId]);
 
   // 주기적으로 버퍼에 쌓인 펄스 수량을 React 상태로 일괄 반영 (이벤트 유실 원천 방지)
   useEffect(() => {
@@ -37,12 +49,14 @@ export function useSensorStream(
       if (pendingGoodRef.current > 0) {
         const addGood = pendingGoodRef.current;
         pendingGoodRef.current = 0;
+        console.log('⚡ [useSensorStream] React 상태로 펄스 반영 (+' + addGood + ' EA)');
         setAccumulatedGood((prev) => prev + addGood);
         setLastPulseTime(new Date().toLocaleTimeString());
       }
       if (pendingBadRef.current > 0) {
         const addBad = pendingBadRef.current;
         pendingBadRef.current = 0;
+        console.log('⚡ [useSensorStream] 불량 펄스 반영 (+' + addBad + ' EA)');
         setAccumulatedBad((prev) => prev + addBad);
         setLastPulseTime(new Date().toLocaleTimeString());
       }
@@ -57,29 +71,29 @@ export function useSensorStream(
     const handleReceiveSensor = (data: any) => {
       if (!data) return;
 
+      const incomingLotId = String(data.LotID ?? data.lotID ?? data.LotId ?? '').trim().toUpperCase();
+      const targetId = String(targetLotId ?? '').trim().toUpperCase();
+      const goodInc = Number(data.GoodIncrement ?? data.goodIncrement ?? data.GoodCount ?? 0);
+      const badInc = Number(data.BadIncrement ?? data.badIncrement ?? data.BadCount ?? 0);
+
+      console.log('📡 [Sensor Stream Data]:', { incomingLotId, targetId, goodInc, status: sensorStatusRef.current });
+
       // 일시 중지(STOPPED), 유휴(IDLE), 에러(ERROR) 등 센서 정지 상태일 때는 수집 차단
       if (sensorStatusRef.current !== 'RUNNING') {
         console.log('⏸️ [Sensor Stream] 센서 정지/일시중지 상태 - 수집 스킵:', sensorStatusRef.current);
         return;
       }
 
-      const incomingLotId = data.LotID ?? data.lotID;
-      const goodInc = data.GoodIncrement ?? data.goodIncrement ?? 0;
-      const badInc = data.BadIncrement ?? data.badIncrement ?? 0;
-
-      if (incomingLotId && targetLotId && String(incomingLotId) === String(targetLotId)) {
-        // 모든 펄스를 유실 없이 버퍼에 합산
+      if (!targetId || incomingLotId === targetId) {
         if (goodInc > 0) pendingGoodRef.current += goodInc;
         if (badInc > 0) pendingBadRef.current += badInc;
       }
     };
 
     connection.on(SIGNALR_EVENTS.RECEIVE_SENSOR_COUNT, handleReceiveSensor);
-    connection.on(SIGNALR_EVENTS.RECEIVE_SENSOR_COUNT_LOWER, handleReceiveSensor);
 
     return () => {
       connection.off(SIGNALR_EVENTS.RECEIVE_SENSOR_COUNT, handleReceiveSensor);
-      connection.off(SIGNALR_EVENTS.RECEIVE_SENSOR_COUNT_LOWER, handleReceiveSensor);
     };
   }, [connection, isConnected, targetLotId]);
 
