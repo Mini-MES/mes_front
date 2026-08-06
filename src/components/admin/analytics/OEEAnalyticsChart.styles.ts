@@ -24,7 +24,27 @@ export const KpiGrid = styled.div`
     display: grid;                                                                                                                                                  
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));                                                                                                    
     gap: 1rem;                                                                                                                                                      
+`;       
+
+export const KpiContent = styled.div`                                                                                                                             
+      display: flex;                                                                                                                                                  
+      flex-direction: column;                                                                                                                                         
+      gap: 0.25rem;                                                                                                                                                   
+    `;                                                                                                                                                                
+                                                                                                                                                                      
+export const KpiLabel = styled.span`                                                                                                                              
+    font-size: 0.8rem;                                                                                                                                              
+    color: #94a3b8;                                                                                                                                                 
+    font-weight: 500;                                                                                                                                               
 `;                                                                                                                                                                
+                                                                                                                                                                    
+export const KpiValue = styled.h3`                                                                                                                                
+    font-size: 1.5rem;                                                                                                                                              
+    font-weight: 700;                                                                                                                                               
+    color: #f8fafc;                                                                                                                                                 
+    letter-spacing: -0.5px;                                                                                                                                         
+    margin: 0;                                                                                                                                                      
+`;
                                                                                                                                                                     
 export const KpiCard = styled.div<{ $color?: string }>`                                                                                                           
     display: flex;                                                                                                                                                  

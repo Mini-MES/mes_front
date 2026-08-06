@@ -28,37 +28,37 @@ export function OEEAnalyticsChart() {
         <S.Container>                                                                                                                                                 
             {/* 상단 4대 OEE 핵심 요약 KPI 카드 */}                                                                                                                     
             <S.KpiGrid>                                                                                                                                                 
-            <S.KpiCard $color="#00F0FF">                                                                                                                              
-                <Gauge size={24} />                                                                                                                                     
-                <div>                                                                                                                                                   
-                <span>공장 전체 평균 OEE</span>                                                                                                                       
-                <h3>{oeeSummary.overallOee}%</h3>                                                                                                                     
-                </div>                                                                                                                                                  
-            </S.KpiCard>                                                                                                                                              
-                                                                                                                                                                        
-            <S.KpiCard $color="#10B981">                                                                                                                              
-                <Activity size={24} />                                                                                                                                  
-                <div>                                                                                                                                                   
-                <span>평균 가동률 (Availability)</span>                                                                                                               
-                <h3>{oeeSummary.averageAvailability}%</h3>                                                                                                            
-                </div>                                                                                                                                                  
-            </S.KpiCard>                                                                                                                                              
-                                                                                                                                                                        
-            <S.KpiCard $color="#3B82F6">                                                                                                                              
-                <Zap size={24} />                                                                                                                                       
-                <div>                                                                                                                                                   
-                <span>평균 성능효율 (Performance)</span>                                                                                                              
-                <h3>{oeeSummary.averagePerformance}%</h3>                                                                                                             
-                </div>                                                                                                                                                  
-            </S.KpiCard>                                                                                                                                              
-                                                                                                                                                                        
-            <S.KpiCard $color="#8B5CF6">                                                                                                                              
-                <ShieldCheck size={24} />                                                                                                                               
-                <div>                                                                                                                                                   
-                <span>평균 품질률 (Quality)</span>                                                                                                                    
-                <h3>{oeeSummary.averageQuality}%</h3>                                                                                                                 
-                </div>                                                                                                                                                  
-            </S.KpiCard>                                                                                                                                              
+                <S.KpiCard $color="#00F0FF">                                                                                                                              
+                    <Gauge size={24} />                                                                                                                                     
+                    <S.KpiContent>                                                                                                                                          
+                        <S.KpiLabel>공장 전체 평균 OEE</S.KpiLabel>                                                                                                           
+                        <S.KpiValue>{oeeSummary.overallOee}%</S.KpiValue>                                                                                                     
+                    </S.KpiContent>                                                                                                                                             
+                </S.KpiCard>                                                                                                                                              
+                                                                                                                                                                            
+                <S.KpiCard $color="#10B981">                                                                                                                              
+                    <Activity size={24} />                                                                                                                                  
+                    <S.KpiContent>                                                                                                                                          
+                        <S.KpiLabel>평균 가동률 (Availability)</S.KpiLabel>                                                                                                   
+                        <S.KpiValue>{oeeSummary.averageAvailability}%</S.KpiValue>                                                                                            
+                    </S.KpiContent>                                                                                                                                                  
+                </S.KpiCard>                                                                                                                                              
+                                                                                                                                                                            
+                <S.KpiCard $color="#3B82F6">                                                                                                                              
+                    <Zap size={24} />                                                                                                                                       
+                    <S.KpiContent>                                                                                                                                          
+                        <S.KpiLabel>평균 성능효율 (Performance)</S.KpiLabel>                                                                                                  
+                        <S.KpiValue>{oeeSummary.averagePerformance}%</S.KpiValue>                                                                                             
+                    </S.KpiContent>                                                                                                                                                  
+                </S.KpiCard>                                                                                                                                              
+                                                                                                                                                                            
+                <S.KpiCard $color="#8B5CF6">                                                                                                                              
+                    <ShieldCheck size={24} />                                                                                                                               
+                    <S.KpiContent>                                                                                                                                          
+                        <S.KpiLabel>평균 품질률 (Quality)</S.KpiLabel>                                                                                                        
+                        <S.KpiValue>{oeeSummary.averageQuality}%</S.KpiValue>                                                                                                 
+                    </S.KpiContent>                                                                                                                                                
+                </S.KpiCard>                                                                                                                                              
             </S.KpiGrid>                                                                                                                                                
                                                                                                                                                                         
             {/* 설비별 OEE 3대 팩터 비교 바 차트 */}                                                                                                                    
