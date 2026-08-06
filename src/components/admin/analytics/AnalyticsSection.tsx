@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { BarChart3, Layers, Package } from 'lucide-react';
+import { BarChart3, Gauge, Layers, Package } from 'lucide-react';
 import { WorkOrder, RawMaterial, LotTracking } from '@/context/AppContext';
 import { ProductionQualityChart } from './ProductionQualityChart';
 import { ProcessStageQualityChart } from './ProcessStageQualityChart';
 import { RawMaterialStockChart } from './RawMaterialStockChart';
 import * as S from './AnalyticsSection.styles';
+import { OEEAnalyticsChart } from './OEEAnalyticsChart';
 
 interface AnalyticsSectionProps {
   workOrders?: WorkOrder[];
@@ -19,7 +20,7 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
   lotTracking = [],
   processStages = [],
 }) => {
-  const [activeTab, setActiveTab] = useState<'PRODUCTION' | 'PROCESS' | 'STOCK'>('PRODUCTION');
+  const [activeTab, setActiveTab] = useState<'PRODUCTION' | 'PROCESS' | 'STOCK' | 'OEE'>('PRODUCTION');
 
   return (
     <S.Container>
@@ -53,6 +54,14 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
             <Package size={15} />
             자재 재고 현황
           </S.TabButton>
+
+          <S.TabButton
+            $active={activeTab === 'OEE'}
+            onClick={() => setActiveTab('OEE')}
+          >
+            <Gauge size={15} />
+            설비 종합 효율(OEE)
+          </S.TabButton>
         </S.TabGroup>
       </S.HeaderRow>
 
@@ -70,6 +79,10 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
 
       {activeTab === 'STOCK' && (
         <RawMaterialStockChart rawMaterials={rawMaterials} />
+      )}
+
+      {activeTab === 'OEE' && (
+        <OEEAnalyticsChart />
       )}
     </S.Container>
   );
