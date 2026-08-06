@@ -4,12 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 import * as S from "@/components/admin/analytics/OEEAnalyticsChart.styles";
 import { Activity, Gauge, ShieldCheck, Zap } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useEffect } from "react";
 
 export function OEEAnalyticsChart() {
     const {data: oeeSummary, isLoading} = useQuery<OeeSummary>({
         queryKey: ['oeeSummary'],
         queryFn: () => customFetch('/Equipment/oee-stats'),
     });
+
+    useEffect(() => {
+        if (oeeSummary) {
+            console.log('OEE Summary:', oeeSummary);
+            console.log('Chart Data:', chartData);
+        }
+    }, [oeeSummary]);
 
     if(isLoading || !oeeSummary) {
         return <S.LoadingText>OEE 종합 효율 데이터 분석 중...</S.LoadingText>;
@@ -66,15 +74,15 @@ export function OEEAnalyticsChart() {
             <h4>설비별 OEE 3대 지표 비교</h4>                                                                                                                         
             <ResponsiveContainer width="100%" height={300}>                                                                                                           
                 <BarChart data={chartData}>                                                                                                                             
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />                                                                                
-                <XAxis dataKey="name" stroke="#94A3B8" />                                                                                                             
-                <YAxis domain={[0, 100]} stroke="#94A3B8" unit="%" />                                                                                                 
-                <Tooltip contentStyle={{ background: '#0F172A', border: '1px solid #334155' }} />                                                                     
-                <Legend />                                                                                                                                            
-                <Bar dataKey="가동률" fill="#10B981" radius={[4, 4, 0, 0]} />                                                                                         
-                <Bar dataKey="성능효율" fill="#3B82F6" radius={[4, 4, 0, 0]} />                                                                                       
-                <Bar dataKey="품질률" fill="#8B5CF6" radius={[4, 4, 0, 0]} />                                                                                         
-                <Bar dataKey="종합OEE" fill="#00F0FF" radius={[4, 4, 0, 0]} />                                                                                        
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />                                                                                
+                    <XAxis dataKey="name" stroke="#94A3B8" />                                                                                                             
+                    <YAxis domain={[0, 100]} stroke="#94A3B8" unit="%" />                                                                                                 
+                    <Tooltip contentStyle={{ background: '#0F172A', border: '1px solid #334155' }} />                                                                     
+                    <Legend />                                                                                                                                            
+                    <Bar dataKey="availability" fill="#10B981" radius={[4, 4, 0, 0]} />                                                                                         
+                    <Bar dataKey="performance" fill="#3B82F6" radius={[4, 4, 0, 0]} />                                                                                       
+                    <Bar dataKey="quality" fill="#8B5CF6" radius={[4, 4, 0, 0]} />                                                                                         
+                    <Bar dataKey="oee" fill="#00F0FF" radius={[4, 4, 0, 0]} />                                                                                        
                 </BarChart>                                                                                                                                             
             </ResponsiveContainer>                                                                                                                                    
             </S.ChartWrapper>                                                                                                                                           

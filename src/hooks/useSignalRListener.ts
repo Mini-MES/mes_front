@@ -100,7 +100,12 @@ export const useSignalRListener = () => {
       });
     };
 
-    // 이벤트 리스너 바인딩 (대소문자 지원)
+    const handleSensorCountUpdated = (data?: any) => {
+      queryClient.invalidateQueries({ queryKey: ['equipments'] });
+      queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+    };
+
     connection.on('LotUpdated', handleLotUpdated);
     connection.on('lotUpdated', handleLotUpdated);
 
@@ -118,7 +123,11 @@ export const useSignalRListener = () => {
     connection.on('DefectReported', handleDefectReported);
     connection.on('defectReported', handleDefectReported);
 
-    // 언마운트 시 이벤트 오프
+    connection.on('ReceiveSensorCountUpdated', handleSensorCountUpdated);
+    connection.on('receiveSensorCountUpdated', handleSensorCountUpdated);
+    connection.on('SensorCountUpdated', handleSensorCountUpdated);
+    connection.on('sensorCountUpdated', handleSensorCountUpdated);
+
     return () => {
       connection.off('LotUpdated', handleLotUpdated);
       connection.off('lotUpdated', handleLotUpdated);
@@ -136,6 +145,11 @@ export const useSignalRListener = () => {
 
       connection.off('DefectReported', handleDefectReported);
       connection.off('defectReported', handleDefectReported);
+
+      connection.off('ReceiveSensorCountUpdated', handleSensorCountUpdated);
+      connection.off('receiveSensorCountUpdated', handleSensorCountUpdated);
+      connection.off('SensorCountUpdated', handleSensorCountUpdated);
+      connection.off('sensorCountUpdated', handleSensorCountUpdated);
     };
   }, [connection, isConnected, queryClient, addNotification]);
 };

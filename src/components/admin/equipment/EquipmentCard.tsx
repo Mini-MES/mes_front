@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { EquipmentItem, SensorStatus, SENSOR_STATUS_MAP } from '@/types';
 import * as S from '@/components/admin/equipment/EquipmentStatusSection.styles';
+import { formatTime } from '@/utils/formatTime';
 
 interface EquipmentCardProps {
   equipment: EquipmentItem;
@@ -16,20 +17,31 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
   onOpenDowntimeModal,
   isPending,
 }) => {
+  const [runningSec, setRunningSec] = useState(equipment.totalRunningSeconds);
+  const [downtimeSec, setDowntimeSec] = useState(equipment.totalDowntimeSeconds);
+
+  useEffect(() => {
+    setRunningSec(equipment.totalRunningSeconds);
+    setDowntimeSec(equipment.totalDowntimeSeconds);
+  }, [equipment.totalRunningSeconds, equipment.totalDowntimeSeconds]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (equipment.status === 'RUNNING') {
+        setRunningSec((prev) => prev + 1);
+      } else if (equipment.status === 'STOPPED' || equipment.status === 'MAINTENANCE') {
+        setDowntimeSec((prev) => prev + 1);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [equipment.status]);
+
   const statusInfo = SENSOR_STATUS_MAP[equipment.status] || SENSOR_STATUS_MAP.IDLE;
 
-  const formatTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    if (hrs > 0) return `${hrs}시간 ${mins}분`;
-    if (mins > 0) return `${mins}분 ${secs}초`;
-    return `${secs}초`;
-  };
-
-  const totalSec = equipment.totalRunningSeconds + equipment.totalDowntimeSeconds;
+  const totalSec = runningSec + downtimeSec;
   const availabilityRate = totalSec > 0
-    ? Math.round((equipment.totalRunningSeconds / totalSec) * 100)
+    ? Math.round((runningSec / totalSec) * 100)
     : 100;
 
   return (
@@ -49,11 +61,11 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
       <S.TimerSection>
         <S.TimerRow>
           <S.TimerLabel>⏱️ 누적 가동시간</S.TimerLabel>
-          <S.TimerValue $color="#00e676">{formatTime(equipment.totalRunningSeconds)}</S.TimerValue>
+          <S.TimerValue $color="#00e676">{formatTime(runningSec)}</S.TimerValue>
         </S.TimerRow>
         <S.TimerRow>
           <S.TimerLabel>⏳ 누적 비가동시간</S.TimerLabel>
-          <S.TimerValue $color="#ff1744">{formatTime(equipment.totalDowntimeSeconds)}</S.TimerValue>
+          <S.TimerValue $color="#ff1744">{formatTime(downtimeSec)}</S.TimerValue>
         </S.TimerRow>
       </S.TimerSection>
 
@@ -100,6 +112,15 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
           onClick={() => onChangeStatus(equipment.equipmentID, 'MAINTENANCE', equipment.currentLotID)}
         >
           점검
+        </S.StatusChangeBtn>
+
+        <S.StatusChangeBtn
+          $active={equipment.status === 'OFF'}
+          $color="#64748b"
+          disabled={isPending || equipment.status === 'OFF'}
+          onClick={() => onChangeStatus(equipment.equipmentID, 'OFF', equipment.currentLotID)}
+        >
+          전원 끄기
         </S.StatusChangeBtn>
       </S.CardActions>
     </S.EquipmentCardWrapper>
