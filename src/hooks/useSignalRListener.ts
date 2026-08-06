@@ -18,14 +18,17 @@ export const useSignalRListener = () => {
     const handleEquipmentStatusUpdated = (data?: any) => {
       console.log('⚡ [SignalR] EquipmentStatusUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['equipments'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
     }
 
-    // LOT 공정 갱신 이벤트 수신
     const handleLotUpdated = (data?: any) => {
       console.log('⚡ [SignalR] LotUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['lot-tracking'] });
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
 
       const lotId = data?.lotID || data?.lotId || data?.lotNumber || (typeof data === 'string' ? data : '');
       const status = (data?.status || data?.state || '').toString().toUpperCase();
@@ -39,7 +42,6 @@ export const useSignalRListener = () => {
       }
     };
 
-    // 재고 수량 갱신 이벤트 수신
     const handleStockUpdated = (data?: any) => {
       console.log('⚡ [SignalR] StockUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -63,11 +65,12 @@ export const useSignalRListener = () => {
       }
     };
 
-    // 작업 지시 상태 갱신 이벤트 수신
     const handleWorkOrderUpdated = (data?: any) => {
       console.log('⚡ [SignalR] WorkOrderUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
 
       const orderNo = data?.workOrderID || data?.workOrderId || data?.orderNo || data?.orderID || (typeof data === 'string' ? data : '');
       const status = (data?.status || data?.state || '').toString().toUpperCase();
@@ -81,13 +84,14 @@ export const useSignalRListener = () => {
       }
     };
 
-    // 불량 보고 및 보류(HOLD) 전환 이벤트 수신
     const handleDefectReported = (data?: any) => {
       console.log('⚡ [SignalR] DefectReported 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lot-tracking'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
 
       const lotId = data?.lotID || data?.lotId || data?.lotNumber || 'LOT';
       const reason = data?.reason || data?.reasonCode || data?.defectType || '불량 발생';
@@ -100,7 +104,14 @@ export const useSignalRListener = () => {
       });
     };
 
-    // 이벤트 리스너 바인딩 (대소문자 지원)
+    const handleSensorCountUpdated = (data?: any) => {
+      queryClient.invalidateQueries({ queryKey: ['equipments'] });
+      queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
+    };
+
     connection.on('LotUpdated', handleLotUpdated);
     connection.on('lotUpdated', handleLotUpdated);
 
@@ -118,7 +129,11 @@ export const useSignalRListener = () => {
     connection.on('DefectReported', handleDefectReported);
     connection.on('defectReported', handleDefectReported);
 
-    // 언마운트 시 이벤트 오프
+    connection.on('ReceiveSensorCountUpdated', handleSensorCountUpdated);
+    connection.on('receiveSensorCountUpdated', handleSensorCountUpdated);
+    connection.on('SensorCountUpdated', handleSensorCountUpdated);
+    connection.on('sensorCountUpdated', handleSensorCountUpdated);
+
     return () => {
       connection.off('LotUpdated', handleLotUpdated);
       connection.off('lotUpdated', handleLotUpdated);
@@ -136,6 +151,11 @@ export const useSignalRListener = () => {
 
       connection.off('DefectReported', handleDefectReported);
       connection.off('defectReported', handleDefectReported);
+
+      connection.off('ReceiveSensorCountUpdated', handleSensorCountUpdated);
+      connection.off('receiveSensorCountUpdated', handleSensorCountUpdated);
+      connection.off('SensorCountUpdated', handleSensorCountUpdated);
+      connection.off('sensorCountUpdated', handleSensorCountUpdated);
     };
   }, [connection, isConnected, queryClient, addNotification]);
 };
