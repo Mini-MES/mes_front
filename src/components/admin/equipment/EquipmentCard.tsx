@@ -26,16 +26,21 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
   }, [equipment.totalRunningSeconds, equipment.totalDowntimeSeconds]);
 
   useEffect(() => {
+    const startTimestamp = Date.now();
+    const initialRunning = equipment.totalRunningSeconds;
+    const initialDowntime = equipment.totalDowntimeSeconds;
+
     const timer = setInterval(() => {
+      const elapsedSec = Math.floor((Date.now() - startTimestamp) / 1000);
       if (equipment.status === 'RUNNING') {
-        setRunningSec((prev) => prev + 1);
-      } else if (equipment.status === 'STOPPED' || equipment.status === 'MAINTENANCE') {
-        setDowntimeSec((prev) => prev + 1);
+        setRunningSec(initialRunning + elapsedSec);
+      } else if (equipment.status === 'STOPPED' || equipment.status === 'MAINTENANCE' || equipment.status === 'ERROR') {
+        setDowntimeSec(initialDowntime + elapsedSec);
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [equipment.status]);
+  }, [equipment.status, equipment.totalRunningSeconds, equipment.totalDowntimeSeconds]);
 
   const statusInfo = SENSOR_STATUS_MAP[equipment.status] || SENSOR_STATUS_MAP.IDLE;
 

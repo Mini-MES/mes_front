@@ -4,23 +4,23 @@ import { useQuery } from "@tanstack/react-query";
 import * as S from "@/components/admin/analytics/OEEAnalyticsChart.styles";
 import { Activity, Gauge, ShieldCheck, Zap } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useEffect } from "react";
 
 export function OEEAnalyticsChart() {
-    const {data: oeeSummary, isLoading} = useQuery<OeeSummary>({
+    const { data: oeeSummary, isLoading, isError, refetch } = useQuery<OeeSummary>({
         queryKey: ['oeeSummary'],
         queryFn: () => customFetch('/Equipment/oee-stats'),
     });
 
-    useEffect(() => {
-        if (oeeSummary) {
-            console.log('OEE Summary:', oeeSummary);
-            console.log('Chart Data:', chartData);
-        }
-    }, [oeeSummary]);
-
-    if(isLoading || !oeeSummary) {
+    if (isLoading) {
         return <S.LoadingText>OEE 종합 효율 데이터 분석 중...</S.LoadingText>;
+    }
+
+    if (isError || !oeeSummary) {
+        return (
+            <S.LoadingText style={{ color: '#ff4b5c', cursor: 'pointer' }} onClick={() => refetch()}>
+                ⚠️ OEE 데이터를 불러오지 못했습니다. (클릭하여 다시 시도)
+            </S.LoadingText>
+        );
     }
 
     const chartData = oeeSummary.equipments.map(equipment => ({

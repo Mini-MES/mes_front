@@ -22,5 +22,5 @@ export const SENSOR_STATUS_MAP: Record<SensorStatus, { label: string; color: str
     IDLE:        { label: '유휴', color: '#9e9e9e', bg: 'rgba(158, 158, 158, 0.15)' },
     ERROR:       { label: '오류/고장', color: '#ff1744', bg: 'rgba(255, 23, 68, 0.15)' },
     SETUP:       { label: '셋업/교체 중', color: '#d500f9', bg: 'rgba(213, 0, 249, 0.15)' },
-    OFF:         { label: '전원 끄기', color: '#64748b', bg: 'rgba(100, 116, 139, 0.2)' },
+    OFF:         { label: '전원 꺼짐', color: '#64748b', bg: 'rgba(100, 116, 139, 0.2)' },
 };
