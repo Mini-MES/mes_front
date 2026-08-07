@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
+    "@types/react-csv": "^1.1.10",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "oxlint": "^1.71.0",
