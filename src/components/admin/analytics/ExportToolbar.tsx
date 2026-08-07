@@ -13,14 +13,14 @@ interface ExportToolbarProps {
 }          
 
 export function ExportToolbar({ workOrders, rawMaterials, lotTracking, processStages, oeeSummary }: ExportToolbarProps) {
-    const today = new Date().toDateString().slice(1,10); // 날짜를 YYYY-MM-DD 형식으로 변환
+    const today = new Date().toISOString().slice(0, 10); // 날짜를 YYYY-MM-DD 형식으로 변환
 
     const woHeader = [
         { label: '지시 ID', key: 'orderID' },
         { label: '품목 ID', key: 'productID' },
         { label: '목표 수량', key: 'targetQty' },
-        { label: '양품 수량', key: 'goodQty' },
-        { label: '불량 수량', key: 'badQty' },
+        { label: '양품 수량', key: 'totalGoodQty' },
+        { label: '불량 수량', key: 'totalBadQty' },
         { label: '진행 상태', key: 'status' },
         { label: '지시일', key: 'orderDate' },
         { label: '발행 LOT', key: 'lotID' }

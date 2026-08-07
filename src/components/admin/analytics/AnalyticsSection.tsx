@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BarChart3, Gauge, Layers, Package } from 'lucide-react';
 import { WorkOrder, RawMaterial, LotTracking } from '@/context/AppContext';
 import { ProductionQualityChart } from './ProductionQualityChart';
@@ -6,6 +6,7 @@ import { ProcessStageQualityChart } from './ProcessStageQualityChart';
 import { RawMaterialStockChart } from './RawMaterialStockChart';
 import * as S from './AnalyticsSection.styles';
 import { OEEAnalyticsChart } from './OEEAnalyticsChart';
+import { ExportToolbar } from './ExportToolbar';
 
 interface AnalyticsSectionProps {
   workOrders?: WorkOrder[];
@@ -14,16 +15,18 @@ interface AnalyticsSectionProps {
   processStages?: string[];
 }
 
-export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
-  workOrders = [],
-  rawMaterials = [],
-  lotTracking = [],
-  processStages = [],
-}) => {
+export function AnalyticsSection({ workOrders = [], rawMaterials = [], lotTracking = [], processStages = [] }: AnalyticsSectionProps) {
   const [activeTab, setActiveTab] = useState<'PRODUCTION' | 'PROCESS' | 'STOCK' | 'OEE'>('PRODUCTION');
 
   return (
     <S.Container>
+      <ExportToolbar 
+        workOrders={workOrders} 
+        rawMaterials={rawMaterials} 
+        lotTracking={lotTracking} 
+        processStages={processStages}
+      />
+
       <S.HeaderRow>
         <S.SectionTitle>
           <BarChart3 size={20} color="#00F0FF" />
