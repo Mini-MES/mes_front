@@ -1,7 +1,7 @@
 import { LotTracking, RawMaterial, WorkOrder } from "@/context/AppContext";
 import { OeeSummary } from "@/types/equipment";
 import * as S from "@/components/admin/analytics/ExportToolbar.styles";
-import {CSVLink} from "react-csv";
+import { CSVLink } from "react-csv";
 import { Download, FileSpreadsheet, Gauge, Layers, Package } from "lucide-react";
 
 interface ExportToolbarProps {                                                                                                                                    
