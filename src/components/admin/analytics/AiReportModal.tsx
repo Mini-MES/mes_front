@@ -21,15 +21,28 @@ export const AiReportModal: React.FC<AiReportModalProps> = ({ isOpen, onClose })
     staleTime: 1000 * 60 * 5, // 5분 캐싱
   });
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (data?.reportMarkdown) {
-      navigator.clipboard.writeText(data.reportMarkdown);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        await navigator.clipboard.writeText(data.reportMarkdown);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+      }
     }
   };
 
-  // 마크다운 파서 및 렌더러
+  const renderBoldText = (text: string): React.ReactNode[] => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+        return <strong key={index}>{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+  };
+
   const renderMarkdown = (content: string) => {
     const lines = content.split('\n');
     return lines.map((line, idx) => {
@@ -38,37 +51,29 @@ export const AiReportModal: React.FC<AiReportModalProps> = ({ isOpen, onClose })
       if (!trimmed) return <div key={idx} style={{ height: '8px' }} />;
 
       if (trimmed.startsWith('# ')) {
-        return <h1 key={idx}>{trimmed.replace('# ', '')}</h1>;
+        return <h1 key={idx}>{renderBoldText(trimmed.replace('# ', ''))}</h1>;
       }
       if (trimmed.startsWith('### ')) {
-        return <h3 key={idx}>{trimmed.replace('### ', '')}</h3>;
+        return <h3 key={idx}>{renderBoldText(trimmed.replace('### ', ''))}</h3>;
       }
       if (trimmed.startsWith('## ')) {
-        return <h2 key={idx}>{trimmed.replace('## ', '')}</h2>;
+        return <h2 key={idx}>{renderBoldText(trimmed.replace('## ', ''))}</h2>;
       }
       if (trimmed.startsWith('#### ')) {
-        return <h4 key={idx}>{trimmed.replace('#### ', '')}</h4>;
+        return <h4 key={idx}>{renderBoldText(trimmed.replace('#### ', ''))}</h4>;
       }
       if (trimmed.startsWith('> ')) {
-        return <blockquote key={idx}>{trimmed.replace('> ', '')}</blockquote>;
+        return <blockquote key={idx}>{renderBoldText(trimmed.replace('> ', ''))}</blockquote>;
       }
       if (trimmed.startsWith('---')) {
         return <hr key={idx} />;
       }
       if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
         const itemText = trimmed.replace(/^[\*\-]\s+/, '');
-        return (
-          <li key={idx} dangerouslySetInnerHTML={{
-            __html: itemText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          }} />
-        );
+        return <li key={idx}>{renderBoldText(itemText)}</li>;
       }
 
-      return (
-        <p key={idx} dangerouslySetInnerHTML={{
-          __html: trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        }} />
-      );
+      return <p key={idx}>{renderBoldText(trimmed)}</p>;
     });
   };
 
@@ -119,7 +124,7 @@ export const AiReportModal: React.FC<AiReportModalProps> = ({ isOpen, onClose })
             <S.LoadingText>🤖 Google Gemini AI가 전사 OEE 및 비가동 로그를 분석 중입니다...</S.LoadingText>
             <S.LoadingSubText>실시간 가동률, 설비별 병목 원인 및 3단계 개선 대책을 도출하고 있습니다.</S.LoadingSubText>
           </S.LoadingBox>
-        ) : isError || !data ? (
+        ) : isError || !data || !data?.success ? (
           <S.LoadingBox>
             <AlertTriangle size={40} color="#EF4444" />
             <S.LoadingText style={{ color: '#EF4444' }}>AI 스마트 진단 데이터를 불러오지 못했습니다.</S.LoadingText>

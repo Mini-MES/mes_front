@@ -48,7 +48,7 @@ export function OEEAnalyticsChart() {
                             <Sparkles size={16} color="#00F0FF" />
                             Google Gemini AI 스마트 생산 진단
                         </h4>
-                        <p>실시간 OEE 수치 및 221건의 비가동 이력을 기반으로 최저 OEE 병목 설비 진단 및 엔지니어링 개선안을 생성합니다.</p>
+                        <p>실시간 OEE 수치 및 비가동 이력을 기반으로 최저 OEE 병목 설비 진단 및 엔지니어링 개선안을 생성합니다.</p>
                     </S.AiBannerText>
                 </S.AiBannerTitleGroup>
 
