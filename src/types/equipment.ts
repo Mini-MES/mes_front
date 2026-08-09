@@ -55,4 +55,12 @@ export interface OeeSummary {
     runningEquipments: number;                                                                                                                                      
     stoppedEquipments: number;                                                                                                                                      
     equipments: EquipmentOEE[];                                                                                                                                     
-}         
+}
+
+export interface AiReportResponse {
+    success: boolean;
+    isFallback?: boolean;
+    generatedAt: string;
+    targetCompany: string;
+    reportMarkdown: string;
+}
