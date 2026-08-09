@@ -1,11 +1,15 @@
+import { useState } from "react";
 import { customFetch } from "@/api/fetcher";
 import { OeeSummary } from "@/types/equipment";
 import { useQuery } from "@tanstack/react-query";
 import * as S from "@/components/admin/analytics/OEEAnalyticsChart.styles";
-import { Activity, Gauge, ShieldCheck, Zap } from "lucide-react";
+import { Activity, Bot, Gauge, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { AiReportModal } from "./AiReportModal";
 
 export function OEEAnalyticsChart() {
+    const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+
     const { data: oeeSummary, isLoading, isError, refetch } = useQuery<OeeSummary>({
         queryKey: ['oeeSummary'],
         queryFn: () => customFetch('/Equipment/oee-stats'),
@@ -31,9 +35,29 @@ export function OEEAnalyticsChart() {
         oee: equipment.oeePercentage,
     }));
 
-
     return (                                                                                                                                                        
-        <S.Container>                                                                                                                                                 
+        <S.Container>
+            {/* AI 스마트 진단 리포트 배너 */}
+            <S.AiBanner>
+                <S.AiBannerTitleGroup>
+                    <S.AiIconWrapper>
+                        <Bot size={24} />
+                    </S.AiIconWrapper>
+                    <S.AiBannerText>
+                        <h4>
+                            <Sparkles size={16} color="#00F0FF" />
+                            Google Gemini AI 스마트 생산 진단
+                        </h4>
+                        <p>실시간 OEE 수치 및 221건의 비가동 이력을 기반으로 최저 OEE 병목 설비 진단 및 엔지니어링 개선안을 생성합니다.</p>
+                    </S.AiBannerText>
+                </S.AiBannerTitleGroup>
+
+                <S.AiButton type="button" onClick={() => setIsAiModalOpen(true)}>
+                    <Sparkles size={16} />
+                    AI 진단 리포트 보기
+                </S.AiButton>
+            </S.AiBanner>
+
             {/* 상단 4대 OEE 핵심 요약 KPI 카드 */}                                                                                                                     
             <S.KpiGrid>                                                                                                                                                 
                 <S.KpiCard $color="#00F0FF">                                                                                                                              
@@ -86,6 +110,12 @@ export function OEEAnalyticsChart() {
                 </BarChart>                                                                                                                                             
             </ResponsiveContainer>                                                                                                                                    
             </S.ChartWrapper>                                                                                                                                           
+
+            {/* AI 리포트 모달 */}
+            <AiReportModal
+                isOpen={isAiModalOpen}
+                onClose={() => setIsAiModalOpen(false)}
+            />
         </S.Container>                                                                                                                                                
     );            
 }
