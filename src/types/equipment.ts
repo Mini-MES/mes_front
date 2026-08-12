@@ -64,3 +64,21 @@ export interface AiReportResponse {
     targetCompany: string;
     reportMarkdown: string;
 }
+
+export interface DailyEquipmentProductionItem {
+    dailyEquipmentOeeID: number;
+    workDate: string;
+    equipmentID: string;
+    equipmentName?: string;
+    plannedProductionMinutes: number;
+    operatingMinutes: number;
+    downtimeMinutes: number;
+    totalProducedQty: number;
+    goodQty: number;
+    defectQty: number;
+    idealCycleTimeMinutes: number;
+    availabilityRate: number;
+    performanceRate: number;
+    qualityRate: number;
+    oeePercentage: number;
+}

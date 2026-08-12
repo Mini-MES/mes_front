@@ -189,3 +189,51 @@ export const AiButton = styled.button`
     transform: translateY(-2px);
   }
 `;
+
+export const TableContainer = styled.div`
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  overflow-x: auto;
+
+  h4 {
+    margin: 0 0 1rem 0;
+    color: #F8FAFC;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+`;
+
+export const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  color: #E2E8F0;
+
+  th, td {
+    padding: 10px 14px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  th {
+    background: rgba(30, 41, 59, 0.6);
+    color: #94A3B8;
+    font-weight: 600;
+  }
+
+  tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+`;
+
+export const Badge = styled.span<{ $color?: string }>`
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: ${(props) => props.$color || 'rgba(0, 240, 255, 0.15)'};
+  color: ${(props) => props.$color ? '#ffffff' : '#00F0FF'};
+`;
