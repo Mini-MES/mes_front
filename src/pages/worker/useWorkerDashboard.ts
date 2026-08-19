@@ -73,24 +73,6 @@ export function useWorkerDashboard() {
     }
   };
 
-  // 💡 선택된 activeLot이 변경될 때 백엔드 설비의 CurrentLotID를 해당 LotID로 동기화
-  useEffect(() => {
-    if (activeLot?.lotID && isConnected && activeOrder?.status === 'InProgress') {
-      const eqId = getTargetEquipmentId(activeLot.currentProcessID);
-      console.log(`🔗 [useWorkerDashboard] 공정 [${activeLot.currentProcessID}] ➔ 설비 [${eqId}]에 LotID [${activeLot.lotID}] 동기화`);
-      customFetch('/Equipment/status', {
-        method: 'POST',
-        body: JSON.stringify({
-          equipmentID: eqId,
-          newStatus: 'RUNNING',
-          currentLotID: activeLot.lotID,
-        }),
-      })
-        .then(() => queryClient.invalidateQueries({ queryKey: ['equipments'] }))
-        .catch((err) => console.warn('Equipment lot sync error:', err));
-    }
-  }, [activeLot?.lotID, activeLot?.currentProcessID, activeOrder?.status, isConnected, queryClient]);
-
   // 2. 생산 시작 Mutation
   const startProductionMutation = useMutation({
     mutationFn: async (orderId: number) => {
@@ -118,16 +100,10 @@ export function useWorkerDashboard() {
       }
       return res;
     },
-    onSuccess: (_, orderId) => {
+    onSuccess: (_) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['equipments'] });
-      setSensorStatus('RUNNING');
-      addNotification({
-        type: 'SUCCESS',
-        title: '▶️ [생산 시작] 생산 투입 완료',
-        message: `작업지시 [ORDER-${orderId}] 생산 프로세스가 시작되었습니다.`,
-      });
     },
     onError: (err: any) => {
       const msg = err?.message || '원자재 재고가 부족하거나 시작할 수 없는 상태입니다.';
@@ -160,7 +136,7 @@ export function useWorkerDashboard() {
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
 
-      // 💡 승인 등록된 실적 수량을 누적 버퍼에서 차감하여 중복 등록 방지
+      // 승인 등록된 실적 수량을 누적 버퍼에서 차감하여 중복 등록 방지
       resetAccumulated(variables.goodQty, variables.badQty);
 
       if (variables.badQty > 0) {
