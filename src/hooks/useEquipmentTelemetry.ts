@@ -30,12 +30,38 @@ export const useEquipmentTelemetry = () => {
       }
     };
 
+    const handleSensorCountUpdated = (data?: any) => {
+      const equipmentId = data?.equipmentId ?? data?.EquipmentId ?? data?.equipmentID ?? data?.EquipmentID;
+      const goodIncrement = Number(data?.goodIncrement ?? data?.GoodIncrement ?? 0);
+
+      if (!equipmentId || !Number.isFinite(goodIncrement) || goodIncrement <= 0) return;
+
+      setTelemetryMap(prev => {
+        const current = prev[equipmentId];
+
+        return {
+          ...prev,
+          [equipmentId]: {
+            equipmentId,
+            temperature: current?.temperature ?? 0,
+            status: current?.status ?? 'RUNNING',
+            totalCount: (current?.totalCount ?? 0) + goodIncrement,
+            timestamp: new Date().toISOString(),
+          },
+        };
+      });
+    };
+
     connection.on('ReceiveEquipmentTelemetryList', handleTelemetryList);
     connection.on('receiveEquipmentTelemetryList', handleTelemetryList);
+    connection.on('ReceiveSensorCountUpdated', handleSensorCountUpdated);
+    connection.on('receiveSensorCountUpdated', handleSensorCountUpdated);
 
     return () => {
       connection.off('ReceiveEquipmentTelemetryList', handleTelemetryList);
       connection.off('receiveEquipmentTelemetryList', handleTelemetryList);
+      connection.off('ReceiveSensorCountUpdated', handleSensorCountUpdated);
+      connection.off('receiveSensorCountUpdated', handleSensorCountUpdated);
     };
   }, [connection, isConnected]);
 

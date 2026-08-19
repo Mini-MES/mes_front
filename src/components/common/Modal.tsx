@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import * as S from '@/components/common/Modal.styles';
 
@@ -35,7 +36,7 @@ const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <S.ModalOverlay onClick={onClose}>
       <S.ModalContent $maxWidth={maxWidth} onClick={e => e.stopPropagation()}>
         <S.ModalHeader>
@@ -52,7 +53,8 @@ const Modal: React.FC<ModalProps> = ({
           {children}
         </S.ModalBody>
       </S.ModalContent>
-    </S.ModalOverlay>
+    </S.ModalOverlay>,
+    document.body
   );
 };
 

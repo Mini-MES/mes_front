@@ -5,6 +5,7 @@ export interface EquipmentItem {
     equipmentName: string;
     status: SensorStatus;
     currentLotID: string | null;
+    currentOperatorID?: string | null;
     totalRunningSeconds: number;
     totalDowntimeSeconds: number;
     lastStatusChangedAt: string;
@@ -81,4 +82,14 @@ export interface DailyEquipmentProductionItem {
     performanceRate: number;
     qualityRate: number;
     oeePercentage: number;
+}
+
+export interface DowntimeLogItem {
+    downtimeLogID: number;
+    equipmentID: string;
+    startedAt: string;
+    endedAt: string | null;
+    durationSeconds: number | null;
+    reasonCode: string | null;
+    operatorMemo: string | null;
 }

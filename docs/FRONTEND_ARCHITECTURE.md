@@ -1,121 +1,114 @@
-# 📐 MES Front-End Architecture & Developer Guide
+# Mini-MES Frontend Architecture
 
-본 문서는 **MES (Manufacturing Execution System) 프론트엔드** 애플리케이션의 내부 구조, 설계 원칙, 데이터 흐름, 컴포넌트 구성 요소 및 코딩 컨벤션을 정리한 개발자 아키텍처 가이드입니다.
-
----
-
-## 1. 아키텍처 개요 (Overview)
-
-본 시스템은 **React 18 + TypeScript + Vite** 환경에서 구축되었으며, 백엔드(`ASP.NET Core Web API`)와 연동하여 제조 현장의 데이터를 실시간으로 모니터링하고 제어합니다.
-
-### 💡 핵심 설계 원칙
-1. **도메인 중심의 모듈화 (Domain-Driven Organization)**: 컴포넌트와 훅을 관리자(`admin`), 작업자(`worker`), 공통(`common`) 도메인별로 명확히 분리.
-2. **서버 상태 & 클라이언트 상태 분리**:
-   - **서버 데이터 (Server State)**: `TanStack React Query v5`를 사용하여 불필요한 주기적 네트워크 폴링(Polling)을 배제하고, `SignalR` 웹소켓 실시간 이벤트 푸시 시 쿼리 캐시를 스마트 무효화(`invalidateQueries`)하는 Event-driven 구조.
-   - **실시간 웹소켓 이벤트 (Real-time Event)**: `@microsoft/signalr` 기반 웹소켓 연결로 설비 상태, 재고 경고, LOT HOLD, 센서 수량 수신 시 실시간 캐시 갱신 및 전역 알림.
-   - **전역 UI/인증 상태 (Client State)**: `React Context API (AppContext, SignalRContext, NotificationContext)`를 통한 전역 토스트 및 인증 상태 관리.
-3. **디자인 시스템 표준화**: 인라인 스타일을 배제하고 `styled-components` 기반의 Theme-driven 디자인 가이드 준수 (`import * as S` 네임스페이스 및 `ThemeProvider` 적용).
-
----
-
-## 2. 📂 디렉토리 구조 및 레이어링 규칙
+## 1. 구성
 
 ```text
-mes_front/
-├── src/
-│   ├── api/                    # 백엔드 REST API 통신 클라이언트 및 Fetcher 함수
-│   │   ├── client.ts           # Axios / Custom Fetcher 인스턴스 (BaseURL, Interceptor)
-│   │   └── fetcher.ts          # API Endpoint 연동 함수 모음
-│   ├── components/             # React UI 컴포넌트
-│   │   ├── common/             # Modal, Spinner 등 서비스 전반 공통 컴포넌트
-│   │   ├── admin/              # 관리자 대시보드 도메인 컴포넌트
-│   │   │   ├── material/       #   - RawMaterialStatus, CreateMaterialModal, StockUpdateModal
-│   │   │   ├── workOrder/      #   - WorkOrderForm, WorkOrderList
-│   │   │   ├── shipment/       #   - ShipmentForm, ShipmentList
-│   │   │   ├── lotTracker/     #   - LotProcessTracker, LotSearchPanel, LotDetailsPanel
-│   │   │   ├── equipment/      #   - EquipmentStatusSection, EquipmentCard, DowntimeReasonModal
-│   │   │   └── analytics/      #   - AnalyticsSection, OeeAnalyticsChart, ProductionQualityChart
-│   │   └── worker/             # 작업자 실행 패널 도메인 컴포넌트
-│   │       ├── controlPanel/   #   - WorkerControlPanel, WorkerDefectForm, WorkerStageStepper
-│   │       └── orderList/      #   - WorkerOrderList
-│   ├── context/                # 전역 Context (AppContext, SignalRContext, NotificationContext)
-│   ├── hooks/                  # 비즈니스 커스텀 훅 & SignalR 리스너
-│   │   ├── useSignalR.ts       # SignalR HubConnection 수명주기 관리 훅
-│   │   ├── useSignalRListener.ts # 실시간 서버 이벤트 수신 및 React Query 캐시 갱신 훅
-│   │   └── useSensorStream.ts  # 실시간 센서 데이터 스트림 처리 훅
-│   ├── layouts/                # 앱 공통 헤더 및 역할 전환(Role Switcher) 레이아웃
-│   ├── pages/                  # 라우트 페이지 컴포넌트 및 비즈니스 훅
-│   │   ├── admin/              #   - Dashboard.tsx, Dashboard.styles.ts, useDashboard.ts
-│   │   ├── worker/             #   - WorkerDashboard.tsx, WorkerDashboard.styles.ts, useWorkerDashboard.ts
-│   │   └── login/              #   - Login.tsx
-│   ├── styles/                 # Theme, GlobalStyle (Midnight Neon 테마 규격)
-│   └── types/                  # TypeScript 인터페이스 및 타입 정의 (equipment.ts, sensor.ts 등)
+Browser
+├─ REST API queries/mutations
+├─ TanStack React Query cache
+└─ SignalR Hub connection
+       ↕
+ASP.NET Core mes_server
+       ↕
+Kepware OPC UA (CNC01~CNC05)
 ```
 
----
+프론트엔드는 OPC UA 서버에 직접 연결하지 않습니다. Kepware 데이터는 백엔드가 수신·검증하고 DB에 반영한 뒤 SignalR로 전달합니다.
 
-## 3. 🔄 데이터 흐름 & 상태 관리 (Data Flow)
+## 2. 디렉터리 책임
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Worker as 현장 작업자
-    participant UI as Worker View (React)
-    participant Hook as useWorkerDashboard (Hook)
-    participant RQ as React Query (Cache)
-    participant API as ASP.NET Core API
-    actor Admin as 관리자 (Admin View)
-
-    Worker->>UI: 실적 입력 및 다음 공정 이송 클릭
-    UI->>Hook: handleMoveProcess() 실행
-    Hook->>API: POST /api/Production/move-stage
-    API-->>Hook: 200 OK (공정 이동 완료)
-    Hook->>RQ: queryClient.invalidateQueries(['lot-tracking'])
-    RQ->>API: 5초 Auto-Polling / SignalR Event Re-fetch
-    API-->>Admin: 최신 LOT 추적 타임라인 & OEE 차트 자동 갱신
+```text
+src/
+├─ api/                     REST fetch wrapper
+├─ components/
+│  ├─ admin/                관리자 기능 UI
+│  └─ worker/               작업자 기능 UI
+├─ context/                 인증, SignalR, 알림 Context
+├─ hooks/
+│  ├─ useSignalR.ts         HubConnection 생성과 재연결
+│  ├─ useSignalRListener.ts 서버 이벤트에 따른 Query 무효화/알림
+│  ├─ useSensorStream.ts    LOT별 OPC Counter 표시 버퍼
+│  └─ useEquipmentTelemetry.ts 설비별 온도 텔레메트리 병합
+├─ pages/
+│  ├─ admin/useDashboard.ts 관리자 REST query/mutation
+│  └─ worker/useWorkerDashboard.ts 작업자 생산 흐름
+└─ types/                   화면 및 API 타입
 ```
 
-### 쿼리 캐시 키 구조 (Query Keys)
-- `['products']` / `['rawMaterials']`: 원자재 마스터 목록 및 재고 상태 (재고 변경 이벤트 수신 시 무효화)
-- `['work-orders']` / `['workOrders']`: 작업지시 목록 및 진척율 (작업지시 갱신/센서 이벤트 수신 시 무효화)
-- `['lot-tracking']` / `['lots']`: 실시간 LOT 공정 이동 이력 및 타임라인 (LOT 이동/불량 이벤트 수신 시 무효화)
-- `['equipments']`: 전체 설비 상태 및 가동/비가동 시간 (설비 상태 변경/센서 이벤트 수신 시 무효화)
-- `['oeeStats']` / `['oeeSummary']`: 설비 종합 효율(OEE) 3대 지표 분석 (SignalR 이벤트 수신 시 무효화)
-- `['shipments']`: 완제품 출하 이력 목록
-- `['downtimeReasons']`: 비가동 사유 마스터 코드 목록
+## 3. 서버 상태 동기화
 
----
+### SignalR 이벤트 기반 갱신
 
-## 4. 🎨 디자인 시스템 & 스타일 규격
+`useSignalRListener`가 다음 이벤트를 받아 관련 React Query 캐시를 무효화합니다.
 
-### 🌌 테마 컨셉: Midnight Neon Glassmorphism
-- **배경색**: 다크 인더스트리얼 네이비 (`#0b0f19`)
-- **주요 포인트 컬러**:
-  - 정상/정상공정: **Neon Cyan** (`#00f2fe`)
-  - 경고/부족/보류: **Neon Crimson** (`#ff4b5c`)
-  - 완료/승인: **Neon Green** (`#00e676`)
-- **스타일 분리 규칙**:
-  - 컴포넌트와 동일한 위치에 `[ComponentName].styles.ts` 분리 작성
-  - 컴포넌트 내에서는 `import * as S from './[ComponentName].styles'` 로 상대 경로 또는 `@/` 별칭(Alias)으로 임포트
-  - 전역 스타일은 `src/styles/GlobalStyle.ts` 및 `ThemeProvider`로 통일
+- `WorkOrderUpdated`
+- `LotUpdated`
+- `StockUpdated`
+- `ReceiveEquipmentStatusChanged`
+- `DefectReported`
+- `ReceiveSensorCountUpdated`
+- `DailyProductionUpdated`
+- `OeeUpdated`
 
----
+`useEquipmentTelemetry`는 `ReceiveEquipmentTelemetryList`를 받아 `equipmentId`별 최신 온도·상태·생산량을 병합합니다.
 
-## 5. 🛡️ 예외 처리 & 2중 안전 방어막 (Safety Guards)
+REST Mutation 성공 시에도 관련 Query를 즉시 무효화합니다. 브라우저 포커스 복귀, 컴포넌트 재마운트 또는 네트워크 재연결 시에는 React Query의 기본 재조회 동작으로 화면 상태를 복구합니다.
 
-1. **무단 공정 건너뛰기 차단**:
-   - 현재 공정 양품 수량이 0인 경우 다음 공정 이송 버튼 비활성화 및 토스트/경고 표출.
-2. **보류(HOLD) 상태 격리 차단**:
-   - 불량 입력으로 LOT 상태가 `HOLD`로 바뀌면 작업자 패널의 모든 제어 버튼 비활성화.
-   - 관리자가 승인(`RELEASE`)하기 전까지 추가 실적 입력 차단.
-3. **SignalR 수신 예외 안전 처리**:
-   - 서버에서 브로드캐스팅하는 실시간 센서/설비 이벤트(`ReceiveSensorCountUpdated`, `ReceiveEquipmentStatusChanged`) 수신 리스너를 연동하여 콘솔 경고 및 연결 유실 방지.
+## 4. 생산 시작 계약
 
----
+```http
+POST /api/Production/start/{orderId}
+Content-Type: application/json
 
-## 6. 📝 문서 유지보수 가이드 (Documentation Maintenance)
+{
+  "lotId": "LOT-...",
+  "equipmentID": "CNC01"
+}
+```
 
-신규 기능 추가 시 아래 문서를 함께 업데이트합니다.
-1. **새로운 API 연동 시**: `src/api/fetcher.ts` 및 `README.md` 기능 설명 갱신
-2. **현장 테스트 시나리오 변경 시**: `mes_solution_acceptance_test_guide.md` 갱신
-3. **새로운 도메인/커스텀 훅 추가 시**: 본 `docs/FRONTEND_ARCHITECTURE.md` 디렉토리 트리 및 Query Key 갱신
+첫 공정 설비는 현재 업무 규칙에 따라 CNC01로 고정합니다. 백엔드는 WorkOrder, LOT, Equipment와 `CurrentLotId`를 한 저장 단위로 변경합니다. 프론트는 생산 시작 후 `/Equipment/status`를 다시 호출하지 않고 SignalR과 Query 무효화로 화면을 갱신합니다.
+
+## 5. OPC 실적과 작업자 입력
+
+```text
+Kepware Counter 증가
+→ 백엔드가 EquipmentID 식별
+→ Equipment.CurrentLotId 조회
+→ LOT/WorkOrder/현재 공정 검증
+→ 양품 Performance 자동 등록
+→ 재고/OEE/상태 저장
+→ SignalR 전송
+→ 프론트 표시
+```
+
+- Counter 양품은 백엔드에서 이미 저장되므로 프론트가 `/performance/register`로 재전송하지 않습니다.
+- `useSensorStream`의 누적 양품은 화면 표시용입니다.
+- 작업자는 불량만 `/Production/performance/register`로 등록합니다.
+- 불량 등록에는 `badQty > 0`과 `reasonCode`가 필요합니다.
+- 공정 이동은 수량 0을 전달하며, 백엔드는 0수량 Performance 생성을 생략합니다.
+
+## 6. 주요 Query Key
+
+- `['workOrders']`: 작업지시
+- `['lots']`: LOT
+- `['rawMaterials']`, `['products']`: 제품/재고
+- `['equipments']`: 설비 상태
+- `['oeeSummary']`, `['oeeStats']`: OEE 요약
+- `['dailyEquipmentProductions']`, `['daily-production']`: 일일 설비 생산량
+- `['shipments']`: 출하 이력
+- `['defectReasons']`: 불량 사유
+
+## 7. 상태의 기준
+
+- WorkOrder/LOT/재고/실적: 백엔드 DB가 기준
+- Equipment의 LOT 배정: 생산 시작·완료 흐름이 기준
+- Equipment Running/온도/Counter: Kepware 이벤트가 실시간 기준
+- `sensorStatus`: 작업자 화면의 표시·수집 제어 상태이며 DB 설비 상태와 동일한 개념이 아님
+
+## 8. 변경 시 확인할 사항
+
+- API DTO가 변경되면 Mutation body와 TypeScript 타입을 함께 변경합니다.
+- SignalR payload가 변경되면 이벤트 리스너와 Query Key 무효화를 함께 확인합니다.
+- OPC Counter는 이미 저장된 실적이므로 프론트에서 다시 등록하지 않습니다.
+- 생산 시작과 설비 상태 변경 API를 중복 호출하지 않습니다.
+- 현장 흐름 변경 시 통합 테스트 문서를 함께 수정합니다.

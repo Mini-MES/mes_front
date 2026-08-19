@@ -5,12 +5,17 @@ import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
 import WorkerStageStepper from '@/components/worker/controlPanel/WorkerStageStepper';
 import WorkerDefectForm from '@/components/worker/controlPanel/WorkerDefectForm';
 import SensorCounterDisplay from '@/components/worker/controlPanel/SensorCounterDisplay';
+import WorkerDowntimeModal from '@/components/worker/controlPanel/WorkerDowntimeModal';
 import { SENSOR_STATUS_MAP, WorkerControlPanelProps } from '@/types';
 
 export function WorkerControlPanel({
   activeOrder,
   activeLot,
   processStages,
+  equipments,
+  activeEquipment,
+  openDowntimeLog,
+  downtimeReasons,
   defectReasons = [],
   sensorStatus,
   accumulatedGood,
@@ -21,9 +26,12 @@ export function WorkerControlPanel({
   onRegisterDefect,
   onNextStage,
   onComplete,
+  onRegisterDowntime,
   isPending
 }: WorkerControlPanelProps) {
   const [toolId, setToolId] = useState<string>('TOOL-001');
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string>('CNC01');
+  const [isDowntimeModalOpen, setIsDowntimeModalOpen] = useState(false);
 
   const getStageName = (id: number) => processStages[id - 1] || '대기';
 
@@ -51,6 +59,25 @@ export function WorkerControlPanel({
   const isOrderCompleted = activeOrder.status === 'Completed';
   const isOrderCreated = activeOrder.status === 'Created';
   const isLotHold = activeLot?.status?.toUpperCase() === 'HOLD';
+
+  const getEquipmentIdsForStage = (stageName: string) => {
+    if (stageName.includes('선삭')) return ['CNC01', 'CNC02'];
+    if (stageName.includes('밀링')) return ['CNC03', 'CNC04'];
+    if (stageName.includes('연삭')) return ['CNC05'];
+    return [];
+  };
+
+  const nextStageName = isLastStage ? '' : getStageName(currentStageID + 1);
+  const eligibleEquipmentIds = getEquipmentIdsForStage(isOrderCreated ? getStageName(currentStageID) : nextStageName);
+  const selectableEquipments = equipments.filter((equipment) =>
+    eligibleEquipmentIds.includes(equipment.equipmentID) &&
+    !['MAINTENANCE', 'ERROR', 'OFF'].includes(equipment.status) &&
+    !equipment.currentLotID
+  );
+
+  const selectedEquipment = selectableEquipments.some((equipment) => equipment.equipmentID === selectedEquipmentId)
+    ? selectedEquipmentId
+    : selectableEquipments[0]?.equipmentID ?? '';
 
   const statusInfo = SENSOR_STATUS_MAP[sensorStatus] || SENSOR_STATUS_MAP.IDLE;
   const canTogglePause = !isOrderCompleted && !isLotHold && (sensorStatus === 'RUNNING' || sensorStatus === 'STOPPED');
@@ -83,7 +110,14 @@ export function WorkerControlPanel({
 
         {isOrderCreated && (
           <S.StartGroup>
-            <S.BtnActionPrimary onClick={onStart} disabled={isPending.start}>
+            <S.FormSelect value={selectedEquipment} onChange={(event) => setSelectedEquipmentId(event.target.value)}>
+              {selectableEquipments.map((equipment) => (
+                <option key={equipment.equipmentID} value={equipment.equipmentID}>
+                  {equipment.equipmentID} - {equipment.equipmentName}
+                </option>
+              ))}
+            </S.FormSelect>
+            <S.BtnActionPrimary onClick={() => onStart(selectedEquipment)} disabled={isPending.start || !selectedEquipment}>
               <Play size={16} />
               {isPending.start ? '시작 요청 중...' : '생산 지시 시작 & 센서 가동'}
             </S.BtnActionPrimary>
@@ -124,6 +158,12 @@ export function WorkerControlPanel({
               </S.PauseButton>
             )}
 
+            {openDowntimeLog && activeEquipment && !openDowntimeLog.reasonCode && (
+              <S.BtnDanger onClick={() => setIsDowntimeModalOpen(true)} disabled={isPending.downtime}>
+                비가동 사유 입력 ({activeEquipment.equipmentID})
+              </S.BtnDanger>
+            )}
+
             <S.ControlGroup>
               <S.FormLabelHeader>
                 <S.FormLabelText>
@@ -151,9 +191,18 @@ export function WorkerControlPanel({
             />
 
             <S.ControlGroup style={{ marginTop: '1rem' }}>
+              {eligibleEquipmentIds.length > 0 && (
+                <S.FormSelect value={selectedEquipment} onChange={(event) => setSelectedEquipmentId(event.target.value)}>
+                  {selectableEquipments.map((equipment) => (
+                    <option key={equipment.equipmentID} value={equipment.equipmentID}>
+                      다음 설비: {equipment.equipmentID} - {equipment.equipmentName}
+                    </option>
+                  ))}
+                </S.FormSelect>
+              )}
               <S.TransitionButton 
-                onClick={() => onNextStage(toolId)}
-                disabled={isLastStage || isOrderCompleted || Boolean(isPending?.next) || Boolean(isPending?.defect) || isLotHold}
+                onClick={() => onNextStage(toolId, selectedEquipment || undefined)}
+                disabled={isLastStage || isOrderCompleted || Boolean(isPending?.next) || Boolean(isPending?.defect) || isLotHold || (eligibleEquipmentIds.length > 0 && !selectedEquipment)}
               >
                 {isPending?.next ? '공정 이동 중...' : `다음 공정 단계로 이동 (${getStageName(currentStageID)} ➡️ ${isLastStage ? '종료' : getStageName(currentStageID + 1)})`}
               </S.TransitionButton>
@@ -171,6 +220,15 @@ export function WorkerControlPanel({
           </>
         )}
       </S.ControlContainer>
+
+      <WorkerDowntimeModal
+        isOpen={isDowntimeModalOpen}
+        equipment={activeEquipment}
+        reasons={downtimeReasons}
+        isPending={isPending.downtime}
+        onClose={() => setIsDowntimeModalOpen(false)}
+        onSubmit={onRegisterDowntime}
+      />
     </S.WorkerControlPanelWrapper>
   );
 };

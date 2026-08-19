@@ -13,6 +13,10 @@ export default function WorkerDashboard() {
     workOrders,
     lotTracking,
     defectReasons,
+    equipments,
+    activeEquipment,
+    openDowntimeLog,
+    downtimeReasons,
     activeOrderId,
     activeOrder,
     activeLot,
@@ -26,6 +30,7 @@ export default function WorkerDashboard() {
     handleRegisterDefect,
     handleNextStage,
     handleComplete,
+    handleRegisterDowntime,
     isPending
   } = useWorkerDashboard();
 
@@ -58,6 +63,10 @@ export default function WorkerDashboard() {
           activeOrder={activeOrder}
           activeLot={activeLot}
           processStages={processStages}
+          equipments={equipments}
+          activeEquipment={activeEquipment}
+          openDowntimeLog={openDowntimeLog}
+          downtimeReasons={downtimeReasons}
           defectReasons={defectReasons}
           sensorStatus={sensorStatus}
           accumulatedGood={accumulatedGood}
@@ -68,6 +77,7 @@ export default function WorkerDashboard() {
           onRegisterDefect={handleRegisterDefect}
           onNextStage={handleNextStage}
           onComplete={handleComplete}
+          onRegisterDowntime={handleRegisterDowntime}
           isPending={isPending}
         />
       </S.WorkerLayoutGrid>

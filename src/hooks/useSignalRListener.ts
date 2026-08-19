@@ -20,6 +20,7 @@ export const useSignalRListener = () => {
       queryClient.invalidateQueries({ queryKey: ['equipments'] });
       queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
       queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
+      queryClient.invalidateQueries({ queryKey: ['downtimeLogs'] });
     }
 
     const handleLotUpdated = (data?: any) => {
@@ -27,6 +28,7 @@ export const useSignalRListener = () => {
       queryClient.invalidateQueries({ queryKey: ['lot-tracking'] });
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['performances'] });
       queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
       queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
 
@@ -69,6 +71,8 @@ export const useSignalRListener = () => {
       console.log('⚡ [SignalR] WorkOrderUpdated 수신:', data);
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['performances'] });
       queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
       queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
 
@@ -108,6 +112,8 @@ export const useSignalRListener = () => {
       queryClient.invalidateQueries({ queryKey: ['equipments'] });
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['lots'] });
+      queryClient.invalidateQueries({ queryKey: ['performances'] });
       queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
       queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
     };
@@ -115,6 +121,7 @@ export const useSignalRListener = () => {
     const handleOeeDailyUpdated = () => {
       queryClient.invalidateQueries({ queryKey: ['dailyEquipmentProductions'] });
       queryClient.invalidateQueries({ queryKey: ['daily-production'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyProductions'] });
       queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
       queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
       queryClient.invalidateQueries({ queryKey: ['equipments'] });

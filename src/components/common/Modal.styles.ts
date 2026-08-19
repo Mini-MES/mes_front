@@ -15,6 +15,7 @@ export const ModalOverlay = styled.div`
   justify-content: center;
   z-index: 1000;
   padding: 0.5rem;
+  overflow-y: auto;
   animation: fadeIn 0.2s ease-out;
 
   @keyframes fadeIn {
@@ -39,6 +40,8 @@ export const ModalContent = styled.div<{ $maxWidth?: string }>`
   flex-direction: column;
   gap: 1.25rem;
   position: relative;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
   animation: slideUp 0.2s ease-out;
 
   @keyframes slideUp {

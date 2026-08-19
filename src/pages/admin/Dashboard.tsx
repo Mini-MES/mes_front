@@ -9,7 +9,6 @@ import LotProcessTracker from '@/components/admin/lotTracker/LotProcessTracker';
 import { ShipmentForm } from '@/components/admin/shipment/ShipmentForm';
 import { ShipmentList } from '@/components/admin/shipment/ShipmentList';
 import { AnalyticsSection } from '@/components/admin/analytics/AnalyticsSection';
-import EquipmentStatusSection from '@/components/admin/equipment/EquipmentStatusSection';
 
 export default function Dashboard() {
   const {
@@ -54,9 +53,6 @@ export default function Dashboard() {
         lotTracking={lotTracking}
         processStages={processStages}
       />
-
-      {/* 1. 공장 전체 설비 실시간 가동 / 비가동 현황판 컴포넌트 */}
-      <EquipmentStatusSection />
 
       {/* 2. 원자재 현황 컴포넌트 */}
       <RawMaterialStatus 

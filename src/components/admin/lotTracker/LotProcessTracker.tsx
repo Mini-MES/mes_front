@@ -89,7 +89,6 @@ export function LotProcessTracker({
       ? customFetch(`/Production/status/${associatedOrder.orderID}`) 
       : Promise.resolve({ message: '', data: [] }),
     enabled: !!associatedOrder?.orderID,
-    refetchInterval: 5000,
   });
 
   const performances = performanceResponse?.data || [];

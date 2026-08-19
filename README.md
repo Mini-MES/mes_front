@@ -1,71 +1,78 @@
-# 🏭 Smart Factory MES Front-End
+# Mini-MES Frontend
 
-**스마트 팩토리 실시간 생산 제어 및 공정 추적을 위한 MES 프론트엔드**
+ASP.NET Core 기반 `mes_server`와 연동하는 Mini-MES 프론트엔드입니다. 관리자 화면에서는 작업지시·LOT·재고·설비·OEE를 관리하고, 작업자 화면에서는 생산 시작, OPC 생산량 확인, 불량 등록과 공정 이동을 수행합니다.
 
-본 프로젝트는 제조 공장의 실시간 데이터 제어와 생산 이력 추적(Traceability)을 지원하는 고성능 MES 프론트엔드 애플리케이션입니다. 관리자(Admin) 관점의 전체 공정 통제 및 원자재 모니터링 뷰와 현장 작업자(Worker) 관점의 직관적인 실적 입력 뷰로 역할을 분리하여, 복잡한 제조 비즈니스 시나리오를 효과적으로 소화할 수 있도록 구현되었습니다.
+## 문서
 
-이 시스템은 백엔드 서버인 **`mes_server` (ASP.NET Core 8 Web API)**와 실시간 REST API 및 React Query로 상호 보완적으로 작동하도록 설계되었습니다.
+| 문서 | 내용 |
+| --- | --- |
+| [프론트엔드 아키텍처](./docs/FRONTEND_ARCHITECTURE.md) | 실제 디렉터리 구조, REST/SignalR 데이터 흐름, 상태 관리 |
+| [통합 테스트 가이드](./mes_solution_acceptance_test_guide.md) | WorkOrder 생성부터 OPC 실적·완료·출하까지의 검증 절차 |
 
----
+## 기술 스택
 
-## 📚 관련 상세 문서 (Documentation)
+- React 19, TypeScript 7
+- TanStack React Query 5
+- Microsoft SignalR Client 10
+- styled-components 6
+- React Router 7
+- Vite 8
 
-| 문서명 | 설명 | 바로가기 |
-| :--- | :--- | :--- |
-| **프론트엔드 아키텍처 가이드** | 디렉토리 구조, 데이터 흐름(Mermaid), React Query 캐싱/폴링 정책, 디자인 시스템 컨벤션 | [docs/FRONTEND_ARCHITECTURE.md](./docs/FRONTEND_ARCHITECTURE.md) |
-| **현장 검증 & UAT 가이드** | 실제 공정 시나리오별 수용 테스트 절차 및 예외 상황(HOLD 보류) 검증 가이드 | [mes_solution_acceptance_test_guide.md](./mes_solution_acceptance_test_guide.md) |
+## 데이터 동기화 방식
 
----
+SignalR 이벤트를 통해 WorkOrder, LOT, 재고, 설비 상태, OPC 생산량, 온도와 OEE 변경을 전달받습니다. 이벤트 수신 또는 Mutation 성공 시 React Query의 `invalidateQueries`를 호출하여 서버 상태를 다시 조회합니다. 브라우저 포커스 복귀와 네트워크 재연결 시에는 React Query 기본 동작으로 최신 데이터를 확인합니다.
 
-## 🛠️ Tech Stack
+## 핵심 생산 흐름
 
-* **Core**: React 19, TypeScript 5+ (Strict Type Checking)
-* **State & Data Fetching**: TanStack React Query (v5, 5초 주기 실시간 자동 동기화)
-* **Styling**: styled-components (Theme-driven, `import * as S` 표준화)
-* **Routing**: react-router-dom (v7+)
-* **Build Tool**: Vite
+1. 관리자가 WorkOrder를 생성하면 LOT이 `RELEASED` 상태로 자동 생성됩니다.
+2. 작업자가 생산을 시작하면 현재 LOT이 CNC01에 연결됩니다.
+3. WorkOrder는 `InProgress`, LOT은 `WIP`, CNC01은 `Running`으로 저장됩니다.
+4. Kepware의 CNC01~CNC05 Counter 증가량은 백엔드에서 해당 설비의 `CurrentLotId`를 통해 자동 실적으로 등록됩니다.
+5. OPC 양품 실적은 프론트에서 다시 승인하거나 재전송하지 않습니다.
+6. 불량만 작업자가 수량과 사유 코드를 입력하여 수동 등록하며, LOT은 `HOLD`로 전환됩니다.
+7. 공정 이동 요청은 기존 OPC 실적을 중복 등록하지 않고 LOT의 현재 공정만 이동합니다.
+8. 마지막 공정에서 목표 수량을 달성하면 WorkOrder와 LOT이 완료되고 설비 연결이 해제됩니다.
 
----
+## 주요 화면
 
-## 🔥 핵심 기능 요약
+### 관리자
 
-### 1. 🔄 역할 기반의 다이내믹 뷰 (Role Switcher)
-- 헤더 우측의 `[화면 전환]` 버튼을 통해 관리자 모드 ↔ 작업자 모드를 자유롭게 이동.
-- React Query 쿼리 캐시 공유로 실시간 데이터 동기화 유지.
+- WorkOrder 생성·조회·삭제·완료
+- LOT 진행 상태와 HOLD 해제
+- 제품/원자재 및 재고 관리
+- 설비 상태, 온도, 가동·비가동 시간 확인
+- 일일 생산량과 OEE 확인
+- 완제품 출하와 출하 이력 조회
 
-### 2. 🏢 관리자 대시보드 (Admin View)
-- **원자재 재고 관리**: 부족 재고 네온 경고 및 신규 원자재 등록 / 입고 수량 수정 모달.
-- **작업 지시 & LOT 생성**: 생산 계획 수량 입력 및 고유 LOT-ID 자동 발급.
-- **실시간 LOT 추적 (Lot Process Tracker)**: 타임라인 기반 공정 이력, 사용 공구(`toolID`), 불량 사유 모니터링.
-- **완제품 출하 관리**: 완제품 출하 이력 현황판 제공.
+### 작업자
 
-### 3. 👷 작업자 실행 패널 (Worker View)
-- **간편 실적 입력기**: 현장 터미널 대응 `+1`, `+10`, `전량 채우기` 패널 지원.
-- **불량 등록 & HOLD 보류**: 불량 발생 시 해당 LOT 상태가 `HOLD`로 자동 전환되어 다음 공정 이송 자동 차단.
-- **안전 방어막 (Safety Guards)**: 양품 실적 0개 시 이송 차단 등 이중 안전장치 탑재.
+- 작업지시와 LOT 선택
+- CNC01 기준 생산 시작
+- OPC Counter 기반 양품 수량 확인
+- 수동 불량 등록 및 HOLD 확인
+- 다음 공정 이동과 최종 생산 완료
 
----
+## 실행
 
-## 🚀 시작 가이드 (Getting Started)
+`.env` 예시:
 
-### 1. 패키지 의존성 설치
+```env
+VITE_API_URL=http://localhost:5208/api
+VITE_SIGNALR_HUB_URL=http://localhost:5208/hubs/mes
+```
+
 ```bash
 npm install
-# 또는 pnpm install
-```
-
-### 2. 개발 서버 실행
-```bash
 npm run dev
-# 또는 pnpm run dev
 ```
-기본 주소: `http://localhost:5173` (백엔드 API 서버 `http://localhost:5000` 연동)
 
-### 3. 타입 검증 & 빌드
+개발 서버 기본 주소는 `http://localhost:5173`입니다.
+
+## 검증
+
 ```bash
-# 타입 검증 (Type Check)
-npx tsc --noEmit
-
-# 배포용 빌드
+npm run lint
 npm run build
 ```
+
+실제 생산 흐름은 [통합 테스트 가이드](./mes_solution_acceptance_test_guide.md)를 따릅니다.

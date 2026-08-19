@@ -18,7 +18,7 @@ export function OEEAnalyticsChart() {
     const { data: dailyProductions = [] } = useQuery<DailyEquipmentProductionItem[]>({
         queryKey: ['dailyProductions'],
         queryFn: () => customFetch('/Equipment/daily-production'),
-        refetchInterval: 5000,
+        refetchInterval: 60_000
     });
 
     if (isLoading) {

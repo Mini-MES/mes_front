@@ -5,6 +5,7 @@ import { WorkOrder, LotTracking } from '@/context/AppContext';
 import { useNotification } from '@/context/NotificationContext';
 import { DefectReason, SensorStatus } from '@/types';
 import { useSensorStream } from '@/hooks/useSensorStream';
+import { DowntimeLogItem, DowntimeReason, EquipmentItem } from '@/types/equipment';
 
 export function useWorkerDashboard() {
   const queryClient = useQueryClient();
@@ -15,13 +16,11 @@ export function useWorkerDashboard() {
   const { data: workOrders = [] } = useQuery<WorkOrder[]>({
     queryKey: ['workOrders'],
     queryFn: () => customFetch('/Production/orders'),
-    refetchInterval: 5000,
   });
 
   const { data: lotTracking = [] } = useQuery<LotTracking[]>({
     queryKey: ['lots'],
     queryFn: () => customFetch('/Production/lots'),
-    refetchInterval: 5000,
   });
 
   const { data: defectReasons = [] } = useQuery<DefectReason[]>({
@@ -36,10 +35,29 @@ export function useWorkerDashboard() {
     staleTime: 1000 * 60 * 10,
   });
 
+  const { data: equipments = [] } = useQuery<EquipmentItem[]>({
+    queryKey: ['equipments'],
+    queryFn: () => customFetch('/Equipment'),
+  });
+
+  const { data: downtimeReasons = [] } = useQuery<DowntimeReason[]>({
+    queryKey: ['downtimeReasons'],
+    queryFn: () => customFetch('/Equipment/downtime-reasons'),
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const { data: downtimeLogs = [] } = useQuery<DowntimeLogItem[]>({
+    queryKey: ['downtimeLogs'],
+    queryFn: () => customFetch('/Equipment/downtime-history'),
+  });
+
   // 현재 활성화된 지시 및 LOT 확인
   const activeOrderId = selectedOrderId || workOrders[0]?.orderID || null;
   const activeOrder = workOrders.find((o) => o.orderID === activeOrderId);
   const activeLot = lotTracking.find((l) => l.orderID === activeOrderId);
+  const activeEquipment = equipments.find((equipment) => equipment.currentLotID === activeLot?.lotID);
+  const openDowntimeLog = downtimeLogs.find((log) =>
+    log.equipmentID === activeEquipment?.equipmentID && !log.endedAt);
 
   // 센서 수량 수신 & 상태 관리
   const [sensorStatus, setSensorStatus] = useState<SensorStatus>('IDLE');
@@ -132,15 +150,18 @@ export function useWorkerDashboard() {
 
   // 4. 공정 이동 Mutation
   const moveProcessMutation = useMutation({
-    mutationFn: ({ perf, nextProcessId }: { perf: any; nextProcessId: number }) =>
-      customFetch(`/Production/performance/move?nextProcessId=${nextProcessId}`, {
+    mutationFn: ({ perf, nextProcessId, equipmentId }: { perf: any; nextProcessId: number; equipmentId?: string }) => {
+      const equipmentQuery = equipmentId ? `&equipmentId=${encodeURIComponent(equipmentId)}` : '';
+      return customFetch(`/Production/performance/move?nextProcessId=${nextProcessId}${equipmentQuery}`, {
         method: 'POST',
         body: JSON.stringify(perf),
-      }),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
+      queryClient.invalidateQueries({ queryKey: ['equipments'] });
       addNotification({
         type: 'SUCCESS',
         title: '🔄 [공정 이동] 성공',
@@ -181,9 +202,42 @@ export function useWorkerDashboard() {
     },
   });
 
-  const handleStart = () => {
+  const registerDowntimeMutation = useMutation({
+    mutationFn: ({ reasonCode, memo }: { reasonCode: string; memo?: string }) => {
+      if (!openDowntimeLog) {
+        throw new Error('현재 설비에 등록 가능한 비가동 이력이 없습니다.');
+      }
+
+      return customFetch('/Equipment/downtime/reason', {
+        method: 'POST',
+        body: JSON.stringify({
+          downtimeLogID: openDowntimeLog.downtimeLogID,
+          reasonCode,
+          operatorMemo: memo?.trim() || undefined,
+        }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['downtimeLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyEquipmentProductions'] });
+      addNotification({
+        type: 'SUCCESS',
+        title: '비가동 사유 등록 완료',
+        message: `${activeEquipment?.equipmentID ?? '설비'} 비가동 사유가 기록되었습니다.`,
+      });
+    },
+    onError: (err: any) => {
+      addNotification({
+        type: 'WARN',
+        title: '비가동 사유 등록 실패',
+        message: err?.message || '비가동 사유를 등록하지 못했습니다.',
+      });
+    },
+  });
+
+  const handleStart = (equipmentId: string) => {
     if (!activeOrderId) return;
-    startProductionMutation.mutate({ orderId: activeOrderId, lotId: activeLot?.lotID || '', equipmentID: 'CNC01' });
+    startProductionMutation.mutate({ orderId: activeOrderId, lotId: activeLot?.lotID || '', equipmentID: equipmentId });
   };
 
   const handleTogglePause = () => {
@@ -204,7 +258,7 @@ export function useWorkerDashboard() {
     });
   };
 
-  const handleNextStage = (toolId?: string) => {
+  const handleNextStage = (toolId?: string, equipmentId?: string) => {
     if (!activeOrder || !activeLot) return;
 
     let nextProcessId = activeLot.currentProcessID + 1;
@@ -231,6 +285,7 @@ export function useWorkerDashboard() {
         toolID: toolId?.trim() || undefined,
       },
       nextProcessId,
+      equipmentId,
     });
   };
 
@@ -239,10 +294,18 @@ export function useWorkerDashboard() {
     completeProductionMutation.mutate(activeOrderId);
   };
 
+  const handleRegisterDowntime = (reasonCode: string, memo?: string) => {
+    registerDowntimeMutation.mutate({ reasonCode, memo });
+  };
+
   return {
     workOrders,
     lotTracking,
     defectReasons,
+    equipments,
+    activeEquipment,
+    openDowntimeLog,
+    downtimeReasons,
     activeOrderId,
     activeOrder,
     activeLot,
@@ -257,11 +320,13 @@ export function useWorkerDashboard() {
     handleRegisterDefect,
     handleNextStage,
     handleComplete,
+    handleRegisterDowntime,
     isPending: {
       start: startProductionMutation.isPending,
       defect: registerPerformanceMutation.isPending,
       next: moveProcessMutation.isPending,
       complete: completeProductionMutation.isPending,
+      downtime: registerDowntimeMutation.isPending,
     },
   };
 }

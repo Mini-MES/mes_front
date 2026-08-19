@@ -71,7 +71,7 @@ export function useSensorStream(
     const handleReceiveSensor = (data: any) => {
       if (!data) return;
 
-      const incomingLotId = String(data.LotID ?? data.lotID ?? data.LotId ?? '').trim().toUpperCase();
+      const incomingLotId = String(data.lotId).trim().toUpperCase();
       const targetId = String(targetLotId ?? '').trim().toUpperCase();
       const goodInc = Number(data.GoodIncrement ?? data.goodIncrement ?? data.GoodCount ?? 0);
       const badInc = Number(data.BadIncrement ?? data.badIncrement ?? data.BadCount ?? 0);

@@ -9,30 +9,26 @@ export const useDashboard = () => {
   const { processStages } = useApp();
   const { addNotification } = useNotification();
 
-  // 1. React Query를 활용한 서버 상태 조회 (폴링 5초 주기로 실시간 연동)
+  // 1. React Query와 SignalR을 활용한 서버 상태 조회
   const { data: rawMaterials = [] } = useQuery<RawMaterial[]>({
     queryKey: ['rawMaterials'],
     queryFn: () => customFetch('/MasterData/products'),
-    refetchInterval: 5000,
   });
 
   const { data: workOrders = [] } = useQuery<WorkOrder[]>({
     queryKey: ['workOrders'],
     queryFn: () => customFetch('/Production/orders'),
-    refetchInterval: 5000,
   });
 
   const { data: lotTracking = [] } = useQuery<LotTracking[]>({
     queryKey: ['lots'],
     queryFn: () => customFetch('/Production/lots'),
-    refetchInterval: 5000,
   });
 
   // 완제품 출하 이력 조회
   const { data: shipmentsResponse, isLoading: isShipmentsLoading } = useQuery<{ data: any[] }>({
     queryKey: ['shipments'],
     queryFn: () => customFetch('/Inventory/shipments'),
-    refetchInterval: 5000,
   });
 
   const shipments = shipmentsResponse?.data || [];
