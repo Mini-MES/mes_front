@@ -7,7 +7,6 @@ interface SensorVerificationFormProps {
   isOrderCompleted: boolean;
   isLotHold: boolean;
   isPendingConfirm: boolean;
-  onConfirmPerformance: (toolId?: string) => void;
   toolId?: string;
 }
 
@@ -16,12 +15,11 @@ export const SensorVerificationForm: React.FC<SensorVerificationFormProps> = ({
   isOrderCompleted,
   isLotHold,
   isPendingConfirm,
-  onConfirmPerformance,
   toolId,
 }) => {
   const [isVerified, setIsVerified] = useState<boolean>(false);
 
-  // 💡 센서 수량이 추가 수집되어 변경되면 이전 검증 체크박스를 자동으로 해제하여 재검증 유도
+  // 센서 수량이 추가 수집되어 변경되면 이전 검증 체크박스를 자동으로 해제하여 재검증 유도
   useEffect(() => {
     setIsVerified(false);
   }, [accumulatedGood]);
@@ -43,12 +41,6 @@ export const SensorVerificationForm: React.FC<SensorVerificationFormProps> = ({
         />
         <span>센서 집계 수량({accumulatedGood} EA)이 실제 생산 수량과 일치함을 확인했습니다.</span>
       </S.CheckboxLabel>
-      <S.BtnConfirm
-        onClick={() => onConfirmPerformance(toolId)}
-        disabled={!isVerified || isDisabled || isPendingConfirm}
-      >
-        {isPendingConfirm ? '등록 중...' : '최종 실적 등록 승인'}
-      </S.BtnConfirm>
     </S.VerificationContainer>
   );
 };

@@ -136,20 +136,14 @@ export function useWorkerDashboard() {
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
 
-      // 승인 등록된 실적 수량을 누적 버퍼에서 차감하여 중복 등록 방지
-      resetAccumulated(variables.goodQty, variables.badQty);
+      // 수동 등록한 불량 수량만 화면 버퍼에서 차감한다.
+      resetAccumulated(0, variables.badQty);
 
       if (variables.badQty > 0) {
         addNotification({
           type: 'HOLD',
           title: '🚨 LOT 품질 보류(HOLD) 발생',
           message: `LOT [${variables.lotID}] 불량 ${variables.badQty}EA 등록 (${variables.reasonCode || 'SCRATCH'}) - 보류 상태 전환`,
-        });
-      } else {
-        addNotification({
-          type: 'SUCCESS',
-          title: '✅ [실적 승인 완료]',
-          message: '센서 수집 실적이 등록되었습니다.',
         });
       }
     },
@@ -170,13 +164,10 @@ export function useWorkerDashboard() {
         method: 'POST',
         body: JSON.stringify(perf),
       }),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
       queryClient.invalidateQueries({ queryKey: ['lots'] });
       queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
-      if (variables.perf) {
-        resetAccumulated(variables.perf.goodQty || 0, variables.perf.badQty || 0);
-      }
       addNotification({
         type: 'SUCCESS',
         title: '🔄 [공정 이동] 성공',
@@ -226,21 +217,6 @@ export function useWorkerDashboard() {
     setSensorStatus((prev) => (prev === 'RUNNING' ? 'STOPPED' : 'RUNNING'));
   };
 
-  const handleConfirmPerformance = (toolId?: string) => {
-    if (!activeOrder || !activeLot) return;
-    if (accumulatedGood + accumulatedBad <= 0) return;
-
-    registerPerformanceMutation.mutate({
-      workOrderID: activeOrder.orderID,
-      lotID: activeLot.lotID,
-      processID: activeLot.currentProcessID,
-      inputQty: accumulatedGood + accumulatedBad,
-      goodQty: accumulatedGood,
-      badQty: accumulatedBad,
-      toolID: toolId?.trim() || undefined,
-    });
-  };
-
   const handleRegisterDefect = (badQty: number, reasonCode: string, toolId?: string) => {
     if (!activeOrder || !activeLot) return;
     registerPerformanceMutation.mutate({
@@ -271,15 +247,14 @@ export function useWorkerDashboard() {
       }
     }
 
-    const inputQty = accumulatedGood + accumulatedBad;
     moveProcessMutation.mutate({
       perf: {
         workOrderID: activeOrder.orderID,
         lotID: activeLot.lotID,
         processID: activeLot.currentProcessID,
-        inputQty: inputQty,
-        goodQty: accumulatedGood,
-        badQty: accumulatedBad,
+        inputQty: 0,
+        goodQty: 0,
+        badQty: 0,
         toolID: toolId?.trim() || undefined,
       },
       nextProcessId,
@@ -306,13 +281,12 @@ export function useWorkerDashboard() {
     setSelectedOrderId,
     handleStart,
     handleTogglePause,
-    handleConfirmPerformance,
     handleRegisterDefect,
     handleNextStage,
     handleComplete,
     isPending: {
       start: startProductionMutation.isPending,
-      confirm: registerPerformanceMutation.isPending,
+      defect: registerPerformanceMutation.isPending,
       next: moveProcessMutation.isPending,
       complete: completeProductionMutation.isPending,
     },

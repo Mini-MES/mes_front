@@ -5,7 +5,7 @@ import * as S from '@/pages/worker/WorkerDashboard.styles';
 
 // 하위 컴포넌트 & 커스텀 훅 임포트
 import WorkerOrderList from '@/components/worker/orderList/WorkerOrderList';
-import WorkerControlPanel from '@/components/worker/controlPanel/WorkerControlPanel';
+import { WorkerControlPanel } from '@/components/worker/controlPanel/WorkerControlPanel';
 import { useWorkerDashboard } from '@/pages/worker/useWorkerDashboard';
 
 const WorkerDashboard: React.FC = () => {
@@ -24,7 +24,6 @@ const WorkerDashboard: React.FC = () => {
     setSelectedOrderId,
     handleStart,
     handleTogglePause,
-    handleConfirmPerformance,
     handleRegisterDefect,
     handleNextStage,
     handleComplete,
@@ -67,7 +66,6 @@ const WorkerDashboard: React.FC = () => {
           lastPulseTime={lastPulseTime}
           onStart={handleStart}
           onTogglePause={handleTogglePause}
-          onConfirmPerformance={handleConfirmPerformance}
           onRegisterDefect={handleRegisterDefect}
           onNextStage={handleNextStage}
           onComplete={handleComplete}

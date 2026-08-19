@@ -17,13 +17,12 @@ export interface WorkerControlPanelProps {
   lastPulseTime?: string | null;
   onStart: () => void;
   onTogglePause: () => void;
-  onConfirmPerformance: (toolId?: string) => void;
   onRegisterDefect: (badQty: number, reasonCode: string, toolId?: string) => void;
   onNextStage: (toolId?: string) => void;
   onComplete: () => void;
   isPending: {
     start: boolean;
-    confirm: boolean;
+    defect: boolean;
     next: boolean;
     complete: boolean;
   };

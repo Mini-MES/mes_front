@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Play, CheckCircle, Wrench, Radio, Pause } from 'lucide-react';
 import { CardTitle } from '@/pages/worker/WorkerDashboard.styles';
 import * as S from '@/components/worker/controlPanel/WorkerControlPanel.styles';
 import WorkerStageStepper from '@/components/worker/controlPanel/WorkerStageStepper';
 import WorkerDefectForm from '@/components/worker/controlPanel/WorkerDefectForm';
 import SensorCounterDisplay from '@/components/worker/controlPanel/SensorCounterDisplay';
-import SensorVerificationForm from '@/components/worker/controlPanel/SensorVerificationForm';
 import { SENSOR_STATUS_MAP, WorkerControlPanelProps } from '@/types';
 
-const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
+export function WorkerControlPanel({
   activeOrder,
   activeLot,
   processStages,
@@ -19,12 +18,11 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
   lastPulseTime,
   onStart,
   onTogglePause,
-  onConfirmPerformance,
   onRegisterDefect,
   onNextStage,
   onComplete,
   isPending
-}) => {
+}: WorkerControlPanelProps) {
   const [toolId, setToolId] = useState<string>('TOOL-001');
 
   const getStageName = (id: number) => processStages[id - 1] || '대기';
@@ -147,30 +145,15 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
             <WorkerDefectForm 
               defectReasons={defectReasons}
               isOrderCompleted={isOrderCompleted}
-              isPendingQty={isPending?.confirm ?? false}
+              isPendingQty={isPending?.defect ?? false}
               toolId={toolId}
               onRegisterDefect={onRegisterDefect}
             />
 
-            <SensorVerificationForm 
-              accumulatedGood={accumulatedGood}
-              isOrderCompleted={isOrderCompleted}
-              isLotHold={isLotHold}
-              isPendingConfirm={isPending?.confirm ?? false}
-              onConfirmPerformance={onConfirmPerformance}
-              toolId={toolId}
-            />
-
             <S.ControlGroup style={{ marginTop: '1rem' }}>
               <S.TransitionButton 
-                onClick={() => {
-                  if (accumulatedGood > 0) {
-                    alert('미승인된 센서 집계 수량이 존재합니다. 먼저 실적 등록 승인을 완료해 주세요.');
-                    return;
-                  }
-                  onNextStage(toolId);
-                }}
-                disabled={isLastStage || isOrderCompleted || Boolean(isPending?.next) || Boolean(isPending?.confirm) || isLotHold || accumulatedGood > 0}
+                onClick={() => onNextStage(toolId)}
+                disabled={isLastStage || isOrderCompleted || Boolean(isPending?.next) || Boolean(isPending?.defect) || isLotHold}
               >
                 {isPending?.next ? '공정 이동 중...' : `다음 공정 단계로 이동 (${getStageName(currentStageID)} ➡️ ${isLastStage ? '종료' : getStageName(currentStageID + 1)})`}
               </S.TransitionButton>
@@ -178,14 +161,8 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
 
             <S.ActionFooter>
               <S.BtnActionPrimary 
-                onClick={() => {
-                  if (accumulatedGood > 0) {
-                    alert('미승인된 센서 집계 수량이 존재합니다. 먼저 실적 등록 승인을 완료해 주세요.');
-                    return;
-                  }
-                  onComplete();
-                }}
-                disabled={isOrderCompleted || !isLastStage || !isPlanCompleted || Boolean(isPending?.complete) || Boolean(isPending?.confirm) || isLotHold || accumulatedGood > 0}
+                onClick={onComplete}
+                disabled={isOrderCompleted || !isLastStage || !isPlanCompleted || Boolean(isPending?.complete) || Boolean(isPending?.defect) || isLotHold}
               >
                 <CheckCircle size={18} />
                 {isOrderCompleted ? '작업 완료됨' : '최종 공정 완료 마감'}
@@ -197,5 +174,3 @@ const WorkerControlPanel: React.FC<WorkerControlPanelProps> = ({
     </S.WorkerControlPanelWrapper>
   );
 };
-
-export default WorkerControlPanel;
