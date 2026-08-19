@@ -1,9 +1,7 @@
-import React from 'react';
 import { Activity } from 'lucide-react';
 import * as S from '@/pages/admin/Dashboard.styles';
 import { useDashboard } from '@/pages/admin/useDashboard';
 
-// 도메인별 분리된 하위 컴포넌트 임포트
 import RawMaterialStatus from '@/components/admin/material/RawMaterialStatus';
 import { WorkOrderList } from '@/components/admin/workOrder/WorkOrderList';
 import { WorkOrderForm } from '@/components/admin/workOrder/WorkOrderForm';
@@ -13,7 +11,7 @@ import { ShipmentList } from '@/components/admin/shipment/ShipmentList';
 import { AnalyticsSection } from '@/components/admin/analytics/AnalyticsSection';
 import EquipmentStatusSection from '@/components/admin/equipment/EquipmentStatusSection';
 
-const Dashboard: React.FC = () => {
+export default function Dashboard() {
   const {
     rawMaterials,
     workOrders,
@@ -22,7 +20,6 @@ const Dashboard: React.FC = () => {
     shipments,
     isShipmentsLoading,
     handleOrderSubmit,
-    handleStartOrder,
     handleCompleteOrder,
     handleDeleteOrder,
     handleShipmentSubmit,
@@ -74,7 +71,6 @@ const Dashboard: React.FC = () => {
         <WorkOrderList 
           workOrders={workOrders} 
           products={rawMaterials}
-          onStartOrder={handleStartOrder}
           onCompleteOrder={handleCompleteOrder}
           onDeleteOrder={handleDeleteOrder}
         />
@@ -111,5 +107,3 @@ const Dashboard: React.FC = () => {
     </S.DashboardContent>
   );
 };
-
-export default Dashboard;

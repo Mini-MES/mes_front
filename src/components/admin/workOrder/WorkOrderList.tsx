@@ -7,15 +7,13 @@ import * as S from '@/components/admin/workOrder/WorkOrderList.styles';
 interface WorkOrderListProps {
   workOrders: WorkOrder[];
   products?: any[];
-  onStartOrder?: (orderID: number, lotId: string) => void;
   onCompleteOrder?: (orderID: number) => void;
   onDeleteOrder?: (orderID: number) => void;
 }
 
 export const WorkOrderList: React.FC<WorkOrderListProps> = ({ 
   workOrders, 
-  products = [],
-  onStartOrder, 
+  products = [], 
   onCompleteOrder, 
   onDeleteOrder 
 }) => {
@@ -69,9 +67,6 @@ export const WorkOrderList: React.FC<WorkOrderListProps> = ({
                   <td style={{ width: '130px', textAlign: 'center' }}>
                     {order.status === 'Created' && (
                       <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'center' }}>
-                        <S.ActionButton className="start" onClick={() => onStartOrder?.(order.orderID, order.lotID || '')}>
-                          시작
-                        </S.ActionButton>
                         <S.ActionButton className="delete" onClick={() => {
                           if (confirm(`지시번호 [${order.orderID}]를 삭제하시겠습니까?`)) {
                             onDeleteOrder?.(order.orderID);
