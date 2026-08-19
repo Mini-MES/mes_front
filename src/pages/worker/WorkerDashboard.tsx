@@ -1,4 +1,3 @@
-import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { UserCheck } from 'lucide-react';
 import * as S from '@/pages/worker/WorkerDashboard.styles';
@@ -8,7 +7,7 @@ import WorkerOrderList from '@/components/worker/orderList/WorkerOrderList';
 import { WorkerControlPanel } from '@/components/worker/controlPanel/WorkerControlPanel';
 import { useWorkerDashboard } from '@/pages/worker/useWorkerDashboard';
 
-const WorkerDashboard: React.FC = () => {
+export default function WorkerDashboard() {
   const { currentUser, processStages } = useApp();
   const {
     workOrders,
@@ -75,5 +74,3 @@ const WorkerDashboard: React.FC = () => {
     </S.DashboardContent>
   );
 };
-
-export default WorkerDashboard;

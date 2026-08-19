@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customFetch } from '@/api/fetcher';
 import { useApp } from '@/context/AppContext';
-import { RawMaterial, WorkOrder, LotTracking, StartProductionVariables } from '@/context/AppContext';
+import { RawMaterial, WorkOrder, LotTracking } from '@/context/AppContext';
 import { useNotification } from '@/context/NotificationContext';
 
 export const useDashboard = () => {
@@ -63,37 +63,7 @@ export const useDashboard = () => {
     }
   });
 
-  // 3. 생산 시작 Mutation
-  const startOrderMutation = useMutation({
-    mutationFn: (variables: StartProductionVariables) => 
-      customFetch(`/Production/start/${variables.orderId}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          lotId: variables.lotId,
-          equipmentId: 'CNC01', // 생산 시작은 CNC01로 고정
-        })
-      }),
-    onSuccess: (_, orderId) => {
-      queryClient.invalidateQueries({ queryKey: ['workOrders'] });
-      queryClient.invalidateQueries({ queryKey: ['lots'] });
-      queryClient.invalidateQueries({ queryKey: ['rawMaterials'] });
-      addNotification({
-        type: 'SUCCESS',
-        title: '▶️ [생산 시작] 생산 투입 완료',
-        message: `작업지시 [ORDER-${orderId}] 생산 프로세스가 시작되었습니다.`,
-      });
-    },
-    onError: (err: any) => {
-      const msg = err.message || '원자재 재고가 부족하거나 시작할 수 없는 상태입니다.';
-      addNotification({
-        type: 'WARN',
-        title: '⚠️ [생산 지시 불가] 원자재 재고 부족 경고',
-        message: `원자재 부족으로 생산을 시작할 수 없습니다: ${msg}`,
-      });
-    }
-  });
-
-  // 4. 생산 완료 Mutation
+  // 3. 생산 완료 Mutation
   const completeOrderMutation = useMutation({
     mutationFn: (orderId: number) => 
       customFetch(`/Production/complete/${orderId}`, {
@@ -118,7 +88,7 @@ export const useDashboard = () => {
     }
   });
 
-  // 5. 생산 지시 삭제 Mutation
+  // 4. 생산 지시 삭제 Mutation
   const deleteOrderMutation = useMutation({
     mutationFn: (orderId: number) => 
       customFetch(`/Production/order/${orderId}`, {
@@ -143,7 +113,7 @@ export const useDashboard = () => {
     }
   });
 
-  // 6. 완제품 출하 Mutation
+  // 5. 완제품 출하 Mutation
   const shipProductMutation = useMutation({
     mutationFn: (shipment: { productID: string; workOrderID: number; quantity: number; destination: string }) => 
       customFetch('/Inventory/ship', {
@@ -170,7 +140,7 @@ export const useDashboard = () => {
     }
   });
 
-  // 7. 자재 신규 등록 Mutation
+  // 6. 자재 신규 등록 Mutation
   const createMaterialMutation = useMutation({
     mutationFn: (newMaterial: { productID: string; productName: string; itemType: number; stockQty: number; safetyQty: number }) => 
       customFetch('/MasterData/product', {
@@ -200,7 +170,7 @@ export const useDashboard = () => {
     }
   });
 
-  // 8. 자재 재고 입고/수정 Mutation
+  // 7. 자재 재고 입고/수정 Mutation
   const updateStockMutation = useMutation({
     mutationFn: ({ materialId, stockQty, materialName, safetyQty }: { materialId: string; stockQty: number; materialName: string; safetyQty: number }) => 
       customFetch(`/Inventory/update-stock/${materialId}`, {
@@ -228,7 +198,7 @@ export const useDashboard = () => {
     }
   });
 
-  // 9. Lot 보류 해제 Mutation
+  // 8. Lot 보류 해제 Mutation
   const unholdLotMutation = useMutation({
     mutationFn: (lotId: string) => 
       customFetch(`/Production/lot/${lotId}/unhold`, {
@@ -259,10 +229,6 @@ export const useDashboard = () => {
       startDate: new Date().toISOString(),
       dueDate: new Date(Date.now() + 86400000 * 3).toISOString()
     });
-  };
-
-  const handleStartOrder = (orderId: number, lotId: string) => {
-    startOrderMutation.mutate({ orderId, lotId });
   };
 
   const handleCompleteOrder = (orderId: number) => {
@@ -307,7 +273,6 @@ export const useDashboard = () => {
     shipments,
     isShipmentsLoading,
     handleOrderSubmit,
-    handleStartOrder,
     handleCompleteOrder,
     handleDeleteOrder,
     handleShipmentSubmit,
