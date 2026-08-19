@@ -1,6 +1,7 @@
 export const SIGNALR_EVENTS = {
   RECEIVE_SENSOR_COUNT: 'ReceiveSensorCountUpdated',
   RECEIVE_SENSOR_COUNT_LOWER: 'receiveSensorCountUpdated',
+  RECEIVE_EQUIPMENT_TELEMETRY_LIST: 'ReceiveEquipmentTelemetryList',
   LOT_UPDATED: 'LotUpdated',
   STOCK_UPDATED: 'StockUpdated',
   WORK_ORDER_UPDATED: 'WorkOrderUpdated',

@@ -63,14 +63,25 @@ export function useWorkerDashboard() {
     }
   }, [activeOrder, isConnected]);
 
-  // 💡 선택된 activeLot이 변경될 때 백엔드 설비의 CurrentLotID를 해당 LotID(BNOA56 등)로 즉시 바인딩
+  // 공정 ID에 대응하는 설비 ID 매핑 (OPC UA 실물 센서는 CNC01에 연결됨)
+  const getTargetEquipmentId = (processId?: number): string => {
+    switch (processId) {
+      case 2: return 'CNC01'; // CNC 선삭 #1 (OPC UA 센서 연동)
+      case 3: return 'CNC03'; // CNC 밀링 #1
+      case 5: return 'CNC05'; // 연삭기
+      default: return 'CNC01';
+    }
+  };
+
+  // 💡 선택된 activeLot이 변경될 때 백엔드 설비의 CurrentLotID를 해당 LotID로 동기화
   useEffect(() => {
     if (activeLot?.lotID && isConnected && activeOrder?.status === 'InProgress') {
-      console.log('🔗 [useWorkerDashboard] 백엔드 설비에 CurrentLotID 동기화:', activeLot.lotID);
+      const eqId = getTargetEquipmentId(activeLot.currentProcessID);
+      console.log(`🔗 [useWorkerDashboard] 공정 [${activeLot.currentProcessID}] ➔ 설비 [${eqId}]에 LotID [${activeLot.lotID}] 동기화`);
       customFetch('/Equipment/status', {
         method: 'POST',
         body: JSON.stringify({
-          equipmentID: 'EQ-CNC-01',
+          equipmentID: eqId,
           newStatus: 'RUNNING',
           currentLotID: activeLot.lotID,
         }),
@@ -78,7 +89,7 @@ export function useWorkerDashboard() {
         .then(() => queryClient.invalidateQueries({ queryKey: ['equipments'] }))
         .catch((err) => console.warn('Equipment lot sync error:', err));
     }
-  }, [activeLot?.lotID, activeOrder?.status, isConnected, queryClient]);
+  }, [activeLot?.lotID, activeLot?.currentProcessID, activeOrder?.status, isConnected, queryClient]);
 
   // 2. 생산 시작 Mutation
   const startProductionMutation = useMutation({
@@ -88,13 +99,15 @@ export function useWorkerDashboard() {
       // 설비 상태를 RUNNING으로 전환하고 현재 LotID를 백엔드 설비에 동기화
       const targetLot = lotTracking.find((l) => l.orderID === orderId);
       const lotId = targetLot?.lotID || activeLot?.lotID;
+      const processId = targetLot?.currentProcessID || activeLot?.currentProcessID;
+      const eqId = getTargetEquipmentId(processId);
       
       if (lotId) {
         try {
           await customFetch('/Equipment/status', {
             method: 'POST',
             body: JSON.stringify({
-              equipmentID: 'EQ-CNC-01',
+              equipmentID: eqId,
               newStatus: 'RUNNING',
               currentLotID: lotId,
             }),

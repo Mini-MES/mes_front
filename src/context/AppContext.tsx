@@ -23,6 +23,11 @@ export interface WorkOrder {
   lotID?: string;
 }
 
+export interface StartProductionVariables {
+  orderId: number;
+  lotId: string;
+}
+
 export interface LotTracking {
   lotID: string;
   orderID: number;

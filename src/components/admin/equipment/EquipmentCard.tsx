@@ -3,6 +3,7 @@ import { AlertCircle } from 'lucide-react';
 import { EquipmentItem, SensorStatus, SENSOR_STATUS_MAP } from '@/types';
 import * as S from '@/components/admin/equipment/EquipmentStatusSection.styles';
 import { formatTime } from '@/utils/formatTime';
+import { useEquipmentTelemetry } from '@/hooks/useEquipmentTelemetry';
 
 interface EquipmentCardProps {
   equipment: EquipmentItem;
@@ -17,6 +18,8 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
   onOpenDowntimeModal,
   isPending,
 }) => {
+  const { telemetryMap } = useEquipmentTelemetry();
+  const telemetry = telemetryMap[equipment.equipmentID];
   const [runningSec, setRunningSec] = useState(equipment.totalRunningSeconds);
   const [downtimeSec, setDowntimeSec] = useState(equipment.totalDowntimeSeconds);
 
@@ -62,6 +65,17 @@ export const EquipmentCard: React.FC<EquipmentCardProps> = ({
           {statusInfo.label}
         </S.StatusBadge>
       </S.CardHeader>
+
+      {telemetry && (
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.82rem', fontWeight: 600 }}>
+          <span style={{ backgroundColor: 'rgba(255,152,0,0.12)', color: '#ff9800', padding: '0.25rem 0.5rem', borderRadius: '6px', border: '1px solid rgba(255,152,0,0.25)' }}>
+            🌡️ 실시간 온도: {telemetry.temperature}°C
+          </span>
+          <span style={{ backgroundColor: 'rgba(33,150,243,0.12)', color: '#2196f3', padding: '0.25rem 0.5rem', borderRadius: '6px', border: '1px solid rgba(33,150,243,0.25)' }}>
+            📦 누적 생산량: {telemetry.totalCount} EA
+          </span>
+        </div>
+      )}
 
       <S.TimerSection>
         <S.TimerRow>

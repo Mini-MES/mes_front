@@ -10,7 +10,7 @@ interface WorkOrderFormProps {
   products: any[];
 }
 
-export const WorkOrderForm: React.FC<WorkOrderFormProps> = ({ onSubmit, isPending, products }) => {
+export function WorkOrderForm({ onSubmit, isPending, products }: WorkOrderFormProps) {
   const producibleProducts = useMemo(() => {
     return products.filter(
       item => item.itemType === 'FinishedProduct' || item.itemType === 'SemiFinishedProduct' || item.itemType === 0 || item.itemType === 1

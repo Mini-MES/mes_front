@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customFetch } from '@/api/fetcher';
 import { useApp } from '@/context/AppContext';
-import { RawMaterial, WorkOrder, LotTracking } from '@/context/AppContext';
+import { RawMaterial, WorkOrder, LotTracking, StartProductionVariables } from '@/context/AppContext';
 import { useNotification } from '@/context/NotificationContext';
 
 export const useDashboard = () => {
@@ -65,9 +65,13 @@ export const useDashboard = () => {
 
   // 3. 생산 시작 Mutation
   const startOrderMutation = useMutation({
-    mutationFn: (orderId: number) => 
-      customFetch(`/Production/start/${orderId}`, {
+    mutationFn: (variables: StartProductionVariables) => 
+      customFetch(`/Production/start/${variables.orderId}`, {
         method: 'POST',
+        body: JSON.stringify({
+          lotId: variables.lotId,
+          equipmentId: 'CNC01', // 생산 시작은 CNC01로 고정
+        })
       }),
     onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['workOrders'] });
@@ -257,8 +261,8 @@ export const useDashboard = () => {
     });
   };
 
-  const handleStartOrder = (orderId: number) => {
-    startOrderMutation.mutate(orderId);
+  const handleStartOrder = (orderId: number, lotId: string) => {
+    startOrderMutation.mutate({ orderId, lotId });
   };
 
   const handleCompleteOrder = (orderId: number) => {

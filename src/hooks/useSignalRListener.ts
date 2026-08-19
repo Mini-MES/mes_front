@@ -112,6 +112,14 @@ export const useSignalRListener = () => {
       queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
     };
 
+    const handleOeeDailyUpdated = () => {
+      queryClient.invalidateQueries({ queryKey: ['dailyEquipmentProductions'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-production'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['oeeStats'] });
+      queryClient.invalidateQueries({ queryKey: ['equipments'] });
+    };
+
     connection.on('LotUpdated', handleLotUpdated);
     connection.on('lotUpdated', handleLotUpdated);
 
@@ -133,6 +141,14 @@ export const useSignalRListener = () => {
     connection.on('receiveSensorCountUpdated', handleSensorCountUpdated);
     connection.on('SensorCountUpdated', handleSensorCountUpdated);
     connection.on('sensorCountUpdated', handleSensorCountUpdated);
+
+    connection.on('ReceiveEquipmentTelemetryList', handleSensorCountUpdated);
+    connection.on('receiveEquipmentTelemetryList', handleSensorCountUpdated);
+
+    connection.on('DailyProductionUpdated', handleOeeDailyUpdated);
+    connection.on('dailyProductionUpdated', handleOeeDailyUpdated);
+    connection.on('OeeUpdated', handleOeeDailyUpdated);
+    connection.on('oeeUpdated', handleOeeDailyUpdated);
 
     return () => {
       connection.off('LotUpdated', handleLotUpdated);
@@ -156,6 +172,14 @@ export const useSignalRListener = () => {
       connection.off('receiveSensorCountUpdated', handleSensorCountUpdated);
       connection.off('SensorCountUpdated', handleSensorCountUpdated);
       connection.off('sensorCountUpdated', handleSensorCountUpdated);
+
+      connection.off('ReceiveEquipmentTelemetryList', handleSensorCountUpdated);
+      connection.off('receiveEquipmentTelemetryList', handleSensorCountUpdated);
+
+      connection.off('DailyProductionUpdated', handleOeeDailyUpdated);
+      connection.off('dailyProductionUpdated', handleOeeDailyUpdated);
+      connection.off('OeeUpdated', handleOeeDailyUpdated);
+      connection.off('oeeUpdated', handleOeeDailyUpdated);
     };
   }, [connection, isConnected, queryClient, addNotification]);
 };
