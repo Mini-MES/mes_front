@@ -25,7 +25,7 @@
 
 - 기대 결과: 작업지시가 목록에 표시되고 대상 LOT이 생성된다.
 - 확인 항목: 제품, 목표 수량, 시작일, 납기일, 작업지시 상태 및 LOT의 첫 공정.
-- 시연 자료: [작업지시 생성](../src/docs/gif/CreateWorkOrder.gif)
+- 시연 자료: ![작업지시 생성](../src/docs/gif/CreateWorkOrder.gif)
 
 ### AC-02. 자재 재고 및 부족 알림
 
@@ -33,7 +33,7 @@
 
 - 기대 결과: 변경한 재고가 자재 현황에 반영된다.
 - 확인 항목: 재고 수량, 안전재고 기준, 부족 상태 알림, 생산 시작 전 원자재 부족 차단.
-- 시연 자료: [자재 부족](../src/docs/gif/low_stock_alarm.gif)
+- 시연 자료: ![자재 부족](../src/docs/gif/low_stock_alarm.gif)
 
 ### AC-03. 설비 선택 생산 시작과 실시간 수집
 
@@ -41,7 +41,7 @@
 
 - 기대 결과: 선택한 LOT이 설비에 연결되고 작업지시·LOT·설비 상태가 생산 중으로 갱신된다.
 - 확인 항목: 선택 설비만 해당 LOT을 점유하는지, Counter 증가량이 양품/불량 수량에 반영되는지,
-- 시연 자료: [생산 시작](../src/docs/gif/StartProduction.gif)
+- 시연 자료: ![생산 시작](../src/docs/gif/StartProduction.gif)
 
 ### AC-04. 다공정 이동
 
@@ -49,7 +49,7 @@
 
 - 기대 결과: LOT의 현재 공정이 다음 순서로 변경되며 기존 실적이 중복 등록되지 않는다.
 - 확인 항목: 공정 순서, LOT 이력, 설비 변경, 0수량 공정 이동 시 실적 중복 여부.
-- 시연 자료: [다공정 생산](../src/docs/gif/NextProcess.gif)
+- 시연 자료: ![다공정 생산](../src/docs/gif/NextProcess.gif)
 
 ### AC-06. 비가동 기록과 사유 등록
 
@@ -57,7 +57,7 @@
 
 - 기대 결과: 열린 비가동 이력에 사유가 연결되고 일일 설비 실적/OEE 관련 화면이 갱신된다.
 - 확인 항목: 설비, 시작·종료 시각, 비가동 시간, 사유 코드, 작업자 메모.
-- 시연 자료: [비가동 발생](../src/docs/gif/DownTime.gif), [비가동 사유 등록](../src/docs/gif/DowntimeReason.gif)
+- 시연 자료: ![비가동 발생](../src/docs/gif/DownTime.gif), ![비가동 사유 등록](../src/docs/gif/DowntimeReason.gif)
 
 ### AC-07. 재가동
 
@@ -65,7 +65,7 @@
 
 - 기대 결과: 기존의 비가동 사유 입력 버튼이 사라지고 다시 생산 센서 신호가 들어오며 실적이 등록
 - 확인 항목: 설비, Counter 증가량이 양품/불량 수량에 반영되는지,
-- 시연 자료: [재가동](../src/docs/gif/ReWork.gif)
+- 시연 자료: ![재가동](../src/docs/gif/ReWork.gif)
 
 ### AC-07. 생산 완료
 
@@ -73,14 +73,14 @@
 
 - 기대 결과: 작업지시와 LOT이 완료 상태로 변경되고 설비의 LOT 연결이 해제된다.
 - 확인 항목: 최종 양품 수량, 작업지시/LOT 완료 상태, 완제품 재고 반영, 마감 후 추가 실적 차단.
-- 시연 자료: [작업지시 완료](../src/docs/gif/CompleteOrder.gif)
+- 시연 자료: ![작업지시 완료](../src/docs/gif/CompleteOrder.gif)
 
 ### AC-08. LOT 추적 및 OEE 분석
 
 관리자가 LOT의 공정 진행 이력과 일일 설비 OEE 분석을 확인한다.
 
 - 기대 결과: LOT별 현재 공정·상태·이력이 추적되고, 일일 OEE가 설비별 생산 및 비가동 데이터와 함께 표시된다.
-- 시연 자료: [LOT 추적](../src/docs/image/Tracing.png), [일일 OEE](../src/docs/image/DailyOEE.png)
+- 시연 자료: ![LOT 추적](../src/docs/image/Tracing.png), ![일일 OEE](../src/docs/image/DailyOEE.png)
 
 ### AC-09. 완제품 출하
 
@@ -88,7 +88,7 @@
 
 - 기대 결과: 완제품 재고가 감소하고 출하 이력이 생성된다.
 - 확인 항목: 출하 수량, 납품처, 출하 이력, 재고 초과 출하 차단.
-- 시연 자료: [출하 처리](../src/docs/gif/Shipment.gif)
+- 시연 자료: ![출하 처리](../src/docs/gif/Shipment.gif)
 
 ## 4. 실시간 동기화 검수
 
