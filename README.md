@@ -7,6 +7,7 @@ ASP.NET Core 기반 `mes_server`와 연동하는 Mini-MES 프론트엔드입니�
 | 문서 | 내용 |
 | --- | --- |
 | [프론트엔드 아키텍처](./docs/FRONTEND_ARCHITECTURE.md) | 실제 디렉터리 구조, REST/SignalR 데이터 흐름, 상태 관리 |
+| [솔루션 검수 문서](./docs/mes_solution_acceptance.md) | 기능별 검수 시나리오, 통과 기준 및 시연 자료 |
 | [통합 테스트 가이드](./mes_solution_acceptance_test_guide.md) | WorkOrder 생성부터 OPC 실적·완료·출하까지의 검증 절차 |
 
 ## 기술 스택
