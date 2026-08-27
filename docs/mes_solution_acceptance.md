@@ -73,7 +73,9 @@
 
 - 기대 결과: 작업지시와 LOT이 완료 상태로 변경되고 설비의 LOT 연결이 해제된다.
 - 확인 항목: 최종 양품 수량, 작업지시/LOT 완료 상태, 완제품 재고 반영, 마감 후 추가 실적 차단.
-- 시연 자료: ![작업지시 완료](../src/docs/gif/CompleteOrder.gif)
+- 시연 자료:
+
+  ![작업지시 완료 화면](../src/docs/image/CompleteOrder.png)
 
 ### AC-08. LOT 추적 및 OEE 분석
 
